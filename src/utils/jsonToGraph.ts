@@ -81,10 +81,9 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
           id: `${currentId}-${key}-${itemId}`,
           source: currentId,
           target: itemId,
-          sourceHandle: `property-${key}`, // Connect from the property
-          type: 'smoothstep',
-          label: `[${index}]`,
-          style: { stroke: 'var(--edge-stroke)' }
+          sourceHandle: `property-${key}`,
+          type: 'default',
+          style: { stroke: 'var(--edge-stroke)', markerEnd: undefined }
         });
       });
     } else if (valueType === 'object' && value !== null) {
@@ -109,9 +108,9 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
         id: `${currentId}-${key}-${childId}`,
         source: currentId,
         target: childId,
-        sourceHandle: `property-${key}`, // Connect from the property
-        type: 'smoothstep',
-        style: { stroke: 'var(--edge-stroke)' }
+        sourceHandle: `property-${key}`,
+        type: 'default',
+        style: { stroke: 'var(--edge-stroke)', markerEnd: undefined }
       });
     } else {
       // Add primitive property to parent

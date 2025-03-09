@@ -23,6 +23,7 @@ const NodeContainer = styled.div`
   width: fit-content;
   min-width: 200px;
   max-width: 400px;
+  position: relative;
 `;
 
 const NodeHeader = styled.div`
@@ -66,8 +67,6 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
   font-family: 'JetBrains Mono', monospace;
   min-height: 22px;
   position: relative;
-  padding-right: ${props => props.hasChild ? '20px' : '0'};
-  padding-left: ${props => props.hasChild ? '20px' : '0'};
 `;
 
 const PropertyKey = styled.span`
@@ -90,17 +89,13 @@ const PropertyValue = styled.span`
 `;
 
 const PropertySourceHandle = styled(Handle)`
-  right: -10px !important;
+  right: -1px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
   background: var(--node-border) !important;
-  width: 8px !important;
+  width: 2px !important;
   height: 8px !important;
-`;
-
-const PropertyTargetHandle = styled(Handle)`
-  left: -10px !important;
-  background: var(--node-border) !important;
-  width: 8px !important;
-  height: 8px !important;
+  border-radius: 0 !important;
 `;
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
@@ -112,7 +107,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
         <Handle
           type="target"
           position={Position.Left}
-          style={{ background: 'var(--node-border)' }}
+          style={{ opacity: 0 }}
         />
       )}
       

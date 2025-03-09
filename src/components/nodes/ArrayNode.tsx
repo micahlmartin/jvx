@@ -66,7 +66,6 @@ const ItemRow = styled.div`
   font-size: 13px;
   min-height: 22px;
   position: relative;
-  padding-left: 20px;
 `;
 
 const ItemIndex = styled.span`
