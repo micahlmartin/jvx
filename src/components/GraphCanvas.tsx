@@ -226,10 +226,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
         stroke: 'var(--node-border)',
         strokeWidth: 2
       };
-      edge.markerEnd = {
-        type: MarkerType.Arrow,
-        color: 'var(--node-border)'
-      };
     }
   });
 
@@ -330,10 +326,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     style: {
       stroke: 'var(--node-border)',
       strokeWidth: 2
-    },
-    markerEnd: {
-      type: MarkerType.Arrow,
-      color: 'var(--node-border)'
     }
   }), []);
 
