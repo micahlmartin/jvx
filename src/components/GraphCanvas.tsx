@@ -11,6 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
+import { nodeTypes } from './nodes';
 
 const GraphContainer = styled.div`
   width: 100vw;
@@ -18,7 +19,23 @@ const GraphContainer = styled.div`
   background-color: var(--background);
 `;
 
-const initialNodes: Node[] = [];
+const initialNodes: Node[] = [
+  {
+    id: '1',
+    type: 'object',
+    position: { x: 250, y: 100 },
+    data: {
+      label: 'Sample Object',
+      type: 'object',
+      properties: {
+        name: 'string',
+        age: 'number',
+        active: 'boolean'
+      }
+    }
+  }
+];
+
 const initialEdges: Edge[] = [];
 
 export function GraphCanvas() {
@@ -37,6 +54,7 @@ export function GraphCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        nodeTypes={nodeTypes}
         fitView
       >
         <Background 

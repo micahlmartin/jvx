@@ -27,11 +27,11 @@
   - [x] Implement basic React Flow setup
   - [x] Add background grid
 
-- [ ] Node components development
-  - [ ] Create base CustomNode component
-  - [ ] Implement ObjectNode variant
-  - [ ] Implement ArrayNode variant
-  - [ ] Implement ValueNode variant
+- [x] Node components development
+  - [x] Create base CustomNode component
+  - [x] Implement ObjectNode variant
+  - [x] Implement ArrayNode variant
+  - [x] Implement ValueNode variant
 
 - [ ] Edge components development
   - [ ] Create CustomEdge component
