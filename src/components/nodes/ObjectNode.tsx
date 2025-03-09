@@ -19,11 +19,13 @@ const NodeContainer = styled.div`
   backdrop-filter: blur(12px);
   border: 1px solid var(--node-border);
   border-radius: 8px;
-  min-width: 280px;
+  width: fit-content;
+  min-width: 200px;
+  max-width: 400px;
 `;
 
 const NodeHeader = styled.div`
-  padding: 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--node-border);
   display: flex;
   align-items: center;
@@ -36,40 +38,51 @@ const NodeType = styled.span`
   background: rgba(255, 255, 255, 0.1);
   padding: 2px 6px;
   border-radius: 4px;
+  flex-shrink: 0;
 `;
 
 const NodeLabel = styled.span`
   color: var(--text-primary);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const PropertyList = styled.div`
-  padding: 12px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const PropertyRow = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13px;
   font-family: 'JetBrains Mono', monospace;
+  min-height: 22px;
 `;
 
 const PropertyKey = styled.span`
   color: var(--text-property);
+  white-space: nowrap;
 `;
 
 const PropertyType = styled.span`
   color: var(--text-value);
   opacity: 0.5;
-  font-size: 12px;
+  font-size: 11px;
+  white-space: nowrap;
 `;
 
 const PropertyValue = styled.span`
   color: var(--text-value);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {

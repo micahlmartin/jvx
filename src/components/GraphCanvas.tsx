@@ -12,10 +12,9 @@ import ReactFlow, {
   MarkerType,
   DefaultEdgeOptions
 } from 'reactflow';
-import dagre from '@dagrejs/dagre';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
-import { ObjectNode } from './nodes';
+import { ObjectNode, ObjectNodeData } from './nodes';
 import ArrayNode from './nodes/ArrayNode';
 import ValueNode from './nodes/ValueNode';
 import { jsonToGraph } from '@/utils/jsonToGraph';
@@ -32,31 +31,146 @@ const nodeTypes = {
   value: ValueNode,
 } as const;
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+interface NodeWithDepth extends Node {
+  depth?: number;
+}
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
-  const isHorizontal = direction === 'LR';
-  dagreGraph.setGraph({ rankdir: direction });
+const COLUMN_GAP = 80;    // Fixed gap between columns
+const VERTICAL_SPACING = 40;
+const COLUMN_PADDING = 50;
+const TOP_PADDING = 40;
 
+const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> => {
+  const depths = new Map<string, number>();
+  const parentMap = new Map<string, string>();
+  
+  // Build parent map
+  edges.forEach(edge => {
+    parentMap.set(edge.target, edge.source);
+  });
+  
+  // Find root nodes (nodes with no parents)
+  const rootNodes = nodes.filter(node => !parentMap.has(node.id));
+  
+  // Recursive function to set depths
+  const setDepth = (nodeId: string, depth: number) => {
+    depths.set(nodeId, depth);
+    
+    // Find children and set their depths
+    edges
+      .filter(edge => edge.source === nodeId)
+      .forEach(edge => {
+        setDepth(edge.target, depth + 1);
+      });
+  };
+  
+  // Start from root nodes
+  rootNodes.forEach(node => setDepth(node.id, 0));
+  
+  return depths;
+};
+
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  // Calculate node dimensions first
+  const nodeWidths = new Map<string, number>();
+  const nodeHeights = new Map<string, number>();
+  
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: 320, height: 120 });
+    const data = node.data as ObjectNodeData;
+    const contentHeight = 40 + (data.properties?.length || 0) * 24 + 20;
+    const maxPropertyLength = data.properties?.reduce((max: number, prop: { key: string; value: any }) => {
+      const keyLength = prop.key.length;
+      const valueLength = String(prop.value).length;
+      return Math.max(max, keyLength + valueLength);
+    }, 0) || 0;
+    
+    const contentWidth = Math.max(200, Math.min(400, maxPropertyLength * 8 + 40));
+    nodeWidths.set(node.id, contentWidth);
+    nodeHeights.set(node.id, contentHeight);
   });
 
+  // Calculate depths for each node
+  const depths = calculateNodeDepths(nodes, edges);
+  
+  // Group nodes by depth
+  const nodesByDepth = new Map<number, Node[]>();
+  nodes.forEach(node => {
+    const depth = depths.get(node.id) || 0;
+    if (!nodesByDepth.has(depth)) {
+      nodesByDepth.set(depth, []);
+    }
+    nodesByDepth.get(depth)?.push(node);
+  });
+
+  // Calculate maximum width for each column to ensure proper spacing
+  const columnMaxWidths = new Map<number, number>();
+  nodesByDepth.forEach((depthNodes, depth) => {
+    const maxWidth = Math.max(...depthNodes.map(node => nodeWidths.get(node.id) || 0));
+    columnMaxWidths.set(depth, maxWidth);
+  });
+  
+  // Position nodes in a grid
+  nodesByDepth.forEach((depthNodes, depth) => {
+    // Calculate x position based on previous columns' widths
+    let xPosition = COLUMN_PADDING;
+    for (let i = 0; i < depth; i++) {
+      const columnWidth = columnMaxWidths.get(i) || 0;
+      xPosition += columnWidth + COLUMN_GAP; // Add fixed gap between columns
+    }
+
+    // Sort nodes within each depth by their connections
+    depthNodes.sort((a, b) => {
+      const aParents = edges.filter(e => e.target === a.id).map(e => e.source);
+      const bParents = edges.filter(e => e.target === b.id).map(e => e.source);
+      
+      if (aParents.length && bParents.length) {
+        const aParentY = nodes.find(n => n.id === aParents[0])?.position?.y || 0;
+        const bParentY = nodes.find(n => n.id === bParents[0])?.position?.y || 0;
+        return aParentY - bParentY;
+      }
+      return 0;
+    });
+    
+    // Position nodes vertically within their column
+    let currentY = TOP_PADDING;
+    depthNodes.forEach((node) => {
+      const height = nodeHeights.get(node.id) || 0;
+      node.position = {
+        x: xPosition,
+        y: currentY
+      };
+      node.targetPosition = Position.Left;
+      node.sourcePosition = Position.Right;
+      node.style = {
+        width: nodeWidths.get(node.id),
+        height: height
+      };
+      currentY += height + VERTICAL_SPACING;
+    });
+  });
+
+  // Update edges with orthogonal routing
   edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-    node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-    node.position = {
-      x: nodeWithPosition.x - 160,
-      y: nodeWithPosition.y - 60
-    };
+    const sourceNode = nodes.find(n => n.id === edge.source);
+    const targetNode = nodes.find(n => n.id === edge.target);
+    
+    if (sourceNode && targetNode) {
+      const sourceX = sourceNode.position.x + (nodeWidths.get(sourceNode.id) || 0);
+      const targetX = targetNode.position.x;
+      const sourceY = sourceNode.position.y + (nodeHeights.get(sourceNode.id) || 0) / 2;
+      const targetY = targetNode.position.y + (nodeHeights.get(targetNode.id) || 0) / 2;
+      
+      edge.type = 'smoothstep';
+      edge.animated = false;
+      edge.style = {
+        stroke: 'var(--node-border)',
+        strokeWidth: 2
+      };
+      edge.markerEnd = {
+        type: MarkerType.Arrow,
+        color: 'var(--node-border)'
+      };
+    }
   });
 
   return { nodes, edges };
@@ -152,6 +266,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
 
   const defaultEdgeOptions: DefaultEdgeOptions = useMemo(() => ({
     type: 'smoothstep',
+    animated: false,
     style: {
       stroke: 'var(--node-border)',
       strokeWidth: 2
@@ -173,13 +288,18 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+        fitViewOptions={{ 
+          padding: 0.2,
+          minZoom: 0.5,
+          maxZoom: 1.5
+        }}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
-        minZoom={0.1}
+        minZoom={0.4}
         maxZoom={1.5}
+        preventScrolling
       >
         <Background 
           color="var(--grid)"
