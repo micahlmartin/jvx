@@ -92,6 +92,12 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   // Calculate depths for each node
   const depths = calculateNodeDepths(nodes, edges);
   
+  // Build parent-child relationships
+  const parentMap = new Map<string, string>();
+  edges.forEach(edge => {
+    parentMap.set(edge.target, edge.source);
+  });
+
   // Group nodes by depth
   const nodesByDepth = new Map<number, Node[]>();
   nodes.forEach(node => {
@@ -102,42 +108,95 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     nodesByDepth.get(depth)?.push(node);
   });
 
+  // Sort nodes within each depth based on their parent's position
+  nodesByDepth.forEach((depthNodes, depth) => {
+    if (depth > 0) {
+      depthNodes.sort((a, b) => {
+        const aParent = parentMap.get(a.id);
+        const bParent = parentMap.get(b.id);
+        
+        if (aParent && bParent) {
+          const aParentNode = nodes.find(n => n.id === aParent);
+          const bParentNode = nodes.find(n => n.id === bParent);
+          
+          if (aParentNode && bParentNode) {
+            return (aParentNode.position?.y || 0) - (bParentNode.position?.y || 0);
+          }
+        }
+        return 0;
+      });
+    }
+  });
+
   // Calculate maximum width for each column to ensure proper spacing
   const columnMaxWidths = new Map<number, number>();
   nodesByDepth.forEach((depthNodes, depth) => {
     const maxWidth = Math.max(...depthNodes.map(node => nodeWidths.get(node.id) || 0));
     columnMaxWidths.set(depth, maxWidth);
   });
-  
+
   // Position nodes in a grid
+  let totalHeight = 0;
+  nodesByDepth.forEach((depthNodes) => {
+    totalHeight = Math.max(totalHeight, 
+      depthNodes.reduce((sum, node) => 
+        sum + (nodeHeights.get(node.id) || 0) + VERTICAL_SPACING, 0
+      )
+    );
+  });
+
   nodesByDepth.forEach((depthNodes, depth) => {
     // Calculate x position based on previous columns' widths
     let xPosition = COLUMN_PADDING;
     for (let i = 0; i < depth; i++) {
       const columnWidth = columnMaxWidths.get(i) || 0;
-      xPosition += columnWidth + COLUMN_GAP; // Add fixed gap between columns
+      xPosition += columnWidth + COLUMN_GAP;
     }
 
-    // Sort nodes within each depth by their connections
-    depthNodes.sort((a, b) => {
-      const aParents = edges.filter(e => e.target === a.id).map(e => e.source);
-      const bParents = edges.filter(e => e.target === b.id).map(e => e.source);
-      
-      if (aParents.length && bParents.length) {
-        const aParentY = nodes.find(n => n.id === aParents[0])?.position?.y || 0;
-        const bParentY = nodes.find(n => n.id === bParents[0])?.position?.y || 0;
-        return aParentY - bParentY;
-      }
-      return 0;
-    });
-    
-    // Position nodes vertically within their column
+    // Position nodes vertically
     let currentY = TOP_PADDING;
+    
+    // If this is the root column (depth 0), center it vertically
+    if (depth === 0 && depthNodes.length === 1) {
+      const rootHeight = nodeHeights.get(depthNodes[0].id) || 0;
+      currentY = (totalHeight - rootHeight) / 2;
+    }
+
+    // Track used vertical positions to prevent overlapping
+    const usedPositions = new Set<number>();
+
     depthNodes.forEach((node) => {
       const height = nodeHeights.get(node.id) || 0;
+      let targetY = currentY;
+      
+      // If node has a parent, try to align near parent's position
+      const parentId = parentMap.get(node.id);
+      if (parentId && depth > 0) {
+        const parentNode = nodes.find(n => n.id === parentId);
+        if (parentNode && parentNode.position) {
+          // Start from parent's position
+          targetY = parentNode.position.y;
+          
+          // Find next available position that doesn't overlap
+          while (usedPositions.has(targetY)) {
+            targetY += VERTICAL_SPACING;
+          }
+        }
+      }
+
+      // Ensure we don't overlap with any existing nodes
+      while (usedPositions.has(targetY)) {
+        targetY += VERTICAL_SPACING;
+      }
+
+      // Mark this position and the space needed for this node as used
+      for (let y = targetY; y < targetY + height + VERTICAL_SPACING; y++) {
+        usedPositions.add(y);
+      }
+
       node.position = {
         x: xPosition,
-        y: currentY
+        y: targetY
       };
       node.targetPosition = Position.Left;
       node.sourcePosition = Position.Right;
@@ -145,7 +204,8 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
         width: nodeWidths.get(node.id),
         height: height
       };
-      currentY += height + VERTICAL_SPACING;
+      
+      currentY = targetY + height + VERTICAL_SPACING;
     });
   });
 
