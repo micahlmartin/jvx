@@ -1,105 +1,82 @@
-import { Node, Edge } from 'reactflow';
+import { Edge, Node } from 'reactflow';
+import { ObjectNodeData } from '@/components/nodes/ObjectNode';
+
+interface NodeProperty {
+  key: string;
+  type: string;
+  value: any;
+}
 
 interface GraphData {
-  nodes: Node[];
+  nodes: Node<ObjectNodeData>[];
   edges: Edge[];
 }
 
-let nodeId = 0;
-let edgeId = 0;
-
-function getNodeId() {
-  return `node_${nodeId++}`;
+function getValueType(value: any): string {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) return 'array';
+  return typeof value;
 }
 
-function getEdgeId() {
-  return `edge_${edgeId++}`;
-}
-
-function createNode(label: string, type: 'object' | 'array' | 'value', data: any, x: number, y: number): Node {
+function createNode(id: string, label: string, properties: NodeProperty[]): Node<ObjectNodeData> {
   return {
-    id: getNodeId(),
-    type,
-    position: { x, y },
+    id,
+    type: 'object',
+    position: { x: 0, y: 0 },
     data: {
       label,
-      type,
-      ...(type === 'object' && { properties: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, typeof v])) }),
-      ...(type === 'array' && { items: data }),
-      ...(type === 'value' && { value: data })
+      type: 'object',
+      properties
     }
   };
 }
 
-function processValue(parentId: string, key: string, value: any, level: number, position: number, totalPositions: number): GraphData {
-  const x = position * 300 - (totalPositions - 1) * 150;
-  const y = level * 150;
-  
-  if (value === null || value === undefined) {
-    return {
-      nodes: [],
-      edges: []
-    };
-  }
+function processObject(obj: any, parentId: string | null = null): GraphData {
+  const nodes: Node<ObjectNodeData>[] = [];
+  const edges: Edge[] = [];
+  let currentId = parentId || 'root';
 
-  if (typeof value === 'object' && !Array.isArray(value)) {
-    const node = createNode(key, 'object', value, x, y);
-    const childResults = Object.entries(value).map(([childKey, childValue], index, arr) => 
-      processValue(node.id, childKey, childValue, level + 1, index, arr.length)
-    );
+  // Extract properties that aren't objects
+  const properties: NodeProperty[] = [];
+  const childObjects: Record<string, any> = {};
 
-    return {
-      nodes: [node, ...childResults.flatMap(r => r.nodes)],
-      edges: [
-        ...childResults.flatMap(r => r.edges),
-        ...childResults.map(r => r.nodes[0]).filter(Boolean).map(childNode => ({
-          id: getEdgeId(),
-          source: node.id,
-          target: childNode.id,
-          label: childNode.data.label
-        }))
-      ]
-    };
-  }
+  Object.entries(obj).forEach(([key, value]) => {
+    const valueType = getValueType(value);
+    
+    if (valueType === 'object' && value !== null) {
+      childObjects[key] = value;
+    } else {
+      properties.push({
+        key,
+        type: valueType,
+        value: valueType === 'array' ? JSON.stringify(value) : value
+      });
+    }
+  });
 
-  if (Array.isArray(value)) {
-    const node = createNode(key, 'array', value, x, y);
-    const itemResults = value.map((item, index) => 
-      processValue(node.id, `[${index}]`, item, level + 1, index, value.length)
-    );
+  // Create node for current object with its properties
+  nodes.push(createNode(currentId, currentId === 'root' ? 'Root' : currentId, properties));
 
-    return {
-      nodes: [node, ...itemResults.flatMap(r => r.nodes)],
-      edges: [
-        ...itemResults.flatMap(r => r.edges),
-        ...itemResults.map(r => r.nodes[0]).filter(Boolean).map(childNode => ({
-          id: getEdgeId(),
-          source: node.id,
-          target: childNode.id,
-          label: childNode.data.label
-        }))
-      ]
-    };
-  }
+  // Process child objects
+  Object.entries(childObjects).forEach(([key, value], index) => {
+    const childId = `${currentId}-${key}`;
+    const { nodes: childNodes, edges: childEdges } = processObject(value, childId);
+    
+    nodes.push(...childNodes);
+    edges.push(...childEdges);
+    
+    // Connect parent to child
+    edges.push({
+      id: `${currentId}-${childId}`,
+      source: currentId,
+      target: childId,
+      type: 'smoothstep'
+    });
+  });
 
-  const node = createNode(key, 'value', value, x, y);
-  return {
-    nodes: [node],
-    edges: []
-  };
+  return { nodes, edges };
 }
 
 export function jsonToGraph(json: any): GraphData {
-  nodeId = 0;
-  edgeId = 0;
-  
-  const rootKey = 'JSON';
-  const result = processValue('root', rootKey, json, 0, 0, 1);
-  
-  // Center the root node
-  if (result.nodes[0]) {
-    result.nodes[0].position = { x: 0, y: 0 };
-  }
-  
-  return result;
+  return processObject(json);
 } 

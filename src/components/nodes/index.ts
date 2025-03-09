@@ -11,4 +11,6 @@ export const nodeTypes = {
 export type { ObjectNodeData } from './ObjectNode';
 export type { ArrayNodeData } from './ArrayNode';
 export type { ValueNodeData } from './ValueNode';
-export type { BaseNodeData } from './BaseNode'; 
+export type { BaseNodeData } from './BaseNode';
+
+export { default as ObjectNode } from './ObjectNode'; 

@@ -1,45 +1,111 @@
 import { memo } from 'react';
-import { NodeProps } from 'reactflow';
-import BaseNode, { BaseNodeData } from './BaseNode';
+import { NodeProps, Handle, Position } from 'reactflow';
 import styled from 'styled-components';
 
-export interface ObjectNodeData extends BaseNodeData {
-  type: 'object';
-  properties: Record<string, any>;
+interface NodeProperty {
+  key: string;
+  type: string;
+  value: any;
 }
 
-const PropertyList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
+export interface ObjectNodeData {
+  label: string;
+  type: 'object';
+  properties: NodeProperty[];
+}
+
+const NodeContainer = styled.div`
+  background: var(--node-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--node-border);
+  border-radius: 8px;
+  min-width: 280px;
 `;
 
-const PropertyItem = styled.div`
+const NodeHeader = styled.div`
+  padding: 12px;
+  border-bottom: 1px solid var(--node-border);
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
 `;
 
-const PropertyName = styled.span`
+const NodeType = styled.span`
+  font-size: 12px;
+  color: var(--text-property);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+`;
+
+const NodeLabel = styled.span`
+  color: var(--text-primary);
+  font-weight: 500;
+`;
+
+const PropertyList = styled.div`
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const PropertyRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+`;
+
+const PropertyKey = styled.span`
   color: var(--text-property);
 `;
 
-function ObjectNode(props: NodeProps<ObjectNodeData>) {
-  const { data } = props;
-  
+const PropertyType = styled.span`
+  color: var(--text-value);
+  opacity: 0.5;
+  font-size: 12px;
+`;
+
+const PropertyValue = styled.span`
+  color: var(--text-value);
+`;
+
+function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   return (
-    <BaseNode {...props}>
+    <NodeContainer>
+      <Handle
+        type="target"
+        position={Position.Left}
+        style={{ background: 'var(--node-border)' }}
+      />
+      
+      <NodeHeader>
+        <NodeType>object</NodeType>
+        <NodeLabel>{data.label}</NodeLabel>
+      </NodeHeader>
+
       <PropertyList>
-        {Object.entries(data.properties).map(([key, value]) => (
-          <PropertyItem key={key}>
-            <PropertyName>{key}:</PropertyName>
-            <span>{typeof value}</span>
-          </PropertyItem>
+        {data.properties.map((prop) => (
+          <PropertyRow key={prop.key}>
+            <PropertyKey>{prop.key}:</PropertyKey>
+            {prop.type === 'string' ? (
+              <PropertyValue>"{prop.value}"</PropertyValue>
+            ) : (
+              <PropertyValue>{prop.value}</PropertyValue>
+            )}
+            <PropertyType>({prop.type})</PropertyType>
+          </PropertyRow>
         ))}
       </PropertyList>
-    </BaseNode>
+
+      <Handle
+        type="source"
+        position={Position.Right}
+        style={{ background: 'var(--node-border)' }}
+      />
+    </NodeContainer>
   );
 }
 
