@@ -1,37 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Editor, { Monaco } from '@monaco-editor/react';
 
 const EditorContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 16px;
   background: var(--node-bg);
   backdrop-filter: blur(12px);
-`;
-
-const TextArea = styled.textarea`
-  flex: 1;
-  padding: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  border: 1px solid var(--node-border);
-  border-radius: 8px;
-  resize: none;
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--text-primary);
-
-  &:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
 `;
 
 const ErrorMessage = styled.div`
   color: #ef4444;
   font-size: 12px;
-  margin-top: 8px;
+  margin: 8px;
   padding: 8px;
   background: rgba(239, 68, 68, 0.1);
   border-radius: 4px;
@@ -62,12 +44,35 @@ interface JsonEditorProps {
 }
 
 export function JsonEditor({ onValidJson }: JsonEditorProps) {
-  const [jsonText, setJsonText] = useState(JSON.stringify(initialJson, null, 2));
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+    // Configure editor
+    monaco.editor.defineTheme('jsonTheme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#00000000', // Transparent background
+        'editor.lineHighlightBackground': '#ffffff10',
+        'editorLineNumber.foreground': '#94A3B8',
+        'editorLineNumber.activeForeground': '#E4E4E7',
+        'editor.selectionBackground': '#ffffff20',
+        'editor.inactiveSelectionBackground': '#ffffff10',
+      }
+    });
+
+    monaco.editor.setTheme('jsonTheme');
+
+    // Set initial value
+    editor.setValue(JSON.stringify(initialJson, null, 2));
+  };
+
+  const handleChange = (value: string | undefined) => {
+    if (!value) return;
+    
     try {
-      const parsed = JSON.parse(jsonText);
+      const parsed = JSON.parse(value);
       setError(null);
       onValidJson?.(parsed);
     } catch (e) {
@@ -75,20 +80,31 @@ export function JsonEditor({ onValidJson }: JsonEditorProps) {
         setError(e.message);
       }
     }
-  }, [jsonText, onValidJson]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value;
-    setJsonText(newText);
   };
 
   return (
     <EditorContainer>
-      <TextArea
-        value={jsonText}
+      <Editor
+        height="100%"
+        defaultLanguage="json"
+        options={{
+          minimap: { enabled: false },
+          lineNumbers: 'on',
+          roundedSelection: true,
+          padding: { top: 16, bottom: 16 },
+          scrollBeyondLastLine: false,
+          folding: true,
+          foldingHighlight: true,
+          foldingStrategy: 'auto',
+          showFoldingControls: 'always',
+          matchBrackets: 'always',
+          automaticLayout: true,
+          tabSize: 2,
+          formatOnPaste: true,
+          formatOnType: true,
+        }}
         onChange={handleChange}
-        placeholder="Enter JSON here..."
-        spellCheck={false}
+        onMount={handleEditorDidMount}
       />
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </EditorContainer>
