@@ -1,5 +1,6 @@
 import { Edge, Node } from 'reactflow';
 import { ObjectNodeData } from '@/components/nodes/ObjectNode';
+import { ArrayNodeData } from '@/components/nodes/ArrayNode';
 
 interface NodeProperty {
   key: string;
@@ -8,17 +9,17 @@ interface NodeProperty {
 }
 
 interface GraphData {
-  nodes: Node<ObjectNodeData>[];
+  nodes: Node[];
   edges: Edge[];
 }
 
 function getValueType(value: any): string {
-  if (value === null) return 'null';
   if (Array.isArray(value)) return 'array';
+  if (value === null) return 'null';
   return typeof value;
 }
 
-function createNode(id: string, label: string, properties: NodeProperty[]): Node<ObjectNodeData> {
+function createNode(id: string, label: string, properties: NodeProperty[], type: 'object' | 'array' = 'object'): Node {
   return {
     id,
     type: 'object',
@@ -32,24 +33,83 @@ function createNode(id: string, label: string, properties: NodeProperty[]): Node
 }
 
 function processObject(obj: any, parentId: string | null = null): GraphData {
-  const nodes: Node<ObjectNodeData>[] = [];
+  const nodes: Node[] = [];
   const edges: Edge[] = [];
   let currentId = parentId || 'root';
 
-  // Extract properties that aren't objects
+  // Handle objects
   const properties: NodeProperty[] = [];
-  const childObjects: Record<string, any> = {};
 
   Object.entries(obj).forEach(([key, value]) => {
     const valueType = getValueType(value);
     
-    if (valueType === 'object' && value !== null) {
-      childObjects[key] = value;
+    if (valueType === 'array') {
+      // Add array property to parent
+      const arrayValue = value as any[];
+      properties.push({
+        key,
+        type: 'array',
+        value: `array[${arrayValue.length}]`
+      });
+
+      // Process array elements as child nodes
+      arrayValue.forEach((item: any, index: number) => {
+        const itemType = getValueType(item);
+        const itemId = `${currentId}-${key}-${index}`;
+
+        if (itemType === 'object') {
+          // Recursively process object elements
+          const { nodes: childNodes, edges: childEdges } = processObject(item, itemId);
+          nodes.push(...childNodes);
+          edges.push(...childEdges);
+        } else if (itemType === 'array') {
+          // Recursively process nested arrays
+          const { nodes: childNodes, edges: childEdges } = processObject({ value: item }, itemId);
+          nodes.push(...childNodes);
+          edges.push(...childEdges);
+        } else {
+          // Create value node for primitive types
+          nodes.push(createNode(itemId, `${key}[${index}]`, [
+            { key: 'value', type: itemType, value: item }
+          ]));
+        }
+
+        // Connect array elements to parent
+        edges.push({
+          id: `${currentId}-${itemId}`,
+          source: currentId,
+          target: itemId,
+          type: 'smoothstep'
+        });
+      });
+    } else if (valueType === 'object' && value !== null) {
+      // Process child objects
+      const childId = `${currentId}-${key}`;
+      const { nodes: childNodes, edges: childEdges } = processObject(value, childId);
+      
+      nodes.push(...childNodes);
+      edges.push(...childEdges);
+      
+      // Add object property to parent
+      properties.push({
+        key,
+        type: 'object',
+        value: 'object'
+      });
+
+      // Connect parent to child object
+      edges.push({
+        id: `${currentId}-${childId}`,
+        source: currentId,
+        target: childId,
+        type: 'smoothstep'
+      });
     } else {
+      // Add primitive property to parent
       properties.push({
         key,
         type: valueType,
-        value: valueType === 'array' ? JSON.stringify(value) : value
+        value
       });
     }
   });
@@ -57,26 +117,7 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
   // Create node for current object with its properties
   nodes.push(createNode(currentId, currentId === 'root' ? 'Root' : currentId, properties));
 
-  // Process child objects
-  Object.entries(childObjects).forEach(([key, value], index) => {
-    const childId = `${currentId}-${key}`;
-    const { nodes: childNodes, edges: childEdges } = processObject(value, childId);
-    
-    nodes.push(...childNodes);
-    edges.push(...childEdges);
-    
-    // Connect parent to child
-    edges.push({
-      id: `${currentId}-${childId}`,
-      source: currentId,
-      target: childId,
-      type: 'smoothstep'
-    });
-  });
-
   return { nodes, edges };
 }
 
-export function jsonToGraph(json: any): GraphData {
-  return processObject(json);
-} 
+export { processObject as jsonToGraph }; 
