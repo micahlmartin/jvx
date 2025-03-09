@@ -65,6 +65,8 @@ const ItemRow = styled.div`
   gap: 8px;
   font-size: 13px;
   min-height: 22px;
+  position: relative;
+  padding-left: 20px;
 `;
 
 const ItemIndex = styled.span`
@@ -79,7 +81,7 @@ const ItemType = styled.span`
 
 function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
   return (
-    <NodeContainer>
+    <NodeContainer>      
       <Handle
         type="target"
         position={Position.Left}
@@ -106,12 +108,6 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
           </ItemRow>
         )}
       </ItemList>
-
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ background: 'var(--node-border)' }}
-      />
     </NodeContainer>
   );
 }

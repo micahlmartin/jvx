@@ -6,6 +6,7 @@ interface NodeProperty {
   key: string;
   type: string;
   value: any;
+  childNodeId?: string; // Reference to child node if this property expands
 }
 
 interface GraphData {
@@ -19,7 +20,7 @@ function getValueType(value: any): string {
   return typeof value;
 }
 
-function createNode(id: string, label: string, properties: NodeProperty[], type: 'object' | 'array' = 'object'): Node {
+function createNode(id: string, label: string, properties: NodeProperty[]): Node {
   return {
     id,
     type: 'object',
@@ -46,11 +47,12 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
     if (valueType === 'array') {
       // Add array property to parent
       const arrayValue = value as any[];
-      properties.push({
+      const property: NodeProperty = {
         key,
         type: 'array',
         value: `array[${arrayValue.length}]`
-      });
+      };
+      properties.push(property);
 
       // Process array elements as child nodes
       arrayValue.forEach((item: any, index: number) => {
@@ -74,12 +76,15 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
           ]));
         }
 
-        // Connect array elements to parent
+        // Connect array elements to parent's property
         edges.push({
-          id: `${currentId}-${itemId}`,
+          id: `${currentId}-${key}-${itemId}`,
           source: currentId,
           target: itemId,
-          type: 'smoothstep'
+          sourceHandle: `property-${key}`, // Connect from the property
+          type: 'smoothstep',
+          label: `[${index}]`,
+          style: { stroke: 'var(--edge-stroke)' }
         });
       });
     } else if (valueType === 'object' && value !== null) {
@@ -90,19 +95,23 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
       nodes.push(...childNodes);
       edges.push(...childEdges);
       
-      // Add object property to parent
-      properties.push({
+      // Add object property to parent with reference to child
+      const property: NodeProperty = {
         key,
         type: 'object',
-        value: 'object'
-      });
+        value: 'object',
+        childNodeId: childId
+      };
+      properties.push(property);
 
-      // Connect parent to child object
+      // Connect parent's property to child object
       edges.push({
-        id: `${currentId}-${childId}`,
+        id: `${currentId}-${key}-${childId}`,
         source: currentId,
         target: childId,
-        type: 'smoothstep'
+        sourceHandle: `property-${key}`, // Connect from the property
+        type: 'smoothstep',
+        style: { stroke: 'var(--edge-stroke)' }
       });
     } else {
       // Add primitive property to parent

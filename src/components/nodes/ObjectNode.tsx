@@ -6,6 +6,7 @@ interface NodeProperty {
   key: string;
   type: string;
   value: any;
+  childNodeId?: string;
 }
 
 export interface ObjectNodeData {
@@ -56,7 +57,7 @@ const PropertyList = styled.div`
   gap: 6px;
 `;
 
-const PropertyRow = styled.div`
+const PropertyRow = styled.div<{ hasChild?: boolean }>`
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -64,6 +65,9 @@ const PropertyRow = styled.div`
   font-size: 13px;
   font-family: 'JetBrains Mono', monospace;
   min-height: 22px;
+  position: relative;
+  padding-right: ${props => props.hasChild ? '20px' : '0'};
+  padding-left: ${props => props.hasChild ? '20px' : '0'};
 `;
 
 const PropertyKey = styled.span`
@@ -85,14 +89,32 @@ const PropertyValue = styled.span`
   white-space: nowrap;
 `;
 
+const PropertySourceHandle = styled(Handle)`
+  right: -10px !important;
+  background: var(--node-border) !important;
+  width: 8px !important;
+  height: 8px !important;
+`;
+
+const PropertyTargetHandle = styled(Handle)`
+  left: -10px !important;
+  background: var(--node-border) !important;
+  width: 8px !important;
+  height: 8px !important;
+`;
+
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
+  const isRoot = data.label === 'Root';
+
   return (
-    <NodeContainer>
-      <Handle
-        type="target"
-        position={Position.Left}
-        style={{ background: 'var(--node-border)' }}
-      />
+    <NodeContainer>      
+      {!isRoot && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{ background: 'var(--node-border)' }}
+        />
+      )}
       
       <NodeHeader>
         <NodeType>object</NodeType>
@@ -101,7 +123,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
 
       <PropertyList>
         {data.properties.map((prop) => (
-          <PropertyRow key={prop.key}>
+          <PropertyRow key={prop.key} hasChild={!!prop.childNodeId || prop.type === 'array'}>
             <PropertyKey>{prop.key}:</PropertyKey>
             {prop.type === 'string' ? (
               <PropertyValue>"{prop.value}"</PropertyValue>
@@ -109,15 +131,16 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
               <PropertyValue>{prop.value}</PropertyValue>
             )}
             <PropertyType>({prop.type})</PropertyType>
+            {(prop.childNodeId || prop.type === 'array') && (
+              <PropertySourceHandle
+                type="source"
+                position={Position.Right}
+                id={`property-${prop.key}`}
+              />
+            )}
           </PropertyRow>
         ))}
       </PropertyList>
-
-      <Handle
-        type="source"
-        position={Position.Right}
-        style={{ background: 'var(--node-border)' }}
-      />
     </NodeContainer>
   );
 }
