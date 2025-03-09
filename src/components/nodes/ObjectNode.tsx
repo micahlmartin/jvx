@@ -98,16 +98,26 @@ const PropertySourceHandle = styled(Handle)`
   border-radius: 0 !important;
 `;
 
+const PropertyTargetHandle = styled(Handle)`
+  left: -1px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  width: 2px !important;
+  height: 8px !important;
+  border: none !important;
+  opacity: 0 !important;
+`;
+
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   const isRoot = data.label === 'Root';
 
   return (
     <NodeContainer>      
       {!isRoot && (
-        <Handle
+        <PropertyTargetHandle
           type="target"
           position={Position.Left}
-          style={{ opacity: 0 }}
         />
       )}
       

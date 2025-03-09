@@ -215,17 +215,14 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     const targetNode = nodes.find(n => n.id === edge.target);
     
     if (sourceNode && targetNode) {
-      const sourceX = sourceNode.position.x + (nodeWidths.get(sourceNode.id) || 0);
-      const targetX = targetNode.position.x;
-      const sourceY = sourceNode.position.y + (nodeHeights.get(sourceNode.id) || 0) / 2;
-      const targetY = targetNode.position.y + (nodeHeights.get(targetNode.id) || 0) / 2;
-      
       edge.type = 'smoothstep';
       edge.animated = false;
       edge.style = {
-        stroke: 'var(--node-border)',
+        stroke: 'var(--edge-stroke)',
         strokeWidth: 2
       };
+      edge.zIndex = 1000;
+      edge.targetHandle = null;
     }
   });
 
@@ -324,9 +321,10 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     type: 'smoothstep',
     animated: false,
     style: {
-      stroke: 'var(--node-border)',
+      stroke: 'var(--edge-stroke)',
       strokeWidth: 2
-    }
+    },
+    zIndex: 1000
   }), []);
 
   return (
