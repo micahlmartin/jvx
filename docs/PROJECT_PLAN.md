@@ -65,20 +65,23 @@
 ## Phase 4: Interactive Features
 **Estimated Duration: 3-4 days**
 
-- [ ] Node interactions
-  - [ ] Implement drag and drop
-  - [ ] Add node selection
-  - [ ] Create node editing interface
+- [ ] Layout Implementation
+  - [ ] Create hierarchical left-to-right layout
+  - [ ] Implement fixed node positioning
+  - [ ] Add smart edge routing
+  - [ ] Optimize node spacing and alignment
 
-- [ ] Control panel
-  - [ ] Add zoom controls
-  - [ ] Implement fullscreen toggle
-  - [ ] Create view options
+- [ ] Node Visualization
+  - [ ] Implement node header with type indicator
+  - [ ] Add property list display
+  - [ ] Create consistent property styling
+  - [ ] Add visual type indicators
 
-- [ ] Graph manipulation
-  - [ ] Add node connection handling
-  - [ ] Implement node deletion
-  - [ ] Add node creation
+- [ ] Edge Styling
+  - [ ] Implement orthogonal routing
+  - [ ] Add curved corners
+  - [ ] Add edge labels
+  - [ ] Optimize edge paths
 
 ## Phase 5: Visual Styling and UX
 **Estimated Duration: 2-3 days**

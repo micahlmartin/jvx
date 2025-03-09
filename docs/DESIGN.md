@@ -27,31 +27,93 @@ A React-based interactive JSON visualization tool that represents JSON data as a
 
 ### Component Styling
 
+#### Layout
+- Direction: Left-to-right hierarchical layout
+- Fixed node positions (no user dragging)
+- Structured, deterministic positioning
+- Nodes aligned in columns based on depth
+- Consistent spacing between levels and siblings
+
 #### Nodes
-- Border Radius: 8px
-- Padding: 12px
-- Background: Glass-morphism effect
-  - Semi-transparent background
-  - Backdrop filter: blur(12px)
-  - Border: 1px solid rgba(255, 255, 255, 0.1)
-- Shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
-- Hover Effect:
-  - Slight background lightening
-  - Subtle elevation change
-  - Transition: all 0.2s ease
+- Header Section:
+  - Type indicator (Object, Array, Value)
+  - Label/key name
+  - Visual type indicator
+- Content Section:
+  - Property list with key-value pairs
+  - Consistent property spacing
+  - Property alignment and indentation
+- Styling:
+  - Border Radius: 8px
+  - Background: Glass-morphism effect
+    - Semi-transparent background (var(--node-bg))
+    - Backdrop filter: blur(12px)
+    - Border: 1px solid var(--node-border)
+  - Shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
+  - Fixed width for consistency
+  - Dynamic height based on content
+
+#### Properties Display
+- Property Row:
+  - Key name with consistent color (var(--text-property))
+  - Type indicator or value
+  - Clear visual hierarchy
+- Spacing:
+  - Consistent padding between properties
+  - Clear separation between header and properties
+  - Aligned key-value pairs
 
 #### Edges (Connections)
-- Style: Smooth step curves
-- Stroke Width: 2px
-- Animation: Enabled for data flow visualization
-- Opacity: 50%
+- Style: Orthogonal edges with curved corners
+- Connection Points:
+  - Start: Right side of parent node
+  - End: Left side of child node
+- Appearance:
+  - Stroke: var(--edge-stroke)
+  - Stroke Width: 2px
+  - Corner Radius: 8px
+  - Path: Smart orthogonal routing with minimal crossings
+- Labels:
+  - Property name on edge
+  - Consistent positioning
+  - Clear readability
 
-#### Controls
-- Background: Glass-morphism effect matching nodes
-- Border Radius: 8px
-- Icon Size: 20px
-- Padding: 8px
-- Hover States: Subtle background lightening
+### Layout Algorithm
+```typescript
+interface LayoutConfig {
+  nodeWidth: number;      // Fixed width for all nodes
+  nodeHeight: number;     // Minimum height, grows with content
+  levelSeparation: number;// Horizontal space between levels
+  nodeSeparation: number; // Vertical space between siblings
+  edgeRadius: number;     // Corner radius for edge bends
+}
+
+interface NodePosition {
+  x: number;             // X coordinate (level-based)
+  y: number;             // Y coordinate (sibling-based)
+  level: number;         // Depth in the hierarchy
+  index: number;         // Index among siblings
+}
+```
+
+### Node Component Structure
+```typescript
+interface NodeHeader {
+  type: 'object' | 'array' | 'value';
+  label: string;
+}
+
+interface NodeProperty {
+  key: string;
+  type: string;
+  value?: any;
+}
+
+interface NodeData {
+  header: NodeHeader;
+  properties: NodeProperty[];
+}
+```
 
 ## Component Architecture
 
