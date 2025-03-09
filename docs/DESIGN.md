@@ -57,12 +57,27 @@ A React-based interactive JSON visualization tool that represents JSON data as a
 
 ### Core Components
 
-1. **GraphCanvas**
+1. **JsonEditor**
+   - Professional code editing experience using Monaco Editor
+   - Features:
+     - Line numbers and syntax highlighting
+     - Code folding and bracket matching
+     - Auto-formatting
+     - Multi-cursor editing
+     - Search and replace
+     - Error diagnostics with inline markers
+   - Real-time validation with error highlighting
+   - JSON schema validation support
+   - Customized dark theme to match application
+   - Performance optimized for large JSON files
+   - Keyboard shortcuts for common operations
+
+2. **GraphCanvas**
    - Main container for React Flow
    - Handles zoom, pan, and grid functionality
    - Manages node and edge state
 
-2. **CustomNode**
+3. **CustomNode**
    - Base node component for JSON visualization
    - Variants:
      - ObjectNode
@@ -74,14 +89,14 @@ A React-based interactive JSON visualization tool that represents JSON data as a
      - Edit controls
      - Connection handles
 
-3. **CustomEdge**
+4. **CustomEdge**
    - Represents connections between nodes
    - Properties:
      - Label display
      - Animation state
      - Interactive features
 
-4. **ControlPanel**
+5. **ControlPanel**
    - Zoom controls
    - Fullscreen toggle
    - View options
