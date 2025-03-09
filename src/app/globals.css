@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #1E1E2E;
+  --node-bg: rgba(255, 255, 255, 0.05);
+  --node-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #E4E4E7;
+  --text-property: #94A3B8;
+  --text-value: #38BDF8;
+  --edge-stroke: rgba(148, 163, 184, 0.5);
+  --grid: rgba(255, 255, 255, 0.05);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
