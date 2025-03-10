@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import Editor, { Monaco } from '@monaco-editor/react';
+import Editor, { Monaco, loader } from '@monaco-editor/react';
 
 const EditorContainer = styled.div`
   display: flex;
@@ -8,6 +8,34 @@ const EditorContainer = styled.div`
   height: 100%;
   background: var(--node-bg);
   backdrop-filter: blur(12px);
+  position: relative;
+`;
+
+const LoadingContainer = styled.div`
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+`;
+
+const EmptyState = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 0 0 48px;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  pointer-events: none;
+  user-select: none;
+  white-space: pre;
+  line-height: 19px;
 `;
 
 const ErrorMessage = styled.div`
@@ -78,33 +106,50 @@ const initialJson = {
   }
 };
 
+// Pre-load Monaco editor
+loader.init().then(monaco => {
+  monaco.editor.defineTheme('jsonTheme', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#00000000',
+      'editor.lineHighlightBackground': '#ffffff10',
+      'editorLineNumber.foreground': '#94A3B8',
+      'editorLineNumber.activeForeground': '#E4E4E7',
+      'editor.selectionBackground': '#ffffff20',
+      'editor.inactiveSelectionBackground': '#ffffff10',
+    }
+  });
+});
+
 interface JsonEditorProps {
   onValidJson?: (json: any) => void;
+  initialValue?: string;
 }
 
-export function JsonEditor({ onValidJson }: JsonEditorProps) {
+export function JsonEditor({ onValidJson, initialValue }: JsonEditorProps) {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [editor, setEditor] = useState<any>(null);
 
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
-    // Configure editor
-    monaco.editor.defineTheme('jsonTheme', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#00000000', // Transparent background
-        'editor.lineHighlightBackground': '#ffffff10',
-        'editorLineNumber.foreground': '#94A3B8',
-        'editorLineNumber.activeForeground': '#E4E4E7',
-        'editor.selectionBackground': '#ffffff20',
-        'editor.inactiveSelectionBackground': '#ffffff10',
-      }
-    });
-
     monaco.editor.setTheme('jsonTheme');
+    setEditor(editor);
+    
+    const emptyValue = '{\n    \n}';
+    editor.setValue(emptyValue);
+    setIsLoading(false);
+    setIsEmpty(true);
 
-    // Set initial value
-    editor.setValue(JSON.stringify(initialJson, null, 2));
+    editor.setPosition({ lineNumber: 2, column: 5 });
+    editor.focus();
+
+    editor.onDidChangeModelContent(() => {
+      const currentValue = editor.getValue().trim();
+      setIsEmpty(currentValue === '{\n    \n}' || currentValue === '{}');
+    });
   };
 
   const handleChange = (value: string | undefined) => {
@@ -144,7 +189,13 @@ export function JsonEditor({ onValidJson }: JsonEditorProps) {
         }}
         onChange={handleChange}
         onMount={handleEditorDidMount}
+        loading={<LoadingContainer>Loading editor...</LoadingContainer>}
       />
+      {isEmpty && !isLoading && (
+        <EmptyState>{`{
+      start typing here...
+}`}</EmptyState>
+      )}
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </EditorContainer>
   );
