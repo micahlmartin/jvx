@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines our testing strategy and requirements for the JVIZ project. We maintain high test coverage and quality through a combination of unit tests, visual regression tests, and integration tests.
+This document outlines our testing strategy and requirements for the JVX project. We maintain high test coverage and quality through a combination of unit tests, visual regression tests, and integration tests.
 
 ## Test Types
 

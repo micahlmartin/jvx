@@ -1,8 +1,8 @@
-# Contributing to JVIZ
+# Contributing to JVX
 
 ## Overview
 
-Thank you for considering contributing to JVIZ! This document provides guidelines and instructions for contributing to the project. We strive to maintain high standards of code quality and design consistency.
+Thank you for considering contributing to JVX! This document provides guidelines and instructions for contributing to the project. We strive to maintain high standards of code quality and design consistency.
 
 ## Getting Started
 
@@ -153,7 +153,7 @@ npm run type-check
 ## Project Structure
 
 ```
-jviz/
+jvx/
 ├── src/
 │   ├── components/        # React components
 │   │   └── nodes/        # Node-specific components
