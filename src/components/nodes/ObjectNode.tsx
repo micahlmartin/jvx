@@ -24,6 +24,7 @@ const NodeContainer = styled.div`
   min-width: 200px;
   max-width: 400px;
   position: relative;
+  isolation: isolate;
 `;
 
 const NodeHeader = styled.div`
@@ -89,24 +90,29 @@ const PropertyValue = styled.span`
 `;
 
 const PropertySourceHandle = styled(Handle)`
-  right: -1px !important;
+  position: absolute !important;
+  right: -16px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
   background: var(--node-border) !important;
-  width: 2px !important;
+  width: 8px !important;
   height: 8px !important;
-  border-radius: 0 !important;
+  border: none !important;
+  pointer-events: none !important;
+  opacity: 1 !important;
+  border-radius: 50% !important;
 `;
 
 const PropertyTargetHandle = styled(Handle)`
   left: -1px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  background: transparent !important;
-  width: 2px !important;
-  height: 8px !important;
+  background: var(--node-border) !important;
+  width: 3px !important;
+  height: 10px !important;
   border: none !important;
-  opacity: 0 !important;
+  opacity: 1 !important;
+  border-radius: 0 !important;
 `;
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
@@ -141,6 +147,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
                 type="source"
                 position={Position.Right}
                 id={`property-${prop.key}`}
+                className="nodrag"
               />
             )}
           </PropertyRow>
