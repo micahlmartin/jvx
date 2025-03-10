@@ -11,7 +11,8 @@ type DocumentAction =
   | { type: 'REMOVE_DOCUMENT'; payload: string }
   | { type: 'UPDATE_DOCUMENT'; payload: Document }
   | { type: 'SET_ACTIVE_DOCUMENT'; payload: string }
-  | { type: 'MARK_DOCUMENT_DIRTY'; payload: { id: string; isDirty: boolean } };
+  | { type: 'MARK_DOCUMENT_DIRTY'; payload: { id: string; isDirty: boolean } }
+  | { type: 'RENAME_DOCUMENT'; payload: { id: string; name: string } };
 
 interface DocumentContextType extends DocumentState {
   addDocument: (document: Document) => void;
@@ -19,6 +20,7 @@ interface DocumentContextType extends DocumentState {
   updateDocument: (document: Document) => void;
   setActiveDocument: (id: string) => void;
   markDocumentDirty: (id: string, isDirty: boolean) => void;
+  renameDocument: (id: string, name: string) => void;
 }
 
 const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
@@ -68,6 +70,16 @@ const documentReducer = (state: DocumentState, action: DocumentAction): Document
         )
       };
 
+    case 'RENAME_DOCUMENT':
+      return {
+        ...state,
+        documents: state.documents.map(doc =>
+          doc.id === action.payload.id
+            ? { ...doc, name: action.payload.name }
+            : doc
+        )
+      };
+
     default:
       return state;
   }
@@ -99,6 +111,10 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     dispatch({ type: 'MARK_DOCUMENT_DIRTY', payload: { id, isDirty } });
   }, []);
 
+  const renameDocument = useCallback((id: string, name: string) => {
+    dispatch({ type: 'RENAME_DOCUMENT', payload: { id, name } });
+  }, []);
+
   return (
     <DocumentContext.Provider
       value={{
@@ -107,7 +123,8 @@ export const DocumentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         removeDocument,
         updateDocument,
         setActiveDocument,
-        markDocumentDirty
+        markDocumentDirty,
+        renameDocument
       }}
     >
       {children}

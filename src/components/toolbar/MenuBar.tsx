@@ -108,7 +108,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onDocumentSelect,
   onDocumentClose
 }) => {
-  const { addDocument } = useDocuments();
+  const { addDocument, renameDocument } = useDocuments();
 
   const handleNewFile = () => {
     addDocument({
@@ -161,6 +161,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             isDirty={doc.isDirty}
             onActivate={() => onDocumentSelect(doc.id)}
             onClose={() => onDocumentClose(doc.id)}
+            onRename={renameDocument}
           />
         ))}
         <NewTabButton

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { designSystem } from '@/styles/design-system';
 
@@ -9,65 +9,53 @@ interface TabProps {
   isDirty: boolean;
   onActivate: () => void;
   onClose: () => void;
+  onRename?: (id: string, newName: string) => void;
 }
 
 const TabContainer = styled.div<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 16px;
   height: 100%;
-  background: ${props => props.$isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
+  padding: 0 8px;
+  gap: 8px;
+  background: ${props => props.$isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'};
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   user-select: none;
-  position: relative;
   min-width: 120px;
   max-width: 200px;
-  transition: all 0.1s ease;
+  position: relative;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
   }
-
-  ${props => props.$isActive && `
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: #38BDF8;
-    }
-  `}
 `;
 
-const FileType = styled.span`
-  font-size: 11px;
-  color: #E4943B;
-  font-weight: 600;
-  text-transform: uppercase;
-  opacity: 0.9;
-`;
-
-const TabName = styled.span<{ $isDirty: boolean }>`
-  color: var(--text-primary);
-  font-size: 12px;
-  white-space: nowrap;
+const TabName = styled.div<{ $isEditing: boolean }>`
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
-  opacity: 0.9;
-  font-weight: 400;
+  white-space: nowrap;
+  color: var(--text-primary);
+  opacity: 0.85;
+  font-size: 13px;
+  display: ${props => props.$isEditing ? 'none' : 'block'};
+`;
 
-  ${props => props.$isDirty && `
-    &:after {
-      content: '●';
-      margin-left: 6px;
-      color: #38BDF8;
-      font-size: 10px;
-    }
-  `}
+const TabInput = styled.input`
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -82,45 +70,102 @@ const CloseButton = styled.button`
   opacity: 0.5;
   cursor: pointer;
   padding: 0;
-  font-size: 16px;
-  line-height: 1;
-  margin-right: -4px;
+  border-radius: 3px;
 
   &:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
   }
 
-  &:focus {
-    outline: none;
+  svg {
+    width: 12px;
+    height: 12px;
   }
 `;
 
+const DirtyIndicator = styled.div`
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  opacity: 0.5;
+`;
+
 export const Tab: React.FC<TabProps> = ({
+  id,
   name,
   isActive,
   isDirty,
   onActivate,
-  onClose
+  onClose,
+  onRename
 }) => {
-  const handleClose = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onRename) {
+      setIsEditing(true);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && editValue.trim()) {
+      onRename?.(id, editValue.trim());
+      setIsEditing(false);
+    } else if (e.key === 'Escape') {
+      setEditValue(name);
+      setIsEditing(false);
+    }
+  };
+
+  const handleBlur = () => {
+    if (editValue.trim() && editValue !== name) {
+      onRename?.(id, editValue.trim());
+    } else {
+      setEditValue(name);
+    }
+    setIsEditing(false);
   };
 
   return (
-    <TabContainer 
+    <TabContainer
       $isActive={isActive}
       onClick={onActivate}
+      onDoubleClick={handleDoubleClick}
       role="tab"
       aria-selected={isActive}
     >
-      <FileType>JSON</FileType>
-      <TabName $isDirty={isDirty}>{name}</TabName>
+      {isDirty && <DirtyIndicator />}
+      <TabName $isEditing={isEditing}>{name}</TabName>
+      {isEditing ? (
+        <TabInput
+          ref={inputRef}
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+        />
+      ) : null}
       <CloseButton
-        onClick={handleClose}
-        aria-label={`Close ${name}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        aria-label="Close tab"
       >
-        ×
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </CloseButton>
     </TabContainer>
   );
