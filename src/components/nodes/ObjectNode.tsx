@@ -32,12 +32,34 @@ const NodeContainer = styled.div`
   }
 `;
 
-const NodeHeader = styled.div`
+const getHeaderColor = (label: string) => {
+  if (label === 'Root') return 'rgba(82, 82, 91, 0.3)';  // dark gray for root
+
+  // Get the parent name (second to last part) or the name itself if no parent
+  const parts = label.split('-');
+  const colorKey = parts.length > 2 ? parts[parts.length - 2] : parts[parts.length - 1];
+  
+  // Map of distinct background colors for different node types
+  const colors: { [key: string]: string } = {
+    customer: 'rgba(59, 130, 246, 0.15)',    // blue
+    items: 'rgba(147, 51, 234, 0.15)',       // purple
+    products: 'rgba(147, 51, 234, 0.15)',    // same as items (they're related)
+    shipping: 'rgba(236, 72, 153, 0.15)',    // pink
+    payment: 'rgba(16, 185, 129, 0.15)',     // green
+    address: 'rgba(245, 158, 11, 0.15)',     // orange
+    billingAddress: 'rgba(245, 158, 11, 0.15)'  // same as address
+  };
+
+  return colors[colorKey] || 'rgba(82, 82, 91, 0.15)';  // fallback gray
+};
+
+const NodeHeader = styled.div<{ $bgColor: string }>`
   padding: 8px 12px;
   border-bottom: 2px solid var(--node-border) !important;
   display: flex;
   align-items: center;
   gap: 8px;
+  background: ${props => props.$bgColor};
 
   && {
     border-bottom: 2px solid var(--node-border);
@@ -159,6 +181,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   };
 
   const displayLabel = getDisplayLabel(data.label);
+  const headerColor = getHeaderColor(data.label);
 
   return (
     <NodeContainer>      
@@ -169,7 +192,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
         />
       )}
       
-      <NodeHeader>
+      <NodeHeader $bgColor={headerColor}>
         <NodeLabel>{displayLabel}</NodeLabel>
       </NodeHeader>
 
