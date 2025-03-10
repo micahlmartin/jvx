@@ -30,9 +30,20 @@ Element.prototype.getBoundingClientRect = jest.fn(() => ({
 
 // Mock IntersectionObserver
 class IntersectionObserverMock {
+  root: Element | null = null;
+  rootMargin: string = '';
+  thresholds: number[] = [];
+  
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = options?.root instanceof Element ? options.root : null;
+    this.rootMargin = options?.rootMargin ?? '';
+    this.thresholds = Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0];
+  }
+
   observe() {}
   unobserve() {}
   disconnect() {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
 }
 
 window.IntersectionObserver = IntersectionObserverMock; 
