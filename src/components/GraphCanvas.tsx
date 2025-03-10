@@ -7,7 +7,6 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   ConnectionMode,
-  Panel,
   Position,
   MarkerType,
   DefaultEdgeOptions
@@ -18,7 +17,6 @@ import { ObjectNode, ObjectNodeData } from './nodes';
 import ArrayNode from './nodes/ArrayNode';
 import ValueNode from './nodes/ValueNode';
 import { jsonToGraph } from '@/utils/jsonToGraph';
-import dagre from 'dagre';
 
 const GraphContainer = styled.div`
   width: 100%;
@@ -71,44 +69,7 @@ const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> 
   return depths;
 };
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
-  const dagreGraph = new dagre.graphlib.Graph();
-  dagreGraph.setDefaultEdgeLabel(() => ({}));
-
-  // Set the direction to LR (left to right)
-  dagreGraph.setGraph({ 
-    rankdir: 'LR', 
-    nodesep: 40,
-    ranksep: 80,
-    ranker: 'tight-tree',
-    align: 'UL',
-    marginx: 15,
-    marginy: 15
-  });
-
-  // Group nodes by their depth level
-  const nodesByLevel = new Map<number, Node[]>();
-  const getNodeLevel = (nodeId: string, memo = new Map<string, number>()): number => {
-    if (memo.has(nodeId)) return memo.get(nodeId) || 0;
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return 0;
-    const depth = calculateNodeDepths(nodes, edges).get(node.id) || 0;
-    const children = edges
-      .filter(edge => edge.source === node.id)
-      .map(edge => edge.target);
-    const childLevels = children.map(child => getNodeLevel(child, memo));
-    const maxChildLevel = Math.max(...childLevels, 0);
-    memo.set(node.id, maxChildLevel + 1);
-    return maxChildLevel + 1;
-  };
-
-  // Calculate maximum width needed for each level
-  const levelWidths = new Map<number, number>();
-  const MIN_WIDTH = 250;
-  const MAX_WIDTH = 400;
-  const CHAR_WIDTH = 8;
-  const PADDING = 60;
-
+const getLayoutedElements = (nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: Edge[] } => {
   // Calculate node dimensions first
   const nodeWidths = new Map<string, number>();
   const nodeHeights = new Map<string, number>();
@@ -399,14 +360,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
           className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm 
                      border border-[rgba(255,255,255,0.1)] rounded-lg"
         />
-        <Panel position="top-right" className="bg-white/10 backdrop-blur rounded p-2">
-          <button
-            onClick={() => updateJson(initialJson)}
-            className="text-sm text-white/60 hover:text-white"
-          >
-            Reset View
-          </button>
-        </Panel>
       </ReactFlow>
     </GraphContainer>
   );
