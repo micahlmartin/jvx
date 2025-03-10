@@ -1,7 +1,6 @@
 import React from 'react';
 import { Handle, Position, useStore } from 'reactflow';
-import styled from 'styled-components';
-import { designSystem } from '../../styles/design-system';
+import { twMerge } from 'tailwind-merge';
 
 /**
  * Props for the NodeHandle component.
@@ -23,53 +22,6 @@ interface NodeHandleProps {
   /** Optional className for additional styling */
   className?: string;
 }
-
-/**
- * Styled handle component that implements the design system specifications.
- * Handles the visual appearance and positioning of connection points.
- */
-const StyledHandle = styled(Handle)<{ $isVisible: boolean; $isConnecting: boolean }>`
-  position: absolute;
-  width: ${designSystem.handles.size.width};
-  height: ${designSystem.handles.size.height};
-  background: ${designSystem.handles.colors.default};
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  opacity: ${({ $isVisible, $isConnecting, type }) => {
-    if (type === 'target') return $isConnecting ? 1 : 0;
-    return $isVisible ? 1 : 0;
-  }};
-  pointer-events: ${({ $isVisible, $isConnecting, type }) => {
-    if (type === 'target') return $isConnecting ? 'all' : 'none';
-    return $isVisible ? 'all' : 'none';
-  }};
-  transition: ${designSystem.handles.transitions.opacity};
-  z-index: ${designSystem.zIndex.handles};
-
-  &:hover {
-    background: ${designSystem.handles.colors.hover};
-  }
-
-  ${({ position }) => {
-    switch (position) {
-      case Position.Left:
-        return `
-          left: 0;
-          top: 50%;
-          transform: translate(-50%, -50%);
-        `;
-      case Position.Right:
-        return `
-          right: 0;
-          top: 50%;
-          transform: translate(50%, -50%);
-        `;
-      default:
-        return '';
-    }
-  }}
-`;
 
 /**
  * NodeHandle component that provides connection points for nodes in a flow diagram.
@@ -104,15 +56,23 @@ export const NodeHandle: React.FC<NodeHandleProps> = ({
   className 
 }) => {
   const isConnecting = useStore((state) => state.connectionNodeId != null);
+  
+  const baseClasses = "!absolute !w-2 !h-2 !bg-node-border hover:!bg-[rgba(255,255,255,0.5)] !border-none !rounded-full !cursor-pointer !transition-opacity !duration-200 !z-handles";
+  
+  const visibilityClasses = type === 'target'
+    ? isConnecting ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none"
+    : isVisible ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none";
+    
+  const positionClasses = position === Position.Left
+    ? "!left-0 !top-1/2 !-translate-x-1/2 !-translate-y-1/2"
+    : "!right-0 !top-1/2 !translate-x-1/2 !-translate-y-1/2";
 
   return (
-    <StyledHandle
+    <Handle
       type={type}
       position={position}
-      $isVisible={isVisible}
-      $isConnecting={isConnecting}
       id={id}
-      className={className}
+      className={twMerge(baseClasses, visibilityClasses, positionClasses, className)}
     />
   );
 };
