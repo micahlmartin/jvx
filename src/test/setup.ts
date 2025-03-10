@@ -1,15 +1,6 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
 
-// Extend expect matchers
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toHaveStyleRule: (property: string, value: string) => R;
-    }
-  }
-}
-
 // Configure testing library
 configure({
   testIdAttribute: 'data-testid',
