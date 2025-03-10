@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -7,10 +7,10 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   ConnectionMode,
-  Panel,
   Position,
   MarkerType,
-  DefaultEdgeOptions
+  DefaultEdgeOptions,
+  ReactFlowInstance
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
@@ -298,6 +298,14 @@ const initialJson = {
 export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ onInit }, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
+
+  const fitViewOptions = useMemo(() => ({
+    padding: 0.2,
+    minZoom: 0.5,
+    maxZoom: 4,
+    duration: 800
+  }), []);
 
   const updateJson = useCallback((json: any) => {
     const { nodes: newNodes, edges: newEdges } = jsonToGraph(json);
@@ -307,7 +315,13 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     );
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-  }, [setNodes, setEdges]);
+    // After updating nodes and edges, fit view
+    setTimeout(() => {
+      if (reactFlowInstance.current) {
+        reactFlowInstance.current.fitView(fitViewOptions);
+      }
+    }, 50);
+  }, [setNodes, setEdges, fitViewOptions]);
 
   useImperativeHandle(ref, () => ({
     updateJson
@@ -327,6 +341,11 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     zIndex: 1000
   }), []);
 
+  const handleInit = useCallback((instance: ReactFlowInstance) => {
+    reactFlowInstance.current = instance;
+    onInit?.();
+  }, [onInit]);
+
   return (
     <GraphContainer>
       <ReactFlow
@@ -337,12 +356,9 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
+        onInit={handleInit}
         fitView
-        fitViewOptions={{ 
-          padding: 0.2,
-          minZoom: 0.5,
-          maxZoom: 4
-        }}
+        fitViewOptions={fitViewOptions}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         nodesDraggable={true}
         nodesConnectable={true}
@@ -364,14 +380,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
           showFitView={true}
           showInteractive={false}
         />
-        <Panel position="top-right" className="bg-white/10 backdrop-blur rounded p-2">
-          <button
-            onClick={() => updateJson(initialJson)}
-            className="text-sm text-white/60 hover:text-white"
-          >
-            Reset View
-          </button>
-        </Panel>
       </ReactFlow>
     </GraphContainer>
   );
