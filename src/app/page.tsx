@@ -118,12 +118,26 @@ function HomeContent() {
     }
   }, [documents.length, addDocument]);
 
-  const handleValidJson = useCallback((json: any) => {
-    graphRef.current?.updateJson(json);
-    
+  // Update graph when active document changes or when its name changes
+  useEffect(() => {
     if (activeDocument) {
       const activeDoc = documents.find(doc => doc.id === activeDocument);
       if (activeDoc) {
+        try {
+          const json = JSON.parse(activeDoc.content);
+          graphRef.current?.updateJson(json, activeDoc.name);
+        } catch (e) {
+          console.error('Failed to parse document content:', e);
+        }
+      }
+    }
+  }, [activeDocument, documents]);
+
+  const handleValidJson = useCallback((json: any) => {
+    if (activeDocument) {
+      const activeDoc = documents.find(doc => doc.id === activeDocument);
+      if (activeDoc) {
+        graphRef.current?.updateJson(json, activeDoc.name);
         updateDocument({
           ...activeDoc,
           content: JSON.stringify(json, null, 2),

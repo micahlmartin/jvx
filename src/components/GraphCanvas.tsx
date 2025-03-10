@@ -235,15 +235,15 @@ export interface GraphCanvasProps {
 }
 
 export interface GraphCanvasHandle {
-  updateJson: (json: any) => void;
+  updateJson: (json: any, title?: string) => void;
 }
 
 export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ onInit }, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const updateJson = useCallback((json: any) => {
-    const { nodes: newNodes, edges: newEdges } = jsonToGraph(json);
+  const updateJson = useCallback((json: any, title: string = 'Root') => {
+    const { nodes: newNodes, edges: newEdges } = jsonToGraph(json, null, title);
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       newNodes,
       newEdges

@@ -204,10 +204,10 @@ const PropertyTargetHandle = styled(Handle)`
 `;
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
-  const isRoot = data.label === 'Root';
+  const isRoot = data.label === 'Root' || data.label.startsWith('{');
   
   const getDisplayLabel = (label: string) => {
-    if (isRoot) return '{Root}';
+    if (isRoot) return label.startsWith('{') ? label : `{${label}}`;
     
     const parts = label.split('-');
     const isArrayItem = /^\d+$/.test(parts[parts.length - 1]);

@@ -33,7 +33,7 @@ function createNode(id: string, label: string, properties: NodeProperty[]): Node
   };
 }
 
-function processObject(obj: any, parentId: string | null = null): GraphData {
+function processObject(obj: any, parentId: string | null = null, rootTitle: string = 'Root'): GraphData {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   let currentId = parentId || 'root';
@@ -61,12 +61,12 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
 
         if (itemType === 'object') {
           // Recursively process object elements
-          const { nodes: childNodes, edges: childEdges } = processObject(item, itemId);
+          const { nodes: childNodes, edges: childEdges } = processObject(item, itemId, rootTitle);
           nodes.push(...childNodes);
           edges.push(...childEdges);
         } else if (itemType === 'array') {
           // Recursively process nested arrays
-          const { nodes: childNodes, edges: childEdges } = processObject({ value: item }, itemId);
+          const { nodes: childNodes, edges: childEdges } = processObject({ value: item }, itemId, rootTitle);
           nodes.push(...childNodes);
           edges.push(...childEdges);
         } else {
@@ -92,7 +92,7 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
     } else if (valueType === 'object' && value !== null) {
       // Process child objects
       const childId = `${currentId}-${key}`;
-      const { nodes: childNodes, edges: childEdges } = processObject(value, childId);
+      const { nodes: childNodes, edges: childEdges } = processObject(value, childId, rootTitle);
       
       nodes.push(...childNodes);
       edges.push(...childEdges);
@@ -129,7 +129,7 @@ function processObject(obj: any, parentId: string | null = null): GraphData {
   });
 
   // Create node for current object with its properties
-  nodes.push(createNode(currentId, currentId === 'root' ? 'Root' : currentId, properties));
+  nodes.push(createNode(currentId, currentId === 'root' ? rootTitle : currentId, properties));
 
   return { nodes, edges };
 }
