@@ -1,7 +1,16 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import Editor, { Monaco, loader } from '@monaco-editor/react';
+import dynamic from 'next/dynamic';
 import { sampleOrderData } from '@/data/sampleData';
+
+const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
+  ssr: false,
+  loading: () => (
+    <LoadingContainer>Loading editor...</LoadingContainer>
+  ),
+});
 
 const EditorContainer = styled.div`
   display: flex;
@@ -107,33 +116,6 @@ const initialJson = {
   }
 };
 
-// Pre-load Monaco editor
-loader.init().then(monaco => {
-  monaco.editor.defineTheme('jsonTheme', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#1E1E2E',
-      'editor.foreground': '#E4E4E7',
-      'editor.lineHighlightBackground': '#ffffff10',
-      'editorLineNumber.foreground': '#94A3B8',
-      'editorLineNumber.activeForeground': '#E4E4E7',
-      'editor.selectionBackground': '#ffffff20',
-      'editor.inactiveSelectionBackground': '#ffffff10',
-      'editorCursor.foreground': '#E4E4E7',
-      'editorBracketMatch.background': '#ffffff20',
-      'editorBracketMatch.border': '#ffffff40',
-      'editor.findMatchBackground': '#ffffff20',
-      'editor.findMatchHighlightBackground': '#ffffff10',
-      'editorGutter.background': '#1E1E2E',
-      'editorGutter.modifiedBackground': '#3B82F6',
-      'editorGutter.addedBackground': '#10B981',
-      'editorGutter.deletedBackground': '#EF4444',
-    }
-  });
-});
-
 export interface JsonEditorProps {
   initialValue?: string;
   onValidJson?: (json: any) => void;
@@ -144,6 +126,40 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
   const [editor, setEditor] = useState<any>(null);
+
+  useEffect(() => {
+    // Initialize Monaco theme on the client side
+    const initMonaco = async () => {
+      const { loader } = await import('@monaco-editor/react');
+      const monaco = await loader.init();
+      
+      monaco.editor.defineTheme('jsonTheme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [],
+        colors: {
+          'editor.background': '#1E1E2E',
+          'editor.foreground': '#E4E4E7',
+          'editor.lineHighlightBackground': '#ffffff10',
+          'editorLineNumber.foreground': '#94A3B8',
+          'editorLineNumber.activeForeground': '#E4E4E7',
+          'editor.selectionBackground': '#ffffff20',
+          'editor.inactiveSelectionBackground': '#ffffff10',
+          'editorCursor.foreground': '#E4E4E7',
+          'editorBracketMatch.background': '#ffffff20',
+          'editorBracketMatch.border': '#ffffff40',
+          'editor.findMatchBackground': '#ffffff20',
+          'editor.findMatchHighlightBackground': '#ffffff10',
+          'editorGutter.background': '#1E1E2E',
+          'editorGutter.modifiedBackground': '#3B82F6',
+          'editorGutter.addedBackground': '#10B981',
+          'editorGutter.deletedBackground': '#EF4444',
+        }
+      });
+    };
+
+    initMonaco();
+  }, []);
 
   const validateAndUpdateJson = useCallback((value: string) => {
     try {
@@ -209,7 +225,6 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
         }}
         onChange={handleChange}
         onMount={handleEditorDidMount}
-        loading={<LoadingContainer>Loading editor...</LoadingContainer>}
       />
       {isEmpty && !isLoading && (
         <EmptyState>{`{
