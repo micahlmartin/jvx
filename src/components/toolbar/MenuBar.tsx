@@ -1,95 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
-import { designSystem } from '@/styles/design-system';
 import { FileMenu } from './menus/FileMenu';
 import { useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Document } from '@/components/tabs/TabBar';
 import { Tab } from '@/components/tabs/Tab';
-
-const MenuBarContainer = styled.div`
-  background: #1E1E2E;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  z-index: ${designSystem.zIndex.nodeBase};
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-`;
-
-const MenuSection = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0;
-  padding-right: 12px;
-  height: 100%;
-  gap: 6px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-`;
-
-const TabsSection = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  gap: 2px;
-  padding-left: 16px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const NewTabButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 100%;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  cursor: pointer;
-  opacity: 0.7;
-  font-size: 22px;
-  transition: all 0.15s ease;
-  
-  &:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-const MenuItem = styled.button`
-  color: var(--text-primary);
-  font-size: 14px;
-  padding: 0 16px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  gap: 4px;
-  opacity: 0.85;
-  font-weight: 400;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    opacity: 1;
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
 
 interface MenuBarProps {
   documents: Document[];
@@ -136,22 +50,38 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   return (
-    <MenuBarContainer role="menubar" aria-label="Main menu">
-      <MenuSection>
+    <div 
+      role="menubar" 
+      aria-label="Main menu"
+      className="bg-[#1E1E2E] h-12 flex items-center z-[var(--z-index-node-base)] border-b border-[rgba(255,255,255,0.08)]"
+    >
+      <div className="flex items-center p-0 pr-3 h-full gap-1.5 border-r border-[rgba(255,255,255,0.08)]">
         <FileMenu
           onNewFile={handleNewFile}
           onOpenFile={handleOpenFile}
           onSaveFile={handleSaveFile}
           onSaveAs={handleSaveAs}
         />
-        <MenuItem role="menuitem" aria-haspopup="true">
+        <button 
+          role="menuitem" 
+          aria-haspopup="true"
+          className="text-text-primary text-sm px-4 bg-transparent border-none cursor-pointer transition-all duration-150 flex items-center h-full gap-1 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none"
+        >
           View
-        </MenuItem>
-        <MenuItem role="menuitem" aria-haspopup="true">
+        </button>
+        <button 
+          role="menuitem" 
+          aria-haspopup="true"
+          className="text-text-primary text-sm px-4 bg-transparent border-none cursor-pointer transition-all duration-150 flex items-center h-full gap-1 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none"
+        >
           Edit
-        </MenuItem>
-      </MenuSection>
-      <TabsSection role="tablist" aria-label="Open documents">
+        </button>
+      </div>
+      <div 
+        role="tablist" 
+        aria-label="Open documents"
+        className="flex items-center flex-1 h-full overflow-x-auto scrollbar-none gap-0.5 pl-4"
+      >
         {documents.map(doc => (
           <Tab
             key={doc.id}
@@ -164,14 +94,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
             onRename={renameDocument}
           />
         ))}
-        <NewTabButton
+        <button
           onClick={handleNewFile}
           aria-label="Create new document"
           title="Create new document"
+          className="flex items-center justify-center w-10 h-full bg-transparent border-none text-text-primary cursor-pointer opacity-70 text-[22px] transition-all duration-150 hover:opacity-100 hover:bg-[rgba(255,255,255,0.08)] focus:outline-none"
         >
           +
-        </NewTabButton>
-      </TabsSection>
-    </MenuBarContainer>
+        </button>
+      </div>
+    </div>
   );
 }; 

@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { designSystem } from '@/styles/design-system';
 import { TabContextMenu } from './TabContextMenu';
 
 interface TabProps {
@@ -12,85 +10,6 @@ interface TabProps {
   onClose: () => void;
   onRename?: (id: string, newName: string) => void;
 }
-
-const TabContainer = styled.div<{ $isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 8px;
-  gap: 8px;
-  background: ${props => props.$isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'};
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-  user-select: none;
-  min-width: 120px;
-  max-width: 200px;
-  position: relative;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.04);
-  }
-`;
-
-const TabName = styled.div<{ $isEditing: boolean }>`
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--text-primary);
-  opacity: 0.85;
-  font-size: 13px;
-  display: ${props => props.$isEditing ? 'none' : 'block'};
-`;
-
-const TabInput = styled.input`
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-primary);
-  font-size: 13px;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-  }
-`;
-
-const CloseButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  opacity: 0.5;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 3px;
-
-  &:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  svg {
-    width: 12px;
-    height: 12px;
-  }
-`;
-
-const DirtyIndicator = styled.div`
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--text-primary);
-  opacity: 0.5;
-`;
 
 export const Tab: React.FC<TabProps> = ({
   id,
@@ -167,37 +86,45 @@ export const Tab: React.FC<TabProps> = ({
 
   return (
     <>
-      <TabContainer
-        $isActive={isActive}
+      <div
+        className={`flex items-center h-full px-2 gap-2 border-r border-[rgba(255,255,255,0.08)] cursor-pointer select-none min-w-[120px] max-w-[200px] relative ${
+          isActive ? 'bg-[rgba(255,255,255,0.08)]' : 'bg-transparent'
+        } hover:bg-[rgba(255,255,255,0.04)]`}
         onClick={onActivate}
         onDoubleClick={handleDoubleClick}
         onContextMenu={handleContextMenu}
         role="tab"
         aria-selected={isActive}
       >
-        {isDirty && <DirtyIndicator />}
-        <TabName $isEditing={isEditing}>{name}</TabName>
+        {isDirty && (
+          <div className="w-1 h-1 rounded-full bg-text-primary opacity-50" />
+        )}
+        <div className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-text-primary opacity-85 text-[13px] ${isEditing ? 'hidden' : 'block'}`}>
+          {name}
+        </div>
         {isEditing ? (
-          <TabInput
+          <input
             ref={inputRef}
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
+            className="flex-1 bg-transparent border-none outline-none text-text-primary text-[13px] p-0 m-0 w-full focus:outline-none"
           />
         ) : null}
-        <CloseButton
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
           aria-label="Close tab"
+          className="flex items-center justify-center w-4 h-4 border-none bg-transparent text-text-primary opacity-50 cursor-pointer p-0 rounded hover:opacity-100 hover:bg-[rgba(255,255,255,0.1)]"
         >
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </CloseButton>
-      </TabContainer>
+        </button>
+      </div>
       {contextMenu && (
         <TabContextMenu
           x={contextMenu.x}

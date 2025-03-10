@@ -1,104 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { designSystem } from '@/styles/design-system';
-
-const MenuContainer = styled.div`
-  position: relative;
-`;
-
-const MenuButton = styled.button<{ $isOpen: boolean }>`
-  color: var(--text-primary);
-  font-size: 14px;
-  padding: 0 16px;
-  background: ${props => props.$isOpen ? 'rgba(255, 255, 255, 0.08)' : 'transparent'};
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-  z-index: ${props => props.$isOpen ? designSystem.zIndex.tooltip + 1 : 'auto'};
-  opacity: 0.85;
-  font-weight: 400;
-  height: 100%;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    opacity: 1;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  ${props => props.$isOpen && `
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: rgba(255, 255, 255, 0.08);
-    }
-  `}
-`;
-
-const DropdownMenu = styled.div<{ $isOpen: boolean }>`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #1E1E2E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0 6px 6px 6px;
-  min-width: 240px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  display: ${props => props.$isOpen ? 'block' : 'none'};
-  z-index: ${designSystem.zIndex.tooltip};
-  margin-top: -1px;
-`;
-
-const MenuItem = styled.button`
-  width: 100%;
-  padding: 10px 16px;
-  text-align: left;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  opacity: 0.85;
-  font-weight: 400;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    opacity: 1;
-  }
-
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  &:first-child {
-    margin-top: 6px;
-  }
-
-  &:last-child {
-    margin-bottom: 6px;
-  }
-`;
-
-const MenuSeparator = styled.div`
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 6px 0;
-`;
 
 interface FileMenuProps {
   onNewFile?: () => void;
@@ -141,43 +41,80 @@ export const FileMenu: React.FC<FileMenuProps> = ({
   };
 
   return (
-    <MenuContainer ref={menuRef}>
-      <MenuButton
+    <div ref={menuRef} className="relative">
+      <button
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        $isOpen={isOpen}
+        className={`text-text-primary text-sm px-4 border-none cursor-pointer transition-all duration-150 flex items-center gap-1 opacity-85 font-normal h-full relative ${
+          isOpen ? 'bg-[rgba(255,255,255,0.08)] after:content-[""] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-px after:bg-[rgba(255,255,255,0.08)]' : 'bg-transparent'
+        } hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none`}
       >
         File
-      </MenuButton>
-      <DropdownMenu $isOpen={isOpen} role="menu" aria-label="File menu">
-        <MenuItem onClick={() => {
-          onNewFile?.();
-          setIsOpen(false);
-        }} role="menuitem">
-          New File
-        </MenuItem>
-        <MenuItem onClick={() => {
-          onOpenFile?.();
-          setIsOpen(false);
-        }} role="menuitem">
-          Open File
-        </MenuItem>
-        <MenuSeparator />
-        <MenuItem onClick={() => {
-          onSaveFile?.();
-          setIsOpen(false);
-        }} role="menuitem">
-          Save
-        </MenuItem>
-        <MenuItem onClick={() => {
-          onSaveAs?.();
-          setIsOpen(false);
-        }} role="menuitem">
-          Save As...
-        </MenuItem>
-      </DropdownMenu>
-    </MenuContainer>
+      </button>
+      {isOpen && (
+        <div 
+          role="menu" 
+          aria-label="File menu"
+          className="absolute top-full left-0 bg-[#1E1E2E] border border-[rgba(255,255,255,0.08)] rounded-[0_6px_6px_6px] min-w-[240px] shadow-lg z-50 -mt-px"
+        >
+          <button 
+            onClick={() => {
+              onNewFile?.();
+              setIsOpen(false);
+            }} 
+            role="menuitem"
+            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)] mt-1.5 first:mt-1.5 last:mb-1.5"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+              <path d="M8 1v6h6M14 7V15H2V1h6l6 6z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            New File
+          </button>
+          <button 
+            onClick={() => {
+              onOpenFile?.();
+              setIsOpen(false);
+            }} 
+            role="menuitem"
+            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+              <path d="M14 14H2V2h6l2 2h4v10z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Open File
+          </button>
+          <div className="h-px bg-[rgba(255,255,255,0.08)] my-1.5" />
+          <button 
+            onClick={() => {
+              onSaveFile?.();
+              setIsOpen(false);
+            }} 
+            role="menuitem"
+            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+              <path d="M12.5 9.5v4h-9v-4M8 2v8M8 2l3 3M8 2L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Save
+          </button>
+          <button 
+            onClick={() => {
+              onSaveAs?.();
+              setIsOpen(false);
+            }} 
+            role="menuitem"
+            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+              <path d="M12.5 9.5v4h-9v-4M8 2v8M8 2l3 3M8 2L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.5 11.5h9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1"/>
+            </svg>
+            Save As...
+          </button>
+        </div>
+      )}
+    </div>
   );
 }; 
