@@ -63,10 +63,9 @@ const NodeLabel = styled.span`
 `;
 
 const PropertyList = styled.div`
-  padding: 8px 12px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
 `;
 
 const PropertyRow = styled.div<{ hasChild?: boolean }>`
@@ -78,6 +77,16 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
   font-family: 'JetBrains Mono', monospace;
   min-height: 22px;
   position: relative;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--node-border);
+
+  > * {
+    opacity: 0.75;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const PropertyKey = styled.span`
@@ -94,19 +103,25 @@ const PropertyValue = styled.span`
 
 const PropertySourceHandle = styled(Handle)`
   position: absolute !important;
-  right: -16px !important;
+  right: -4px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  background: #FFFFFF !important;
+  background: var(--node-border) !important;
   width: 8px !important;
   height: 8px !important;
   border: none !important;
   pointer-events: none !important;
   opacity: 1 !important;
   border-radius: 50% !important;
+  z-index: 1 !important;
+
+  && {
+    opacity: 1 !important;
+  }
 `;
 
 const PropertyTargetHandle = styled(Handle)`
+  position: absolute !important;
   left: -1px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
@@ -116,6 +131,7 @@ const PropertyTargetHandle = styled(Handle)`
   border: none !important;
   opacity: 0 !important;
   border-radius: 0 !important;
+  z-index: 1 !important;
 `;
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
