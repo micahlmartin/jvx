@@ -90,12 +90,23 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
 `;
 
 const PropertyKey = styled.span`
-  color: var(--text-property);
+  color: var(--text-value);
   white-space: nowrap;
 `;
 
-const PropertyValue = styled.span`
-  color: var(--text-value);
+const PropertyValue = styled.span<{ valueType: string; value?: any }>`
+  color: ${props => {
+    switch (props.valueType) {
+      case 'string':
+        return '#3B9CFF';  // bright blue for strings
+      case 'number':
+        return '#B392F0';  // purple for numbers
+      case 'boolean':
+        return props.value === 'true' ? '#79C99E' : '#FF7B72';  // green for true, red for false
+      default:
+        return '#C9D1D9';  // lighter gray for other types
+    }
+  }};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -167,9 +178,13 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
           <PropertyRow key={prop.key} hasChild={!!prop.childNodeId || prop.type === 'array'}>
             <PropertyKey>{prop.key}:</PropertyKey>
             {prop.type === 'string' ? (
-              <PropertyValue>"{prop.value}"</PropertyValue>
+              <PropertyValue valueType="string">"{prop.value}"</PropertyValue>
+            ) : prop.type === 'boolean' ? (
+              <PropertyValue valueType="boolean" value={prop.value.toString()}>{prop.value.toString()}</PropertyValue>
+            ) : prop.type === 'number' ? (
+              <PropertyValue valueType="number">{prop.value}</PropertyValue>
             ) : (
-              <PropertyValue>{prop.value}</PropertyValue>
+              <PropertyValue valueType={prop.type}>{prop.value}</PropertyValue>
             )}
             {(prop.childNodeId || prop.type === 'array') && (
               <PropertySourceHandle
