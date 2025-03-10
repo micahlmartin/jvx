@@ -18,21 +18,30 @@ export interface ObjectNodeData {
 const NodeContainer = styled.div`
   background: var(--node-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--node-border);
+  border: 2px solid var(--node-border) !important;
   border-radius: 8px;
   width: fit-content;
   min-width: 200px;
   max-width: 400px;
   position: relative;
   isolation: isolate;
+  z-index: 1;
+
+  && {
+    border: 2px solid var(--node-border);
+  }
 `;
 
 const NodeHeader = styled.div`
   padding: 8px 12px;
-  border-bottom: 1px solid var(--node-border);
+  border-bottom: 2px solid var(--node-border) !important;
   display: flex;
   align-items: center;
   gap: 8px;
+
+  && {
+    border-bottom: 2px solid var(--node-border);
+  }
 `;
 
 const NodeType = styled.span`
@@ -94,7 +103,7 @@ const PropertySourceHandle = styled(Handle)`
   right: -16px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  background: var(--node-border) !important;
+  background: #FFFFFF !important;
   width: 8px !important;
   height: 8px !important;
   border: none !important;
@@ -107,11 +116,11 @@ const PropertyTargetHandle = styled(Handle)`
   left: -1px !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  background: var(--node-border) !important;
+  background: transparent !important;
   width: 3px !important;
   height: 10px !important;
   border: none !important;
-  opacity: 1 !important;
+  opacity: 0 !important;
   border-radius: 0 !important;
 `;
 

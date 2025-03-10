@@ -5,11 +5,11 @@
 :root {
   --background: #1E1E2E;
   --node-bg: rgba(255, 255, 255, 0.05);
-  --node-border: rgba(255, 255, 255, 0.3);
+  --node-border: #FFFFFF;
   --text-primary: #E4E4E7;
   --text-property: #94A3B8;
   --text-value: #38BDF8;
-  --edge-stroke: rgba(148, 163, 184, 0.8);
+  --edge-stroke: #FFFFFF;
   --grid: rgba(255, 255, 255, 0.05);
 }
 
