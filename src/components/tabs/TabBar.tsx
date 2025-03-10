@@ -1,6 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
-import { designSystem } from '@/styles/design-system';
 import { Tab } from './Tab';
 
 export interface Document {
@@ -19,26 +17,6 @@ interface TabBarProps {
   onDocumentClose: (id: string) => void;
 }
 
-const TabBarContainer = styled.div`
-  display: flex;
-  align-items: center;
-  height: 32px;
-  background: var(--background);
-  border-bottom: 1px solid var(--node-border);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const TabList = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
 export const TabBar: React.FC<TabBarProps> = ({
   documents,
   activeDocument,
@@ -46,8 +24,12 @@ export const TabBar: React.FC<TabBarProps> = ({
   onDocumentClose
 }) => {
   return (
-    <TabBarContainer role="tablist" aria-label="Open documents">
-      <TabList>
+    <div 
+      role="tablist" 
+      aria-label="Open documents"
+      className="flex items-center h-8 bg-background border-b border-node-border overflow-x-auto scrollbar-none"
+    >
+      <div className="flex h-full">
         {documents.map(doc => (
           <Tab
             key={doc.id}
@@ -59,7 +41,7 @@ export const TabBar: React.FC<TabBarProps> = ({
             onClose={() => onDocumentClose(doc.id)}
           />
         ))}
-      </TabList>
-    </TabBarContainer>
+      </div>
+    </div>
   );
 }; 
