@@ -59,6 +59,7 @@ const NodeLabel = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
 `;
 
 const PropertyList = styled.div`
@@ -119,6 +120,18 @@ const PropertyTargetHandle = styled(Handle)`
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   const isRoot = data.label === 'Root';
+  
+  const getDisplayLabel = (label: string) => {
+    if (isRoot) return '{Root}';
+    
+    const parts = label.split('-');
+    const isArrayItem = /^\d+$/.test(parts[parts.length - 1]);
+    const name = isArrayItem ? parts[parts.length - 2] : parts[parts.length - 1];
+    
+    return isArrayItem ? `[${name}]` : `{${name}}`;
+  };
+
+  const displayLabel = getDisplayLabel(data.label);
 
   return (
     <NodeContainer>      
@@ -130,8 +143,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
       )}
       
       <NodeHeader>
-        <NodeType>object</NodeType>
-        <NodeLabel>{data.label}</NodeLabel>
+        <NodeLabel>{displayLabel}</NodeLabel>
       </NodeHeader>
 
       <PropertyList>
