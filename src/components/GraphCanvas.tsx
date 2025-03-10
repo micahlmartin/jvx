@@ -9,7 +9,8 @@ import ReactFlow, {
   ConnectionMode,
   Position,
   MarkerType,
-  DefaultEdgeOptions
+  DefaultEdgeOptions,
+  BackgroundVariant
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
@@ -352,9 +353,10 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
       >
         <Background 
           color="var(--grid)"
-          gap={24}
-          size={1}
-          className="opacity-20"
+          gap={12}
+          size={0.5}
+          className="opacity-30"
+          variant={BackgroundVariant.Lines}
         />
         <Controls 
           className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm 
