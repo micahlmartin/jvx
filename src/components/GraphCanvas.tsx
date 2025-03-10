@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -7,18 +7,18 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   ConnectionMode,
+  Panel,
   Position,
   MarkerType,
-  DefaultEdgeOptions,
-  ReactFlowInstance
+  DefaultEdgeOptions
 } from 'reactflow';
-import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import styled from 'styled-components';
 import { ObjectNode, ObjectNodeData } from './nodes';
 import ArrayNode from './nodes/ArrayNode';
 import ValueNode from './nodes/ValueNode';
 import { jsonToGraph } from '@/utils/jsonToGraph';
+import dagre from 'dagre';
 
 const GraphContainer = styled.div`
   width: 100%;
@@ -32,6 +32,45 @@ const nodeTypes = {
   value: ValueNode,
 } as const;
 
+interface NodeWithDepth extends Node {
+  depth?: number;
+}
+
+const COLUMN_GAP = 80;    // Fixed gap between columns
+const VERTICAL_SPACING = 40;
+const COLUMN_PADDING = 50;
+const TOP_PADDING = 40;
+
+const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> => {
+  const depths = new Map<string, number>();
+  const parentMap = new Map<string, string>();
+  
+  // Build parent map
+  edges.forEach(edge => {
+    parentMap.set(edge.target, edge.source);
+  });
+  
+  // Find root nodes (nodes with no parents)
+  const rootNodes = nodes.filter(node => !parentMap.has(node.id));
+  
+  // Recursive function to set depths
+  const setDepth = (nodeId: string, depth: number) => {
+    depths.set(nodeId, depth);
+    
+    // Find children and set their depths
+    edges
+      .filter(edge => edge.source === nodeId)
+      .forEach(edge => {
+        setDepth(edge.target, depth + 1);
+      });
+  };
+  
+  // Start from root nodes
+  rootNodes.forEach(node => setDepth(node.id, 0));
+  
+  return depths;
+};
+
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -39,115 +78,193 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   // Set the direction to LR (left to right)
   dagreGraph.setGraph({ 
     rankdir: 'LR', 
-    nodesep: 50,     // Consistent vertical spacing
-    ranksep: 120,    // Consistent horizontal spacing
-    ranker: 'tight-tree',  // Use tight-tree for more consistent alignment
-    align: 'UL',     // Align nodes to upper-left for consistency
-    marginx: 20,     // Consistent horizontal margins
-    marginy: 20      // Consistent vertical margins
+    nodesep: 40,
+    ranksep: 80,
+    ranker: 'tight-tree',
+    align: 'UL',
+    marginx: 15,
+    marginy: 15
   });
 
   // Group nodes by their depth level
   const nodesByLevel = new Map<number, Node[]>();
   const getNodeLevel = (nodeId: string, memo = new Map<string, number>()): number => {
-    if (memo.has(nodeId)) return memo.get(nodeId)!;
-    
-    const parentEdges = edges.filter(e => e.target === nodeId);
-    if (parentEdges.length === 0) {
-      memo.set(nodeId, 0);
-      return 0;
-    }
-    
-    const parentLevel = getNodeLevel(parentEdges[0].source, memo);
-    const level = parentLevel + 1;
-    memo.set(nodeId, level);
-    return level;
+    if (memo.has(nodeId)) return memo.get(nodeId) || 0;
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node) return 0;
+    const depth = calculateNodeDepths(nodes, edges).get(node.id) || 0;
+    const children = edges
+      .filter(edge => edge.source === node.id)
+      .map(edge => edge.target);
+    const childLevels = children.map(child => getNodeLevel(child, memo));
+    const maxChildLevel = Math.max(...childLevels, 0);
+    memo.set(node.id, maxChildLevel + 1);
+    return maxChildLevel + 1;
   };
-
-  // Group nodes by their level
-  nodes.forEach(node => {
-    const level = getNodeLevel(node.id);
-    if (!nodesByLevel.has(level)) {
-      nodesByLevel.set(level, []);
-    }
-    nodesByLevel.get(level)!.push(node);
-  });
 
   // Calculate maximum width needed for each level
   const levelWidths = new Map<number, number>();
   const MIN_WIDTH = 250;
-  const MAX_WIDTH = 400;  // Reduced from 600 to match actual display constraints
-  const CHAR_WIDTH = 8;   // Approximate width per character
-  const PADDING = 80;     // Padding for node edges and spacing
+  const MAX_WIDTH = 400;
+  const CHAR_WIDTH = 8;
+  const PADDING = 60;
 
-  nodesByLevel.forEach((levelNodes, level) => {
-    const maxWidth = levelNodes.reduce((max, node) => {
-      const data = node.data as ObjectNodeData;
-      // Calculate width based on content, but respect maximum display width
-      const maxCharsPerLine = Math.floor((MAX_WIDTH - PADDING) / CHAR_WIDTH);
-      const longestProp = data.properties?.reduce((maxLen, prop) => {
-        // Truncate the value length to match what will actually be displayed
-        const truncatedValueLength = Math.min(String(prop.value).length, maxCharsPerLine);
-        const keyLength = Math.min(prop.key.length, maxCharsPerLine);
-        return Math.max(maxLen, keyLength + truncatedValueLength);
-      }, 0) || 0;
-
-      // Calculate width with constraints
-      const width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, longestProp * CHAR_WIDTH + PADDING));
-      return Math.max(max, width);
-    }, 0);
-    levelWidths.set(level, maxWidth);
-  });
-
-  // Add nodes to the graph with level-consistent widths
+  // Calculate node dimensions first
+  const nodeWidths = new Map<string, number>();
+  const nodeHeights = new Map<string, number>();
+  
   nodes.forEach((node) => {
-    const level = getNodeLevel(node.id);
-    const width = levelWidths.get(level)!;
     const data = node.data as ObjectNodeData;
-    const height = Math.max(80, (data.properties?.length || 0) * 24 + 40);
-
-    dagreGraph.setNode(node.id, { 
-      width,
-      height,
-      level // Store level for later use
-    });
+    const contentHeight = 40 + (data.properties?.length || 0) * 24 + 20;
+    const maxPropertyLength = data.properties?.reduce((max: number, prop: { key: string; value: any }) => {
+      const keyLength = prop.key.length;
+      const valueLength = String(prop.value).length;
+      return Math.max(max, keyLength + valueLength);
+    }, 0) || 0;
+    
+    const contentWidth = Math.max(200, Math.min(400, maxPropertyLength * 8 + 40));
+    nodeWidths.set(node.id, contentWidth);
+    nodeHeights.set(node.id, contentHeight);
   });
 
-  // Add edges to the graph
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target, {
-      minlen: 1,
-      weight: 1
-    });
+  // Calculate depths for each node
+  const depths = calculateNodeDepths(nodes, edges);
+  
+  // Build parent-child relationships
+  const parentMap = new Map<string, string>();
+  edges.forEach(edge => {
+    parentMap.set(edge.target, edge.source);
   });
 
-  // Calculate the layout
-  dagre.layout(dagreGraph);
+  // Group nodes by depth
+  const nodesByDepth = new Map<number, Node[]>();
+  nodes.forEach(node => {
+    const depth = depths.get(node.id) || 0;
+    if (!nodesByDepth.has(depth)) {
+      nodesByDepth.set(depth, []);
+    }
+    nodesByDepth.get(depth)?.push(node);
+  });
 
-  // Get the positioned nodes and ensure consistent positioning within levels
-  const layoutedNodes = nodes.map((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    const level = getNodeLevel(node.id);
-    const width = levelWidths.get(level)!;
-    const data = node.data as ObjectNodeData;
-    const height = Math.max(80, (data.properties?.length || 0) * 24 + 40);
+  // Sort nodes within each depth based on their parent's position
+  nodesByDepth.forEach((depthNodes, depth) => {
+    if (depth > 0) {
+      depthNodes.sort((a, b) => {
+        const aParent = parentMap.get(a.id);
+        const bParent = parentMap.get(b.id);
+        
+        if (aParent && bParent) {
+          const aParentNode = nodes.find(n => n.id === aParent);
+          const bParentNode = nodes.find(n => n.id === bParent);
+          
+          if (aParentNode && bParentNode) {
+            return (aParentNode.position?.y || 0) - (bParentNode.position?.y || 0);
+          }
+        }
+        return 0;
+      });
+    }
+  });
 
-    return {
-      ...node,
-      position: {
-        x: nodeWithPosition.x - width / 2,
-        y: nodeWithPosition.y - height / 2
-      },
-      targetPosition: Position.Left,
-      sourcePosition: Position.Right,
-      style: {
-        width,
-        height
+  // Calculate maximum width for each column to ensure proper spacing
+  const columnMaxWidths = new Map<number, number>();
+  nodesByDepth.forEach((depthNodes, depth) => {
+    const maxWidth = Math.max(...depthNodes.map(node => nodeWidths.get(node.id) || 0));
+    columnMaxWidths.set(depth, maxWidth);
+  });
+
+  // Position nodes in a grid
+  let totalHeight = 0;
+  nodesByDepth.forEach((depthNodes) => {
+    totalHeight = Math.max(totalHeight, 
+      depthNodes.reduce((sum, node) => 
+        sum + (nodeHeights.get(node.id) || 0) + VERTICAL_SPACING, 0
+      )
+    );
+  });
+
+  nodesByDepth.forEach((depthNodes, depth) => {
+    // Calculate x position based on previous columns' widths
+    let xPosition = COLUMN_PADDING;
+    for (let i = 0; i < depth; i++) {
+      const columnWidth = columnMaxWidths.get(i) || 0;
+      xPosition += columnWidth + COLUMN_GAP;
+    }
+
+    // Position nodes vertically
+    let currentY = TOP_PADDING;
+    
+    // If this is the root column (depth 0), center it vertically
+    if (depth === 0 && depthNodes.length === 1) {
+      const rootHeight = nodeHeights.get(depthNodes[0].id) || 0;
+      currentY = (totalHeight - rootHeight) / 2;
+    }
+
+    // Track used vertical positions to prevent overlapping
+    const usedPositions = new Set<number>();
+
+    depthNodes.forEach((node) => {
+      const height = nodeHeights.get(node.id) || 0;
+      let targetY = currentY;
+      
+      // If node has a parent, try to align near parent's position
+      const parentId = parentMap.get(node.id);
+      if (parentId && depth > 0) {
+        const parentNode = nodes.find(n => n.id === parentId);
+        if (parentNode && parentNode.position) {
+          // Start from parent's position
+          targetY = parentNode.position.y;
+          
+          // Find next available position that doesn't overlap
+          while (usedPositions.has(targetY)) {
+            targetY += VERTICAL_SPACING;
+          }
+        }
       }
-    };
+
+      // Ensure we don't overlap with any existing nodes
+      while (usedPositions.has(targetY)) {
+        targetY += VERTICAL_SPACING;
+      }
+
+      // Mark this position and the space needed for this node as used
+      for (let y = targetY; y < targetY + height + VERTICAL_SPACING; y++) {
+        usedPositions.add(y);
+      }
+
+      node.position = {
+        x: xPosition,
+        y: targetY
+      };
+      node.targetPosition = Position.Left;
+      node.sourcePosition = Position.Right;
+      node.style = {
+        width: nodeWidths.get(node.id),
+        height: height
+      };
+      
+      currentY = targetY + height + VERTICAL_SPACING;
+    });
   });
 
-  return { nodes: layoutedNodes, edges };
+  // Update edges with orthogonal routing
+  edges.forEach((edge) => {
+    const sourceNode = nodes.find(n => n.id === edge.source);
+    const targetNode = nodes.find(n => n.id === edge.target);
+    
+    if (sourceNode && targetNode) {
+      edge.type = 'smoothstep';
+      edge.animated = false;
+      edge.style = {
+        stroke: 'var(--edge-stroke)',
+        strokeWidth: 2
+      };
+      edge.zIndex = 1000;
+      edge.targetHandle = null;
+    }
+  });
+
+  return { nodes, edges };
 };
 
 export interface GraphCanvasProps {
@@ -219,14 +336,6 @@ const initialJson = {
 export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ onInit }, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
-
-  const fitViewOptions = useMemo(() => ({
-    padding: 0.2,
-    minZoom: 0.5,
-    maxZoom: 4,
-    duration: 800
-  }), []);
 
   const updateJson = useCallback((json: any) => {
     const { nodes: newNodes, edges: newEdges } = jsonToGraph(json);
@@ -236,13 +345,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     );
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-    // After updating nodes and edges, fit view
-    setTimeout(() => {
-      if (reactFlowInstance.current) {
-        reactFlowInstance.current.fitView(fitViewOptions);
-      }
-    }, 50);
-  }, [setNodes, setEdges, fitViewOptions]);
+  }, [setNodes, setEdges]);
 
   useImperativeHandle(ref, () => ({
     updateJson
@@ -262,11 +365,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     zIndex: 1000
   }), []);
 
-  const handleInit = useCallback((instance: ReactFlowInstance) => {
-    reactFlowInstance.current = instance;
-    onInit?.();
-  }, [onInit]);
-
   return (
     <GraphContainer>
       <ReactFlow
@@ -277,13 +375,16 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
-        onInit={handleInit}
         fitView
-        fitViewOptions={fitViewOptions}
+        fitViewOptions={{ 
+          padding: 0.2,
+          minZoom: 0.5,
+          maxZoom: 4
+        }}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-        nodesDraggable={true}
-        nodesConnectable={true}
-        elementsSelectable={true}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
         minZoom={0.4}
         maxZoom={4}
         preventScrolling
@@ -297,10 +398,15 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         <Controls 
           className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm 
                      border border-[rgba(255,255,255,0.1)] rounded-lg"
-          showZoom={true}
-          showFitView={true}
-          showInteractive={false}
         />
+        <Panel position="top-right" className="bg-white/10 backdrop-blur rounded p-2">
+          <button
+            onClick={() => updateJson(initialJson)}
+            className="text-sm text-white/60 hover:text-white"
+          >
+            Reset View
+          </button>
+        </Panel>
       </ReactFlow>
     </GraphContainer>
   );
