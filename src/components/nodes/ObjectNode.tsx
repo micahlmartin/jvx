@@ -20,7 +20,7 @@ const NodeContainer = styled.div`
   backdrop-filter: blur(12px);
   border: 2px solid var(--node-border) !important;
   border-radius: 8px;
-  width: fit-content;
+  width: max-content;
   min-width: 200px;
   max-width: 400px;
   position: relative;
@@ -53,6 +53,27 @@ const getHeaderColor = (label: string) => {
   return colors[colorKey] || 'rgba(82, 82, 91, 0.15)';  // fallback gray
 };
 
+const getTitleColor = (label: string) => {
+  if (label === 'Root') return 'rgba(161, 161, 170, 0.9)';  // light gray for root
+
+  // Get the parent name (second to last part) or the name itself if no parent
+  const parts = label.split('-');
+  const colorKey = parts.length > 2 ? parts[parts.length - 2] : parts[parts.length - 1];
+  
+  // Map of title colors that correspond to the background colors but are lighter/more opaque
+  const colors: { [key: string]: string } = {
+    customer: 'rgba(96, 165, 250, 0.9)',    // light blue
+    items: 'rgba(167, 139, 250, 0.9)',      // light purple
+    products: 'rgba(167, 139, 250, 0.9)',   // same as items
+    shipping: 'rgba(236, 72, 153, 0.9)',    // light pink
+    payment: 'rgba(52, 211, 153, 0.9)',     // light green
+    address: 'rgba(251, 191, 36, 0.9)',     // light orange
+    billingAddress: 'rgba(251, 191, 36, 0.9)'  // same as address
+  };
+
+  return colors[colorKey] || 'rgba(161, 161, 170, 0.9)';  // fallback light gray
+};
+
 const NodeHeader = styled.div<{ $bgColor: string }>`
   padding: 8px 12px;
   border-bottom: 2px solid var(--node-border) !important;
@@ -75,8 +96,8 @@ const NodeType = styled.span`
   flex-shrink: 0;
 `;
 
-const NodeLabel = styled.span`
-  color: var(--text-primary);
+const NodeLabel = styled.span<{ $titleColor: string }>`
+  color: ${props => props.$titleColor};
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -92,7 +113,7 @@ const PropertyList = styled.div`
 
 const PropertyRow = styled.div<{ hasChild?: boolean }>`
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   font-size: 13px;
@@ -102,17 +123,13 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
   padding: 6px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  > * {
-    opacity: 0.75;
-  }
-
   &:last-child {
     border-bottom: none;
   }
 `;
 
 const PropertyKey = styled.span`
-  color: var(--text-value);
+  color: #768390;  // muted blue-gray for property names
   white-space: nowrap;
 `;
 
@@ -120,18 +137,37 @@ const PropertyValue = styled.span<{ valueType: string; value?: any }>`
   color: ${props => {
     switch (props.valueType) {
       case 'string':
-        return '#3B9CFF';  // bright blue for strings
+        return '#00FFFF';  // neon cyan for strings
       case 'number':
-        return '#B392F0';  // purple for numbers
+        return '#FF00FF';  // neon magenta for numbers
       case 'boolean':
-        return props.value === 'true' ? '#79C99E' : '#FF7B72';  // green for true, red for false
+        return props.value === 'true' ? '#39FF14' : '#FF4545';  // neon green / bright red for booleans
       default:
-        return '#C9D1D9';  // lighter gray for other types
+        return '#FFFFFF';  // pure white for text and other types
     }
   }};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &:hover {
+    overflow: visible;
+    position: relative;
+    z-index: 2;
+
+    &::after {
+      content: attr(data-full-value);
+      position: absolute;
+      left: 0;
+      top: -2px;
+      padding: 2px 6px;
+      background: var(--node-bg);
+      border-radius: 4px;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      opacity: 1;
+    }
+  }
 `;
 
 const PropertySourceHandle = styled(Handle)`
@@ -182,6 +218,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
 
   const displayLabel = getDisplayLabel(data.label);
   const headerColor = getHeaderColor(data.label);
+  const titleColor = getTitleColor(data.label);
 
   return (
     <NodeContainer>      
@@ -193,7 +230,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
       )}
       
       <NodeHeader $bgColor={headerColor}>
-        <NodeLabel>{displayLabel}</NodeLabel>
+        <NodeLabel $titleColor={titleColor}>{displayLabel}</NodeLabel>
       </NodeHeader>
 
       <PropertyList>
@@ -201,13 +238,26 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
           <PropertyRow key={prop.key} hasChild={!!prop.childNodeId || prop.type === 'array'}>
             <PropertyKey>{prop.key}:</PropertyKey>
             {prop.type === 'string' ? (
-              <PropertyValue valueType="string">"{prop.value}"</PropertyValue>
+              <PropertyValue 
+                valueType="string" 
+                data-full-value={`"${prop.value}"`}
+              >"{prop.value}"</PropertyValue>
             ) : prop.type === 'boolean' ? (
-              <PropertyValue valueType="boolean" value={prop.value.toString()}>{prop.value.toString()}</PropertyValue>
+              <PropertyValue 
+                valueType="boolean" 
+                value={prop.value.toString()}
+                data-full-value={prop.value.toString()}
+              >{prop.value.toString()}</PropertyValue>
             ) : prop.type === 'number' ? (
-              <PropertyValue valueType="number">{prop.value}</PropertyValue>
+              <PropertyValue 
+                valueType="number"
+                data-full-value={prop.value}
+              >{prop.value}</PropertyValue>
             ) : (
-              <PropertyValue valueType={prop.type}>{prop.value}</PropertyValue>
+              <PropertyValue 
+                valueType={prop.type}
+                data-full-value={prop.value}
+              >{prop.value}</PropertyValue>
             )}
             {(prop.childNodeId || prop.type === 'array') && (
               <PropertySourceHandle
