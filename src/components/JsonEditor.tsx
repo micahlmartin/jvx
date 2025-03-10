@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import Editor, { Monaco, loader } from '@monaco-editor/react';
+import { sampleOrderData } from '@/data/sampleData';
 
 const EditorContainer = styled.div`
   display: flex;
@@ -113,57 +114,76 @@ loader.init().then(monaco => {
     inherit: true,
     rules: [],
     colors: {
-      'editor.background': '#00000000',
+      'editor.background': '#1E1E2E',
+      'editor.foreground': '#E4E4E7',
       'editor.lineHighlightBackground': '#ffffff10',
       'editorLineNumber.foreground': '#94A3B8',
       'editorLineNumber.activeForeground': '#E4E4E7',
       'editor.selectionBackground': '#ffffff20',
       'editor.inactiveSelectionBackground': '#ffffff10',
+      'editorCursor.foreground': '#E4E4E7',
+      'editorBracketMatch.background': '#ffffff20',
+      'editorBracketMatch.border': '#ffffff40',
+      'editor.findMatchBackground': '#ffffff20',
+      'editor.findMatchHighlightBackground': '#ffffff10',
+      'editorGutter.background': '#1E1E2E',
+      'editorGutter.modifiedBackground': '#3B82F6',
+      'editorGutter.addedBackground': '#10B981',
+      'editorGutter.deletedBackground': '#EF4444',
     }
   });
 });
 
-interface JsonEditorProps {
-  onValidJson?: (json: any) => void;
+export interface JsonEditorProps {
   initialValue?: string;
+  onValidJson?: (json: any) => void;
 }
 
-export function JsonEditor({ onValidJson, initialValue }: JsonEditorProps) {
+export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isEmpty, setIsEmpty] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(false);
   const [editor, setEditor] = useState<any>(null);
 
-  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
-    monaco.editor.setTheme('jsonTheme');
-    setEditor(editor);
-    
-    const emptyValue = '{\n    \n}';
-    editor.setValue(emptyValue);
-    setIsLoading(false);
-    setIsEmpty(true);
-
-    editor.setPosition({ lineNumber: 2, column: 5 });
-    editor.focus();
-
-    editor.onDidChangeModelContent(() => {
-      const currentValue = editor.getValue().trim();
-      setIsEmpty(currentValue === '{\n    \n}' || currentValue === '{}');
-    });
-  };
-
-  const handleChange = (value: string | undefined) => {
-    if (!value) return;
-    
+  const validateAndUpdateJson = useCallback((value: string) => {
     try {
-      const parsed = JSON.parse(value);
+      const parsedJson = JSON.parse(value);
       setError(null);
-      onValidJson?.(parsed);
+      onValidJson?.(parsedJson);
+      return true;
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
       }
+      return false;
     }
+  }, [onValidJson]);
+
+  const handleEditorDidMount = useCallback((editor: any) => {
+    setEditor(editor);
+    // Apply the theme
+    editor.updateOptions({
+      theme: 'jsonTheme'
+    });
+    
+    const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
+    editor.setValue(value);
+    setIsEmpty(!value || value === '{\n    \n}');
+    
+    if (isEmpty) {
+      const position = editor.getPosition();
+      editor.setPosition({ lineNumber: 2, column: 5 });
+      editor.focus();
+    } else {
+      validateAndUpdateJson(value);
+    }
+    
+    setIsLoading(false);
+  }, [initialValue, isEmpty, validateAndUpdateJson]);
+
+  const handleChange = (value: string | undefined) => {
+    if (!value) return;
+    validateAndUpdateJson(value);
   };
 
   return (

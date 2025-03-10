@@ -9,6 +9,7 @@ import { MenuBar } from '@/components/toolbar/MenuBar';
 import { TabBar } from '@/components/tabs/TabBar';
 import { DocumentProvider, useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
+import { sampleOrderData } from '@/data/sampleData';
 
 interface LayoutProps {
   $isEditorVisible: boolean;
@@ -108,17 +109,7 @@ function HomeContent() {
       const defaultDoc = {
         id: uuidv4(),
         name: 'Order Data',
-        content: JSON.stringify({
-          orderId: "ORD-2024-1234",
-          orderDate: "2024-03-19T10:30:00Z",
-          status: "processing",
-          customer: {
-            id: "CUST-789",
-            firstName: "Alice",
-            lastName: "Johnson",
-            email: "alice.j@example.com"
-          }
-        }, null, 2),
+        content: JSON.stringify(sampleOrderData, null, 2),
         isDirty: false,
         type: 'json'
       };
