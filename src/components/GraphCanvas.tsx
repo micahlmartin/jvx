@@ -341,14 +341,14 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         fitViewOptions={{ 
           padding: 0.2,
           minZoom: 0.5,
-          maxZoom: 1.5
+          maxZoom: 4
         }}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable={false}
         minZoom={0.4}
-        maxZoom={1.5}
+        maxZoom={4}
         preventScrolling
       >
         <Background 
