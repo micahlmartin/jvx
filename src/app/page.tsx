@@ -2,7 +2,6 @@
 
 import { useCallback, useRef, useEffect, useMemo, useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import styled from 'styled-components';
 import { GraphCanvas, GraphCanvasHandle } from '@/components/GraphCanvas';
 import { JsonEditor } from '@/components/JsonEditor';
 import { MenuBar } from '@/components/toolbar/MenuBar';
@@ -10,85 +9,6 @@ import { TabBar } from '@/components/tabs/TabBar';
 import { DocumentProvider, useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
 import { sampleOrderData } from '@/data/sampleData';
-
-interface LayoutProps {
-  $isEditorVisible: boolean;
-}
-
-interface EditorPaneProps {
-  $isVisible: boolean;
-}
-
-const Layout = styled.div<LayoutProps>`
-  display: grid;
-  grid-template-rows: 48px 1fr;
-  grid-template-columns: ${props => props.$isEditorVisible ? '400px 1fr' : '0 1fr'};
-  height: 100dvh; /* Use dvh for better mobile support */
-  width: 100%;
-  overflow: hidden;
-  background: var(--background);
-  transition: grid-template-columns 0.3s ease;
-`;
-
-const MenuBarContainer = styled.div`
-  grid-column: 1 / -1;
-  border-bottom: 1px solid var(--node-border);
-  display: flex;
-  align-items: center;
-  background: #1E1E2E;
-`;
-
-const ToggleButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border: none;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  opacity: 0.85;
-  transition: all 0.15s ease;
-
-  &:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const MenuSeparator = styled.div`
-  width: 1px;
-  height: 24px;
-  background: currentColor;
-  margin: 0 8px;
-  opacity: 0.08;
-`;
-
-const TabBarContainer = styled.div`
-  grid-column: 1 / -1;
-`;
-
-const EditorPane = styled.div<EditorPaneProps>`
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--node-border);
-  overflow: hidden;
-  opacity: ${props => props.$isVisible ? 1 : 0};
-  transition: opacity 0.2s;
-  width: ${props => props.$isVisible ? '400px' : '0'};
-`;
-
-const GraphPane = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
 
 function HomeContent() {
   const [isEditorVisible, setIsEditorVisible] = useState(true);
@@ -156,36 +76,37 @@ function HomeContent() {
 
   return (
     <ReactFlowProvider>
-      <Layout $isEditorVisible={isEditorVisible}>
-        <MenuBarContainer>
-          <ToggleButton
+      <div className={`grid grid-rows-[48px_1fr] h-[100dvh] w-full overflow-hidden bg-background transition-[grid-template-columns] duration-300 ease-in-out ${isEditorVisible ? 'grid-cols-[400px_1fr]' : 'grid-cols-[0_1fr]'}`}>
+        <div className="col-span-full border-b border-node-border flex items-center bg-[#1E1E2E]">
+          <button
             onClick={() => setIsEditorVisible(!isEditorVisible)}
             aria-label="Toggle panel"
             title="Toggle panel"
+            className="flex items-center justify-center w-12 h-12 border-none bg-transparent text-text-primary cursor-pointer opacity-85 transition-all duration-150 hover:opacity-100 hover:bg-[rgba(255,255,255,0.08)]"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14 2H2v12h12V2zM6 2v12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </ToggleButton>
-          <MenuSeparator />
+          </button>
+          <div className="w-[1px] h-6 bg-current mx-2 opacity-[0.08]" />
           <MenuBar
             documents={documents}
             activeDocument={activeDocument}
             onDocumentSelect={setActiveDocument}
             onDocumentClose={removeDocument}
           />
-        </MenuBarContainer>
-        <EditorPane $isVisible={isEditorVisible}>
+        </div>
+        <div className={`flex flex-col border-r border-node-border overflow-hidden transition-[opacity,width] duration-200 ${isEditorVisible ? 'opacity-100 w-[400px]' : 'opacity-0 w-0'}`}>
           <JsonEditor 
             onValidJson={handleValidJson}
             key={activeDocument || 'empty'}
             initialValue={currentContent}
           />
-        </EditorPane>
-        <GraphPane>
+        </div>
+        <div className="flex flex-col overflow-hidden">
           <GraphCanvas ref={graphRef} />
-        </GraphPane>
-      </Layout>
+        </div>
+      </div>
     </ReactFlowProvider>
   );
 }
