@@ -344,9 +344,9 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
           maxZoom: 4
         }}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-        nodesDraggable={false}
-        nodesConnectable={false}
-        elementsSelectable={false}
+        nodesDraggable={true}
+        nodesConnectable={true}
+        elementsSelectable={true}
         minZoom={0.4}
         maxZoom={4}
         preventScrolling
@@ -360,6 +360,9 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         <Controls 
           className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm 
                      border border-[rgba(255,255,255,0.1)] rounded-lg"
+          showZoom={true}
+          showFitView={true}
+          showInteractive={false}
         />
         <Panel position="top-right" className="bg-white/10 backdrop-blur rounded p-2">
           <button
