@@ -33,15 +33,15 @@ function createNode(id: string, label: string, properties: NodeProperty[]): Node
   };
 }
 
-export function jsonToGraph(json: any, documentName: string = 'Untitled'): GraphData {
+function processObject(obj: any, parentId: string | null = null): GraphData {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
-  let currentId = 'root';
+  let currentId = parentId || 'root';
 
   // Handle objects
   const properties: NodeProperty[] = [];
 
-  Object.entries(json).forEach(([key, value]) => {
+  Object.entries(obj).forEach(([key, value]) => {
     const valueType = getValueType(value);
     
     if (valueType === 'array') {
@@ -61,12 +61,12 @@ export function jsonToGraph(json: any, documentName: string = 'Untitled'): Graph
 
         if (itemType === 'object') {
           // Recursively process object elements
-          const { nodes: childNodes, edges: childEdges } = jsonToGraph(item);
+          const { nodes: childNodes, edges: childEdges } = processObject(item, itemId);
           nodes.push(...childNodes);
           edges.push(...childEdges);
         } else if (itemType === 'array') {
           // Recursively process nested arrays
-          const { nodes: childNodes, edges: childEdges } = jsonToGraph({ value: item });
+          const { nodes: childNodes, edges: childEdges } = processObject({ value: item }, itemId);
           nodes.push(...childNodes);
           edges.push(...childEdges);
         } else {
@@ -92,7 +92,7 @@ export function jsonToGraph(json: any, documentName: string = 'Untitled'): Graph
     } else if (valueType === 'object' && value !== null) {
       // Process child objects
       const childId = `${currentId}-${key}`;
-      const { nodes: childNodes, edges: childEdges } = jsonToGraph(value);
+      const { nodes: childNodes, edges: childEdges } = processObject(value, childId);
       
       nodes.push(...childNodes);
       edges.push(...childEdges);
@@ -129,7 +129,9 @@ export function jsonToGraph(json: any, documentName: string = 'Untitled'): Graph
   });
 
   // Create node for current object with its properties
-  nodes.push(createNode(currentId, documentName, properties));
+  nodes.push(createNode(currentId, currentId === 'root' ? 'Root' : currentId, properties));
 
   return { nodes, edges };
-} 
+}
+
+export { processObject as jsonToGraph }; 
