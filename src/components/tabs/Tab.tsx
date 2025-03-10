@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { designSystem } from '@/styles/design-system';
+import { TabContextMenu } from './TabContextMenu';
 
 interface TabProps {
   id: string;
@@ -102,6 +103,7 @@ export const Tab: React.FC<TabProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(name);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -111,10 +113,31 @@ export const Tab: React.FC<TabProps> = ({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (contextMenu) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.tab-context-menu')) {
+          setContextMenu(null);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [contextMenu]);
+
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (onRename) {
       setIsEditing(true);
+    }
+  };
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onRename) {
+      setContextMenu({ x: e.clientX, y: e.clientY });
     }
   };
 
@@ -137,36 +160,52 @@ export const Tab: React.FC<TabProps> = ({
     setIsEditing(false);
   };
 
+  const startRename = () => {
+    setContextMenu(null);
+    setIsEditing(true);
+  };
+
   return (
-    <TabContainer
-      $isActive={isActive}
-      onClick={onActivate}
-      onDoubleClick={handleDoubleClick}
-      role="tab"
-      aria-selected={isActive}
-    >
-      {isDirty && <DirtyIndicator />}
-      <TabName $isEditing={isEditing}>{name}</TabName>
-      {isEditing ? (
-        <TabInput
-          ref={inputRef}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
-        />
-      ) : null}
-      <CloseButton
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose();
-        }}
-        aria-label="Close tab"
+    <>
+      <TabContainer
+        $isActive={isActive}
+        onClick={onActivate}
+        onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
+        role="tab"
+        aria-selected={isActive}
       >
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </CloseButton>
-    </TabContainer>
+        {isDirty && <DirtyIndicator />}
+        <TabName $isEditing={isEditing}>{name}</TabName>
+        {isEditing ? (
+          <TabInput
+            ref={inputRef}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+          />
+        ) : null}
+        <CloseButton
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label="Close tab"
+        >
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </CloseButton>
+      </TabContainer>
+      {contextMenu && (
+        <TabContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onRename={startRename}
+          onClose={onClose}
+        />
+      )}
+    </>
   );
 }; 
