@@ -47,9 +47,9 @@ export const FileMenu: React.FC<FileMenuProps> = ({
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className={`text-text-primary text-sm px-4 border-none cursor-pointer transition-all duration-150 flex items-center gap-1 opacity-85 font-normal h-full relative ${
-          isOpen ? 'bg-[rgba(255,255,255,0.08)] after:content-[""] after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-px after:bg-[rgba(255,255,255,0.08)]' : 'bg-transparent'
-        } hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none`}
+        className={`text-toolbar-text dark:text-toolbar-text-dark text-menu tracking-normal font-medium px-5 border-none cursor-pointer transition-colors duration-150 flex items-center h-full relative ${
+          isOpen ? 'bg-toolbar-active dark:bg-toolbar-active-dark after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-toolbar-highlight dark:after:bg-toolbar-highlight-dark' : ''
+        } hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none focus-visible:bg-toolbar-hover dark:focus-visible:bg-toolbar-hover-dark`}
       >
         File
       </button>
@@ -57,7 +57,7 @@ export const FileMenu: React.FC<FileMenuProps> = ({
         <div 
           role="menu" 
           aria-label="File menu"
-          className="absolute top-full left-0 bg-[#1E1E2E] border border-[rgba(255,255,255,0.08)] rounded-[0_6px_6px_6px] min-w-[240px] shadow-lg z-50 -mt-px"
+          className="absolute top-full left-0 bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border/30 dark:border-toolbar-border-dark/30 shadow-[0_4px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_8px_rgba(0,0,0,0.3)] backdrop-blur-[4px] py-[6px] min-w-[180px] z-50"
         >
           <button 
             onClick={() => {
@@ -65,9 +65,9 @@ export const FileMenu: React.FC<FileMenuProps> = ({
               setIsOpen(false);
             }} 
             role="menuitem"
-            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)] mt-1.5 first:mt-1.5 last:mb-1.5"
+            className="w-full text-left text-menu tracking-normal font-medium px-3 py-[6px] hover:bg-toolbar-hover/50 dark:hover:bg-toolbar-hover-dark/50 focus:outline-none focus-visible:bg-toolbar-hover/50 dark:focus-visible:bg-toolbar-hover-dark/50 transition-colors duration-150 flex items-center gap-3 text-toolbar-text dark:text-toolbar-text-dark"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[15px] h-[15px] opacity-80 flex items-center justify-center">
               <path d="M8 1v6h6M14 7V15H2V1h6l6 6z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             New File
@@ -78,23 +78,23 @@ export const FileMenu: React.FC<FileMenuProps> = ({
               setIsOpen(false);
             }} 
             role="menuitem"
-            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+            className="w-full text-left text-menu tracking-normal font-medium px-3 py-[6px] hover:bg-toolbar-hover/50 dark:hover:bg-toolbar-hover-dark/50 focus:outline-none focus-visible:bg-toolbar-hover/50 dark:focus-visible:bg-toolbar-hover-dark/50 transition-colors duration-150 flex items-center gap-3 text-toolbar-text dark:text-toolbar-text-dark"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[15px] h-[15px] opacity-80 flex items-center justify-center">
               <path d="M14 14H2V2h6l2 2h4v10z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Open File
           </button>
-          <div className="h-px bg-[rgba(255,255,255,0.08)] my-1.5" />
+          <div className="h-px mx-3 my-1.5 bg-toolbar-border/20 dark:bg-toolbar-border-dark/20" />
           <button 
             onClick={() => {
               onSaveFile?.();
               setIsOpen(false);
             }} 
             role="menuitem"
-            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+            className="w-full text-left text-menu tracking-normal font-medium px-3 py-[6px] hover:bg-toolbar-hover/50 dark:hover:bg-toolbar-hover-dark/50 focus:outline-none focus-visible:bg-toolbar-hover/50 dark:focus-visible:bg-toolbar-hover-dark/50 transition-colors duration-150 flex items-center gap-3 text-toolbar-text dark:text-toolbar-text-dark"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[15px] h-[15px] opacity-80 flex items-center justify-center">
               <path d="M12.5 9.5v4h-9v-4M8 2v8M8 2l3 3M8 2L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Save
@@ -105,9 +105,9 @@ export const FileMenu: React.FC<FileMenuProps> = ({
               setIsOpen(false);
             }} 
             role="menuitem"
-            className="w-full px-4 py-2.5 text-left bg-transparent border-none text-text-primary text-sm cursor-pointer transition-all duration-150 flex items-center gap-2 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none focus:bg-[rgba(255,255,255,0.08)]"
+            className="w-full text-left text-menu tracking-normal font-medium px-3 py-[6px] hover:bg-toolbar-hover/50 dark:hover:bg-toolbar-hover-dark/50 focus:outline-none focus-visible:bg-toolbar-hover/50 dark:focus-visible:bg-toolbar-hover-dark/50 transition-colors duration-150 flex items-center gap-3 text-toolbar-text dark:text-toolbar-text-dark"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 opacity-70">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[15px] h-[15px] opacity-80 flex items-center justify-center">
               <path d="M12.5 9.5v4h-9v-4M8 2v8M8 2l3 3M8 2L5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M3.5 11.5h9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="1 1"/>
             </svg>
