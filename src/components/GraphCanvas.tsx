@@ -69,7 +69,7 @@ const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> 
   return depths;
 };
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: Edge[] } => {
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   // Calculate node dimensions first
   const nodeWidths = new Map<string, number>();
   const nodeHeights = new Map<string, number>();
@@ -343,7 +343,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
           maxZoom: 4
         }}
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-        nodesDraggable={true}
+        nodesDraggable={false}
         nodesConnectable={true}
         elementsSelectable={true}
         minZoom={0.4}
