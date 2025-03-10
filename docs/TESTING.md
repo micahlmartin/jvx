@@ -1,321 +1,191 @@
 # Testing Guidelines
 
 ## Overview
-
-This document outlines our testing strategy and requirements for the JVX project. We maintain high test coverage and quality through a combination of unit tests, visual regression tests, and integration tests.
+This document outlines our testing approach and best practices for ensuring code quality and reliability.
 
 ## Test Types
 
-### 1. Unit Tests
+### Unit Tests
+- Test individual components and functions
+- Focus on isolated functionality
+- Use Jest and React Testing Library
+- Mock external dependencies
 
-Unit tests verify individual component behavior and functionality.
-
-#### Requirements
-
-- Test all component props
-- Test all component states
-- Test error conditions
-- Test edge cases
-- Maintain isolated tests
-
-#### Example
-
-```tsx
-describe('NodeHandle', () => {
-  describe('Visibility Rules', () => {
-    it('should render target handle with opacity 0 by default', () => {
-      const { container } = render(
-        <NodeHandle
-          type="target"
-          position={Position.Left}
-        />
-      );
-      
-      const handle = container.firstChild as HTMLElement;
-      expect(handle).toHaveStyle({
-        opacity: '0',
-        pointerEvents: 'none'
-      });
-    });
-  });
-});
-```
-
-### 2. Visual Regression Tests
-
-Visual regression tests ensure consistent component appearance and catch unintended visual changes.
-
-#### Requirements
-
-- Test component appearance
-- Test component states
-- Test responsive behavior
-- Test theme variations
-- Test animations and transitions
-
-#### Example
-
-```tsx
-describe('Visual Regression', () => {
-  it('should match snapshot for target handle', () => {
-    const { container } = render(
-      <NodeHandle
-        type="target"
-        position={Position.Left}
-      />
-    );
-    expect(container.firstChild).toMatchSnapshot();
-  });
-});
-```
-
-### 3. Integration Tests
-
-Integration tests verify component interactions and data flow.
-
-#### Requirements
-
+### Integration Tests
 - Test component interactions
-- Test data flow
-- Test error handling
-- Test side effects
-- Test real-world scenarios
+- Verify data flow between components
+- Test user interactions and state changes
+- Use React Testing Library for component testing
 
-#### Example
-
-```tsx
-describe('Node Connections', () => {
-  it('should allow connection between source and target handles', () => {
-    const { getByTestId } = render(
-      <>
-        <Node1 />
-        <Node2 />
-      </>
-    );
-    
-    // Test connection interaction
-    fireEvent.mouseDown(getByTestId('handle-source'));
-    fireEvent.mouseMove(getByTestId('handle-target'));
-    fireEvent.mouseUp();
-    
-    expect(onConnect).toHaveBeenCalled();
-  });
-});
-```
-
-## Test Organization
-
-### File Structure
-
-```
-src/
-├── components/
-│   └── nodes/
-│       ├── __tests__/
-│       │   ├── NodeHandle.test.tsx
-│       │   └── PropertyRow.test.tsx
-│       ├── NodeHandle.tsx
-│       └── PropertyRow.tsx
-└── test/
-    ├── setup.ts
-    └── utils/
-        └── flow-test-utils.tsx
-```
-
-### Test File Naming
-
-- Unit tests: `ComponentName.test.tsx`
-- Integration tests: `ComponentName.integration.test.tsx`
-- Visual regression tests: `ComponentName.visual.test.tsx`
+### Visual Regression Tests
+- Capture and compare component snapshots
+- Test responsive layouts
+- Verify Tailwind CSS classes are applied correctly
+- Use jest-image-snapshot for visual comparisons
 
 ## Testing Tools
 
 ### Jest
+Our primary testing framework for running tests and assertions.
 
-Our primary testing framework.
+```typescript
+import { render, screen } from '@testing-library/react';
+import { MyComponent } from './MyComponent';
 
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm test:watch
-
-# Update snapshots
-npm test -- -u
+describe('MyComponent', () => {
+  it('renders correctly', () => {
+    render(<MyComponent />);
+    expect(screen.getByRole('button')).toHaveClass('bg-blue-500');
+  });
+});
 ```
 
-### Testing Library
+### React Testing Library
+Used for rendering components and testing user interactions.
 
-Used for rendering components and simulating user interactions.
-
-```tsx
+```typescript
 import { render, fireEvent } from '@testing-library/react';
+
+test('button click changes state', () => {
+  const { getByRole } = render(<Button />);
+  const button = getByRole('button');
+  
+  fireEvent.click(button);
+  expect(button).toHaveClass('bg-blue-600');
+});
 ```
 
-### jest-styled-components
+### Visual Testing
+Use jest-image-snapshot for visual regression testing:
 
-Provides enhanced snapshot testing and style assertions for styled-components.
+```typescript
+import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
-```tsx
-import 'jest-styled-components';
+expect.extend({ toMatchImageSnapshot });
+
+it('matches visual snapshot', () => {
+  const { container } = render(<MyComponent />);
+  expect(container).toMatchImageSnapshot();
+});
+```
+
+## Testing Patterns
+
+### Component Testing
+1. Test component rendering
+2. Verify Tailwind classes are applied
+3. Test interactive states
+4. Check accessibility attributes
+
+```typescript
+describe('Button', () => {
+  it('applies correct Tailwind classes', () => {
+    const { getByRole } = render(<Button variant="primary" />);
+    const button = getByRole('button');
+    
+    expect(button).toHaveClass('bg-blue-500', 'hover:bg-blue-600');
+  });
+
+  it('changes style on hover', () => {
+    const { getByRole } = render(<Button />);
+    const button = getByRole('button');
+    
+    fireEvent.mouseEnter(button);
+    expect(button).toHaveClass('bg-blue-600');
+  });
+});
+```
+
+### Layout Testing
+1. Test responsive layouts
+2. Verify grid and flex layouts
+3. Check spacing and alignment
+
+```typescript
+describe('Layout', () => {
+  it('uses correct grid classes', () => {
+    const { container } = render(<Layout />);
+    const grid = container.firstChild;
+    
+    expect(grid).toHaveClass('grid', 'grid-cols-2', 'md:grid-cols-4');
+  });
+});
+```
+
+### Theme Testing
+1. Verify theme tokens are used correctly
+2. Test color applications
+3. Check typography scales
+
+```typescript
+describe('Theme', () => {
+  it('uses theme colors', () => {
+    const { getByTestId } = render(<Card />);
+    const card = getByTestId('card');
+    
+    expect(card).toHaveClass('bg-background', 'text-text-primary');
+  });
+});
 ```
 
 ## Best Practices
 
-### 1. Test Organization
+### General Guidelines
+1. Write descriptive test names
+2. Test component behavior, not implementation
+3. Use meaningful assertions
+4. Keep tests focused and isolated
 
-- Group related tests using `describe` blocks
-- Use clear, descriptive test names
-- Follow the Arrange-Act-Assert pattern
-- Keep tests focused and single-purpose
+### Tailwind CSS Testing
+1. Test presence of utility classes
+2. Verify responsive classes
+3. Check interactive state classes
+4. Test theme token usage
 
-### 2. Test Coverage
+### Accessibility Testing
+1. Use proper ARIA roles
+2. Test keyboard navigation
+3. Verify focus states
+4. Check color contrast
 
-- Maintain high test coverage (minimum 80%)
-- Test all code paths
-- Test error conditions
-- Test edge cases
+## Test Organization
 
-### 3. Test Independence
-
-- Each test should be independent
-- Clean up after each test
-- Avoid test interdependence
-- Use proper setup and teardown
-
-### 4. Assertions
-
-- Use specific assertions
-- Test one thing per test
-- Use proper matchers
-- Avoid testing implementation details
-
-## Common Patterns
-
-### 1. Testing Styled Components
-
-```tsx
-it('should have correct styles', () => {
-  const { container } = render(<Component />);
-  expect(container.firstChild).toHaveStyleRule('property', 'value');
-});
+### File Structure
+```
+src/
+  components/
+    Button/
+      Button.tsx
+      Button.test.tsx
+      __snapshots__/
+        Button.test.tsx.snap
 ```
 
-### 2. Testing Props
-
-```tsx
-it('should handle props correctly', () => {
-  const { rerender, container } = render(<Component prop={value1} />);
-  expect(container.firstChild).toHaveStyle({ /* styles */ });
+### Test Structure
+```typescript
+describe('Component', () => {
+  describe('rendering', () => {
+    // Test initial render
+  });
   
-  rerender(<Component prop={value2} />);
-  expect(container.firstChild).toHaveStyle({ /* different styles */ });
-});
-```
-
-### 3. Testing User Interactions
-
-```tsx
-it('should handle user interactions', () => {
-  const { getByRole } = render(<Component />);
-  const element = getByRole('button');
+  describe('interactions', () => {
+    // Test user interactions
+  });
   
-  fireEvent.click(element);
-  expect(/* result */);
+  describe('styling', () => {
+    // Test Tailwind classes
+  });
+  
+  describe('accessibility', () => {
+    // Test a11y features
+  });
 });
 ```
 
-## Test Coverage Requirements
-
-We maintain strict test coverage requirements:
-
-```javascript
-// jest.config.js
-module.exports = {
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  }
-};
-```
-
-## Visual Regression Testing
-
-### Setup
-
-We use jest-image-snapshot for visual regression testing:
-
-```tsx
-// jest.setup.js
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
-expect.extend({ toMatchImageSnapshot });
-```
-
-### Running Tests
-
-```bash
-# Update visual snapshots
-npm test -- -u
-
-# Run only visual tests
-npm test -- --testRegex="\\.visual\\.test\\.tsx$"
-```
-
-## Continuous Integration
-
-Tests are run automatically in CI:
-
-- On pull requests
-- On merge to main
-- On release branches
-
-### CI Configuration
-
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        run: npm test
-```
-
-## Debugging Tests
-
-### Common Issues
-
-1. Snapshot mismatches
-   - Check for intended changes
-   - Update snapshots if changes are expected
-   - Review diff carefully
-
-2. Style assertions
-   - Use proper style matchers
-   - Check for dynamic styles
-   - Verify design system token usage
-
-3. Async tests
-   - Use proper async/await
-   - Handle promises correctly
-   - Use proper wait utilities
-
-### Debugging Tools
-
-```bash
-# Run tests with debugger
-node --inspect-brk node_modules/.bin/jest --runInBand
-
-# Run specific tests
-npm test -- ComponentName
-
-# Show test coverage
-npm test -- --coverage
-``` 
+## Review Checklist
+- [ ] All components have unit tests
+- [ ] Interactive features have integration tests
+- [ ] Visual regression tests are included
+- [ ] Tailwind classes are verified
+- [ ] Accessibility is tested
+- [ ] Tests are maintainable and readable 

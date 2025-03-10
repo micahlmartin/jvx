@@ -5,68 +5,79 @@ A React-based interactive JSON visualization tool that represents JSON data as a
 
 ## Visual Design Specification
 
-### Color Palette
-```css
---background: #1E1E2E;           /* Main background color */
---node-bg: rgba(255,255,255,0.05); /* Node background with transparency */
---node-border: rgba(255,255,255,0.1); /* Node border color */
---text-primary: #E4E4E7;         /* Primary text color */
---text-property: #94A3B8;        /* Property name text color */
---text-value: #38BDF8;           /* Property value text color */
---edge-stroke: rgba(148,163,184,0.5); /* Connection line color */
---grid: rgba(255,255,255,0.05);  /* Background grid color */
+### Design System
+Our design system is implemented through Tailwind CSS with custom theme configuration:
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        background: '#1E1E2E',
+        'node-bg': 'rgba(255,255,255,0.05)',
+        'node-border': 'rgba(255,255,255,0.1)',
+        'text-primary': '#E4E4E7',
+        'text-property': '#94A3B8',
+        'text-value': '#38BDF8',
+        'edge-stroke': 'rgba(148,163,184,0.5)',
+        grid: 'rgba(255,255,255,0.05)'
+      }
+    }
+  }
+}
 ```
 
 ### Typography
 - Primary Font: System UI (-apple-system, BlinkMacSystemFont, etc.)
 - Monospace Font: 'JetBrains Mono' for JSON values
-- Font Sizes:
-  - Property Names: 0.875rem (14px)
-  - Values: 0.875rem (14px)
-  - Controls: 0.75rem (12px)
+- Font Sizes (Tailwind classes):
+  - Property Names: `text-sm` (14px)
+  - Values: `text-sm` (14px)
+  - Controls: `text-xs` (12px)
 
 ### Component Styling
 
 #### Layout
-- Direction: Left-to-right hierarchical layout
-- Column-based positioning with fixed gaps
+- Direction: Left-to-right hierarchical layout using Tailwind's flex and grid utilities
+- Column-based positioning with fixed gaps using `gap-` utilities
 - Structured, deterministic positioning
 - Nodes aligned in columns based on depth
 - Smart vertical spacing to prevent overlaps
-- Layout Constants:
-  - Column Gap: 80px
-  - Vertical Spacing: 40px
-  - Column Padding: 50px
-  - Top Padding: 40px
+- Layout Constants (defined in Tailwind theme):
+  - Column Gap: `gap-20` (80px)
+  - Vertical Spacing: `gap-10` (40px)
+  - Column Padding: `p-12` (50px)
+  - Top Padding: `pt-10` (40px)
 
 #### Nodes
 - Base Component Structure:
-  - BaseNode: Core node functionality and styling
+  - BaseNode: Core node functionality with Tailwind styling
   - NodeHandle: Connection point management
   - PropertyRow: Individual property display
 - Node Types:
   - ObjectNode: Complex object visualization
   - ArrayNode: Array structure visualization
   - ValueNode: Primitive value display
-- Styling:
-  - Border Radius: 8px
+- Styling (Tailwind classes):
+  - Border Radius: `rounded-lg` (8px)
   - Background: Glass-morphism effect
-    - Semi-transparent background (var(--node-bg))
-    - Backdrop filter: blur(12px)
-    - Border: 1px solid var(--node-border)
-  - Shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
-  - Dynamic width based on content (200px-400px)
+    - Semi-transparent background (`bg-node-bg`)
+    - Backdrop filter: `backdrop-blur-md`
+    - Border: `border border-node-border`
+  - Shadow: `shadow-lg`
+  - Dynamic width based on content (min-w-[200px] max-w-[400px])
   - Dynamic height based on property count
 
 #### Properties Display
 - PropertyRow Component:
-  - Key name with consistent color (var(--text-property))
+  - Key name with consistent color (`text-text-property`)
   - Type indicator or value
   - Clear visual hierarchy
 - Spacing:
-  - Consistent padding between properties
-  - Clear separation between header and properties
-  - Aligned key-value pairs
+  - Consistent padding between properties (`p-4`)
+  - Clear separation between header and properties (`space-y-2`)
+  - Aligned key-value pairs using grid
 
 #### Edges (Connections)
 - Style: Smoothstep edges with consistent styling
@@ -74,9 +85,9 @@ A React-based interactive JSON visualization tool that represents JSON data as a
   - Start: Right side of parent node
   - End: Left side of child node
 - Appearance:
-  - Stroke: var(--edge-stroke)
-  - Stroke Width: 2px
-  - z-index: 1000
+  - Stroke: `stroke-edge-stroke`
+  - Stroke Width: `stroke-2`
+  - z-index: `z-[1000]`
   - No target handle for cleaner appearance
 - Implementation:
   - Uses React Flow's built-in edge types
@@ -236,7 +247,7 @@ App
 - TypeScript 5+
 - React Flow
 - Tailwind CSS
-- Styled Components
+- Monaco Editor
 
 ### Key Features Implementation
 
