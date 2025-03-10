@@ -70,7 +70,7 @@ const PropertyList = styled.div`
 
 const PropertyRow = styled.div<{ hasChild?: boolean }>`
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 8px;
   font-size: 13px;
@@ -81,13 +81,6 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
 
 const PropertyKey = styled.span`
   color: var(--text-property);
-  white-space: nowrap;
-`;
-
-const PropertyType = styled.span`
-  color: var(--text-value);
-  opacity: 0.5;
-  font-size: 11px;
   white-space: nowrap;
 `;
 
@@ -150,7 +143,6 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
             ) : (
               <PropertyValue>{prop.value}</PropertyValue>
             )}
-            <PropertyType>({prop.type})</PropertyType>
             {(prop.childNodeId || prop.type === 'array') && (
               <PropertySourceHandle
                 type="source"
