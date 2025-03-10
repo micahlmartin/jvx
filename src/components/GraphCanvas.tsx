@@ -13,18 +13,11 @@ import ReactFlow, {
   BackgroundVariant
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import styled from 'styled-components';
 import { ObjectNode, ObjectNodeData } from './nodes';
 import ArrayNode from './nodes/ArrayNode';
 import ValueNode from './nodes/ValueNode';
 import { jsonToGraph } from '@/utils/jsonToGraph';
 import { sampleOrderData } from '@/data/sampleData';
-
-const GraphContainer = styled.div`
-  width: 100%;
-  height: 100vh;
-  background-color: var(--background);
-`;
 
 const nodeTypes = {
   object: ObjectNode,
@@ -277,7 +270,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
   }), []);
 
   return (
-    <GraphContainer>
+    <div className="w-full h-screen bg-background">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -308,12 +301,11 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
           variant={BackgroundVariant.Lines}
         />
         <Controls 
-          className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm 
-                     border border-[rgba(255,255,255,0.1)] rounded-lg"
+          className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm border border-[rgba(255,255,255,0.1)] rounded-lg"
           showInteractive={false}
         />
       </ReactFlow>
-    </GraphContainer>
+    </div>
   );
 });
 
