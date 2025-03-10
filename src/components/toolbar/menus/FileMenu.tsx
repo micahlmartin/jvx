@@ -6,20 +6,22 @@ const MenuContainer = styled.div`
   position: relative;
 `;
 
-const MenuButton = styled.button`
+const MenuButton = styled.button<{ $isOpen: boolean }>`
   color: var(--text-primary);
   font-size: ${designSystem.typography.sizes.label};
   padding: 8px 12px;
-  background: transparent;
+  background: ${props => props.$isOpen ? 'var(--background)' : 'transparent'};
   border: none;
   cursor: pointer;
   transition: ${designSystem.effects.nodeHoverTransition};
   display: flex;
   align-items: center;
   gap: 4px;
+  position: relative;
+  z-index: ${props => props.$isOpen ? designSystem.zIndex.tooltip + 1 : 'auto'};
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${props => props.$isOpen ? 'var(--background)' : 'var(--node-bg)'};
   }
 
   &:focus {
@@ -27,6 +29,18 @@ const MenuButton = styled.button`
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
     border-radius: 4px;
   }
+
+  ${props => props.$isOpen && `
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--background);
+    }
+  `}
 `;
 
 const DropdownMenu = styled.div<{ $isOpen: boolean }>`
@@ -35,12 +49,12 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   left: 0;
   background: var(--background);
   border: ${designSystem.borders.node};
-  border-radius: ${designSystem.borders.radius.node};
+  border-radius: 0 ${designSystem.borders.radius.node} ${designSystem.borders.radius.node} ${designSystem.borders.radius.node};
   min-width: 200px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
   display: ${props => props.$isOpen ? 'block' : 'none'};
   z-index: ${designSystem.zIndex.tooltip};
-  margin-top: 4px;
+  margin-top: -1px;
 `;
 
 const MenuItem = styled.button`
@@ -64,6 +78,14 @@ const MenuItem = styled.button`
   &:focus {
     outline: none;
     background: var(--node-bg);
+  }
+
+  &:first-child {
+    margin-top: 4px;
+  }
+
+  &:last-child {
+    margin-bottom: 4px;
   }
 `;
 
@@ -121,6 +143,7 @@ export const FileMenu: React.FC<FileMenuProps> = ({
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="true"
+        $isOpen={isOpen}
       >
         File
       </MenuButton>
