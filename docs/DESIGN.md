@@ -29,20 +29,25 @@ A React-based interactive JSON visualization tool that represents JSON data as a
 
 #### Layout
 - Direction: Left-to-right hierarchical layout
-- Fixed node positions (no user dragging)
+- Column-based positioning with fixed gaps
 - Structured, deterministic positioning
 - Nodes aligned in columns based on depth
-- Consistent spacing between levels and siblings
+- Smart vertical spacing to prevent overlaps
+- Layout Constants:
+  - Column Gap: 80px
+  - Vertical Spacing: 40px
+  - Column Padding: 50px
+  - Top Padding: 40px
 
 #### Nodes
-- Header Section:
-  - Type indicator (Object, Array, Value)
-  - Label/key name
-  - Visual type indicator
-- Content Section:
-  - Property list with key-value pairs
-  - Consistent property spacing
-  - Property alignment and indentation
+- Base Component Structure:
+  - BaseNode: Core node functionality and styling
+  - NodeHandle: Connection point management
+  - PropertyRow: Individual property display
+- Node Types:
+  - ObjectNode: Complex object visualization
+  - ArrayNode: Array structure visualization
+  - ValueNode: Primitive value display
 - Styling:
   - Border Radius: 8px
   - Background: Glass-morphism effect
@@ -50,11 +55,11 @@ A React-based interactive JSON visualization tool that represents JSON data as a
     - Backdrop filter: blur(12px)
     - Border: 1px solid var(--node-border)
   - Shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)
-  - Fixed width for consistency
-  - Dynamic height based on content
+  - Dynamic width based on content (200px-400px)
+  - Dynamic height based on property count
 
 #### Properties Display
-- Property Row:
+- PropertyRow Component:
   - Key name with consistent color (var(--text-property))
   - Type indicator or value
   - Clear visual hierarchy
@@ -64,35 +69,71 @@ A React-based interactive JSON visualization tool that represents JSON data as a
   - Aligned key-value pairs
 
 #### Edges (Connections)
-- Style: Orthogonal edges with curved corners
+- Style: Smoothstep edges with consistent styling
 - Connection Points:
   - Start: Right side of parent node
   - End: Left side of child node
 - Appearance:
   - Stroke: var(--edge-stroke)
   - Stroke Width: 2px
-  - Corner Radius: 8px
-  - Path: Smart orthogonal routing with minimal crossings
-- Labels:
-  - Property name on edge
-  - Consistent positioning
-  - Clear readability
+  - z-index: 1000
+  - No target handle for cleaner appearance
+- Implementation:
+  - Uses React Flow's built-in edge types
+  - Optimized for minimal crossings
+  - Consistent styling across all connections
 
 ### Layout Algorithm
+
+#### Node Depth Calculation
+```typescript
+interface NodeWithDepth extends Node {
+  depth?: number;
+}
+
+const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> => {
+  const depths = new Map<string, number>();
+  const parentMap = new Map<string, string>();
+  
+  // Build parent map
+  edges.forEach(edge => {
+    parentMap.set(edge.target, edge.source);
+  });
+  
+  // Find root nodes (nodes with no parents)
+  const rootNodes = nodes.filter(node => !parentMap.has(node.id));
+  
+  // Recursive function to set depths
+  const setDepth = (nodeId: string, depth: number) => {
+    depths.set(nodeId, depth);
+    edges
+      .filter(edge => edge.source === nodeId)
+      .forEach(edge => {
+        setDepth(edge.target, depth + 1);
+      });
+  };
+  
+  rootNodes.forEach(node => setDepth(node.id, 0));
+  return depths;
+};
+```
+
+#### Node Positioning
 ```typescript
 interface LayoutConfig {
-  nodeWidth: number;      // Fixed width for all nodes
-  nodeHeight: number;     // Minimum height, grows with content
-  levelSeparation: number;// Horizontal space between levels
-  nodeSeparation: number; // Vertical space between siblings
-  edgeRadius: number;     // Corner radius for edge bends
+  nodeWidth: number;      // Dynamic width (200-400px)
+  nodeHeight: number;     // Dynamic based on content
+  columnGap: number;      // 80px between columns
+  verticalSpacing: number;// 40px between nodes
+  columnPadding: number;  // 50px padding per column
+  topPadding: number;     // 40px top padding
 }
 
 interface NodePosition {
-  x: number;             // X coordinate (level-based)
-  y: number;             // Y coordinate (sibling-based)
-  level: number;         // Depth in the hierarchy
-  index: number;         // Index among siblings
+  x: number;             // Column-based X position
+  y: number;             // Calculated Y position
+  depth: number;         // Hierarchical depth
+  index: number;         // Sibling index
 }
 ```
 
@@ -112,6 +153,9 @@ interface NodeProperty {
 interface NodeData {
   header: NodeHeader;
   properties: NodeProperty[];
+  width?: number;
+  height?: number;
+  depth?: number;
 }
 ```
 
@@ -138,43 +182,51 @@ interface NodeData {
    - Main container for React Flow
    - Handles zoom, pan, and grid functionality
    - Manages node and edge state
+   - Implements sophisticated layout algorithm
+   - Features:
+     - Column-based layout
+     - Smart node positioning
+     - Overlap prevention
+     - Parent-child alignment
+     - Dynamic sizing
 
-3. **CustomNode**
-   - Base node component for JSON visualization
-   - Variants:
-     - ObjectNode
-     - ArrayNode
-     - ValueNode
-   - Properties:
-     - Type indicator
-     - Content display
+3. **Node Components**
+   - BaseNode: Core node functionality
+     - Common styling and behavior
+     - Connection point management
+     - Property rendering
+   - ObjectNode: Complex object visualization
+     - Property list display
+     - Nested structure handling
+   - ArrayNode: Array visualization
+     - Index-based display
+     - Array-specific controls
+   - ValueNode: Primitive value display
+     - Simple value rendering
+     - Direct editing support
+
+4. **Support Components**
+   - NodeHandle: Connection point management
+     - Visual indicators
+     - Interaction handling
+   - PropertyRow: Property display
+     - Key-value formatting
+     - Type indicators
      - Edit controls
-     - Connection handles
-
-4. **CustomEdge**
-   - Represents connections between nodes
-   - Properties:
-     - Label display
-     - Animation state
-     - Interactive features
-
-5. **ControlPanel**
-   - Zoom controls
-   - Fullscreen toggle
-   - View options
-   - Layout controls
 
 ### Component Hierarchy
 ```
 App
 ├── GraphCanvas
 │   ├── Background
-│   ├── CustomNode[]
-│   │   ├── NodeContent
-│   │   └── HandlePoints
-│   ├── CustomEdge[]
+│   ├── BaseNode
+│   │   ├── NodeHandle
+│   │   └── PropertyRow
+│   ├── ObjectNode
+│   ├── ArrayNode
+│   ├── ValueNode
 │   └── Controls
-└── ControlPanel
+└── JsonEditor
 ```
 
 ## Technical Implementation
@@ -184,45 +236,40 @@ App
 - TypeScript 5+
 - React Flow
 - Tailwind CSS
-- CSS-in-JS (styled-components/emotion)
+- Styled Components
 
 ### Key Features Implementation
 
-#### Node Dragging
+#### Node Layout
 ```typescript
-interface NodeData {
-  type: 'object' | 'array' | 'value';
-  content: any;
-  editable: boolean;
-}
-
-const nodeDefaults = {
-  draggable: true,
-  connectable: true,
-  selectable: true,
-}
-```
-
-#### Glass-morphism Effect
-```css
-.glass-effect {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  // Calculate node dimensions
+  const nodeWidths = new Map<string, number>();
+  const nodeHeights = new Map<string, number>();
+  
+  // Calculate depths and positions
+  const depths = calculateNodeDepths(nodes, edges);
+  
+  // Group nodes by depth
+  const nodesByDepth = new Map<number, Node[]>();
+  
+  // Position nodes with overlap prevention
+  // ... (detailed implementation in GraphCanvas.tsx)
+};
 ```
 
 #### Edge Styling
 ```typescript
 const edgeDefaults = {
   type: 'smoothstep',
-  animated: true,
+  animated: false,
   style: {
-    stroke: 'rgba(148, 163, 184, 0.5)',
-    strokeWidth: 2,
+    stroke: 'var(--edge-stroke)',
+    strokeWidth: 2
   },
-}
+  zIndex: 1000,
+  targetHandle: null
+};
 ```
 
 ## Performance Considerations
@@ -231,11 +278,14 @@ const edgeDefaults = {
 - Implement virtualization for large JSON structures
 - Use React.memo for node components
 - Optimize re-renders with useMemo and useCallback
+- Efficient node dimension calculations
+- Smart layout caching
 
 ### Interaction Handling
 - Debounce drag events
 - Throttle zoom/pan operations
 - Batch state updates
+- Efficient parent-child relationship tracking
 
 ## Accessibility
 
@@ -243,11 +293,13 @@ const edgeDefaults = {
 - Keyboard navigation between nodes
 - ARIA labels for interactive elements
 - Focus indicators for active elements
+- Screen reader support for node content
 
 ### Color Contrast
 - Minimum contrast ratio: 4.5:1
 - Visual indicators beyond color
 - High contrast mode support
+- Clear visual hierarchy
 
 ## Future Considerations
 
