@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodeHandle Visual Regression should match snapshot for source handle 1`] = `
+.c0 {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--handle-color);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.c0:hover {
+  background: var(--handle-hover-color);
+}
+
+<div
+  class="c0"
+  data-testid="handle-source"
+  style="opacity: 1; pointer-events: all;"
+/>
+`;
+
+exports[`NodeHandle Visual Regression should match snapshot for target handle 1`] = `
+.c0 {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--handle-color);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.c0:hover {
+  background: var(--handle-hover-color);
+}
+
+<div
+  class="c0"
+  data-testid="handle-target"
+  style="opacity: 0; pointer-events: none;"
+/>
+`;

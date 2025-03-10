@@ -1,36 +1,192 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JVIZ
+
+A powerful JSON visualization tool built with React and TypeScript.
+
+## Features
+
+- Interactive JSON visualization
+- Node-based graph representation
+- Smooth connections between nodes
+- Type-aware value display
+- Responsive design
+- Accessible interface
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js (Latest LTS version)
+- Docker and Docker Compose
+- asdf version manager
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/jviz.git
+cd jviz
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+asdf install
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+docker compose up -d
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+### Core Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Design System](docs/DESIGN_SYSTEM.md) - Visual design guidelines and tokens
+- [Component Guidelines](docs/COMPONENT_GUIDELINES.md) - Component development standards
+- [API Documentation](docs/API.md) - Component API reference
+- [Testing Guidelines](docs/TESTING.md) - Testing standards and practices
+- [Contributing Guidelines](CONTRIBUTING.md) - How to contribute to the project
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Development Workflow
 
-## Deploy on Vercel
+1. Set up your development environment following the [Contributing Guidelines](CONTRIBUTING.md)
+2. Follow the [Design System](docs/DESIGN_SYSTEM.md) for visual consistency
+3. Implement components according to [Component Guidelines](docs/COMPONENT_GUIDELINES.md)
+4. Write tests following [Testing Guidelines](docs/TESTING.md)
+5. Submit changes through pull requests
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Architecture
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Component Structure
+
+```
+src/
+├── components/
+│   └── nodes/
+│       ├── NodeHandle.tsx     # Connection points for nodes
+│       ├── PropertyRow.tsx    # Row layout for node properties
+│       ├── ObjectNode.tsx     # Object type node
+│       ├── ArrayNode.tsx      # Array type node
+│       └── ValueNode.tsx      # Primitive value node
+├── styles/
+│   └── design-system.ts       # Design system tokens
+└── utils/
+    └── jsonToGraph.ts         # JSON to graph conversion
+```
+
+### Key Components
+
+#### NodeHandle
+
+Connection points for nodes:
+```tsx
+<NodeHandle
+  type="source"
+  position={Position.Right}
+  isVisible={true}
+/>
+```
+
+#### PropertyRow
+
+Layout for node properties:
+```tsx
+<PropertyRow hasChild={true}>
+  <PropertyKey>key</PropertyKey>
+  <PropertyValue>value</PropertyValue>
+</PropertyRow>
+```
+
+## Development
+
+### Available Scripts
+
+```bash
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Run linter
+npm run lint
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+### Testing
+
+We maintain comprehensive test coverage:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test:watch
+
+# Update snapshots
+npm test -- -u
+```
+
+### Code Style
+
+We use ESLint and Prettier for code style:
+
+```bash
+# Check code style
+npm run lint
+
+# Fix code style issues
+npm run lint:fix
+```
+
+## Design System
+
+Our design system ensures consistent visual appearance:
+
+- Colors use design system tokens
+- Spacing follows a consistent scale
+- Typography uses defined sizes
+- Components follow positioning guidelines
+
+## Contributing
+
+Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting changes.
+
+### Pull Request Process
+
+1. Follow the [Component Guidelines](docs/COMPONENT_GUIDELINES.md)
+2. Update documentation as needed
+3. Add or update tests
+4. Submit a pull request using our template
+
+## Testing
+
+We maintain high test coverage:
+
+- Unit tests for components
+- Visual regression tests
+- Integration tests
+- Accessibility tests
+
+See [Testing Guidelines](docs/TESTING.md) for more details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- React Flow for graph visualization
+- Styled Components for styling
+- Jest and Testing Library for testing
+- TypeScript for type safety
