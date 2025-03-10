@@ -79,14 +79,20 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   nodes.forEach((node) => {
     const data = node.data as ObjectNodeData;
     const contentHeight = 40 + (data.properties?.length || 0) * 24 + 20;
+    
+    // Calculate width based on both title and properties
+    const titleLength = data.label.length * 10; // Approximate width per character
     const maxPropertyLength = data.properties?.reduce((max: number, prop: { key: string; value: any }) => {
       const keyLength = prop.key.length;
       const valueLength = String(prop.value).length;
       return Math.max(max, keyLength + valueLength);
     }, 0) || 0;
     
+    const titleWidth = Math.max(200, Math.min(400, titleLength + 80)); // Add padding
     const contentWidth = Math.max(200, Math.min(400, maxPropertyLength * 8 + 40));
-    nodeWidths.set(node.id, contentWidth);
+    const nodeWidth = Math.max(titleWidth, contentWidth);
+    
+    nodeWidths.set(node.id, nodeWidth);
     nodeHeights.set(node.id, contentHeight);
   });
 

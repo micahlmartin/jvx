@@ -20,7 +20,7 @@ const NodeContainer = styled.div`
   backdrop-filter: blur(12px);
   border: 2px solid var(--node-border) !important;
   border-radius: 8px;
-  width: max-content;
+  width: 100%;
   min-width: 200px;
   max-width: 400px;
   position: relative;
@@ -81,6 +81,8 @@ const NodeHeader = styled.div<{ $bgColor: string }>`
   align-items: center;
   gap: 8px;
   background: ${props => props.$bgColor};
+  width: 100%;
+  overflow: hidden;
 
   && {
     border-bottom: 2px solid var(--node-border);
@@ -103,6 +105,8 @@ const NodeLabel = styled.span<{ $titleColor: string }>`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: 'JetBrains Mono', monospace;
+  min-width: 0;
+  flex: 1;
 `;
 
 const PropertyList = styled.div`
