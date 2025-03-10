@@ -20,7 +20,7 @@ interface EditorPaneProps {
 
 const Layout = styled.div<LayoutProps>`
   display: grid;
-  grid-template-rows: 40px 1fr;
+  grid-template-rows: 48px 1fr;
   grid-template-columns: ${props => props.$isEditorVisible ? '400px 1fr' : '0 1fr'};
   height: 100dvh; /* Use dvh for better mobile support */
   width: 100%;
@@ -34,38 +34,39 @@ const MenuBarContainer = styled.div`
   border-bottom: 1px solid var(--node-border);
   display: flex;
   align-items: center;
+  background: #1E1E2E;
 `;
 
 const ToggleButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-left: 4px;
+  width: 48px;
+  height: 48px;
   border: none;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  opacity: 0.85;
+  transition: all 0.15s ease;
 
   &:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.08);
   }
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 `;
 
 const MenuSeparator = styled.div`
   width: 1px;
-  height: 16px;
+  height: 24px;
   background: currentColor;
   margin: 0 8px;
-  opacity: 0.2;
+  opacity: 0.08;
 `;
 
 const TabBarContainer = styled.div`

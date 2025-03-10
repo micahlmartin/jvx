@@ -8,22 +8,22 @@ import { Document } from '@/components/tabs/TabBar';
 import { Tab } from '@/components/tabs/Tab';
 
 const MenuBarContainer = styled.div`
-  background: rgba(30, 30, 46, 0.95);
-  height: 40px;
+  background: #1E1E2E;
+  height: 48px;
   display: flex;
   align-items: center;
   z-index: ${designSystem.zIndex.nodeBase};
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
 const MenuSection = styled.div`
   display: flex;
   align-items: center;
-  padding: 0 4px;
+  padding: 0;
+  padding-right: 12px;
   height: 100%;
-  gap: 2px;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 6px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
 const TabsSection = styled.div`
@@ -34,8 +34,8 @@ const TabsSection = styled.div`
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  gap: 1px;
-  padding-left: 8px;
+  gap: 2px;
+  padding-left: 16px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -46,19 +46,19 @@ const NewTabButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  width: 40px;
   height: 100%;
   background: transparent;
   border: none;
   color: var(--text-primary);
   cursor: pointer;
   opacity: 0.7;
-  font-size: 18px;
-  transition: all 0.1s ease;
+  font-size: 22px;
+  transition: all 0.15s ease;
   
   &:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   &:focus {
@@ -68,21 +68,21 @@ const NewTabButton = styled.button`
 
 const MenuItem = styled.button`
   color: var(--text-primary);
-  font-size: ${designSystem.typography.sizes.label};
-  padding: 0 12px;
+  font-size: 14px;
+  padding: 0 16px;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   height: 100%;
   gap: 4px;
-  opacity: 0.9;
+  opacity: 0.85;
   font-weight: 400;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     opacity: 1;
   }
 

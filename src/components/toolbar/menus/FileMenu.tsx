@@ -8,26 +8,28 @@ const MenuContainer = styled.div`
 
 const MenuButton = styled.button<{ $isOpen: boolean }>`
   color: var(--text-primary);
-  font-size: ${designSystem.typography.sizes.label};
-  padding: 8px 12px;
-  background: ${props => props.$isOpen ? 'var(--background)' : 'transparent'};
+  font-size: 14px;
+  padding: 0 16px;
+  background: ${props => props.$isOpen ? 'rgba(255, 255, 255, 0.08)' : 'transparent'};
   border: none;
   cursor: pointer;
-  transition: ${designSystem.effects.nodeHoverTransition};
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   gap: 4px;
   position: relative;
   z-index: ${props => props.$isOpen ? designSystem.zIndex.tooltip + 1 : 'auto'};
+  opacity: 0.85;
+  font-weight: 400;
+  height: 100%;
   
   &:hover {
-    background: ${props => props.$isOpen ? 'var(--background)' : 'var(--node-bg)'};
+    background: rgba(255, 255, 255, 0.08);
+    opacity: 1;
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
   }
 
   ${props => props.$isOpen && `
@@ -38,7 +40,7 @@ const MenuButton = styled.button<{ $isOpen: boolean }>`
       left: 0;
       right: 0;
       height: 1px;
-      background: var(--background);
+      background: rgba(255, 255, 255, 0.08);
     }
   `}
 `;
@@ -47,11 +49,11 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
-  background: var(--background);
-  border: ${designSystem.borders.node};
-  border-radius: 0 ${designSystem.borders.radius.node} ${designSystem.borders.radius.node} ${designSystem.borders.radius.node};
-  min-width: 200px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  background: #1E1E2E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 6px 6px 6px;
+  min-width: 240px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   display: ${props => props.$isOpen ? 'block' : 'none'};
   z-index: ${designSystem.zIndex.tooltip};
   margin-top: -1px;
@@ -59,41 +61,43 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
 
 const MenuItem = styled.button`
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 16px;
   text-align: left;
   background: transparent;
   border: none;
   color: var(--text-primary);
-  font-size: ${designSystem.typography.sizes.label};
+  font-size: 14px;
   cursor: pointer;
-  transition: ${designSystem.effects.nodeHoverTransition};
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  opacity: 0.85;
+  font-weight: 400;
 
   &:hover {
-    background: var(--node-bg);
+    background: rgba(255, 255, 255, 0.08);
+    opacity: 1;
   }
 
   &:focus {
     outline: none;
-    background: var(--node-bg);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   &:first-child {
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   &:last-child {
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 `;
 
 const MenuSeparator = styled.div`
   height: 1px;
-  background: var(--node-border);
-  margin: 4px 0;
-  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
 `;
 
 interface FileMenuProps {
