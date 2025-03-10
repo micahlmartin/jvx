@@ -152,17 +152,29 @@ export const FileMenu: React.FC<FileMenuProps> = ({
         File
       </MenuButton>
       <DropdownMenu $isOpen={isOpen} role="menu" aria-label="File menu">
-        <MenuItem onClick={onNewFile} role="menuitem">
+        <MenuItem onClick={() => {
+          onNewFile?.();
+          setIsOpen(false);
+        }} role="menuitem">
           New File
         </MenuItem>
-        <MenuItem onClick={onOpenFile} role="menuitem">
+        <MenuItem onClick={() => {
+          onOpenFile?.();
+          setIsOpen(false);
+        }} role="menuitem">
           Open File
         </MenuItem>
         <MenuSeparator />
-        <MenuItem onClick={onSaveFile} role="menuitem">
+        <MenuItem onClick={() => {
+          onSaveFile?.();
+          setIsOpen(false);
+        }} role="menuitem">
           Save
         </MenuItem>
-        <MenuItem onClick={onSaveAs} role="menuitem">
+        <MenuItem onClick={() => {
+          onSaveAs?.();
+          setIsOpen(false);
+        }} role="menuitem">
           Save As...
         </MenuItem>
       </DropdownMenu>
