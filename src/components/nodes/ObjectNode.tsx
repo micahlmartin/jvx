@@ -78,7 +78,7 @@ const PropertyRow = styled.div<{ hasChild?: boolean }>`
   min-height: 22px;
   position: relative;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--node-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
   > * {
     opacity: 0.75;
