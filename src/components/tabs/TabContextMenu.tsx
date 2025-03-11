@@ -15,12 +15,12 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
 }) => {
   return (
     <div 
-      className="fixed bg-background-dark border border-node-border rounded-md p-1 min-w-[160px] shadow-lg backdrop-blur-md z-[1000] tab-context-menu"
+      className="fixed bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border dark:border-toolbar-border-dark rounded-md p-1 min-w-[160px] shadow-lg backdrop-blur-md z-[1000] tab-context-menu"
       style={{ left: `${x}px`, top: `${y}px` }}
     >
       <button 
         onClick={onRename}
-        className="flex items-center w-full px-3 py-2 border-none bg-transparent text-text-primary dark:text-white text-[13px] text-left cursor-pointer rounded hover:bg-node-bg gap-2"
+        className="flex items-center w-full px-3 py-2 border-none bg-transparent text-toolbar-text dark:text-toolbar-text-dark text-menu text-left cursor-pointer rounded hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark gap-2"
       >
         <svg 
           width="16" 
@@ -40,10 +40,10 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
         </svg>
         Rename
       </button>
-      <div className="h-px mx-3 my-1.5 bg-gray-300 dark:bg-gray-600" />
+      <div className="h-px mx-3 my-1.5 bg-toolbar-border/20 dark:bg-toolbar-border-dark/20" />
       <button 
         onClick={onClose}
-        className="flex items-center w-full px-3 py-2 border-none bg-transparent text-text-primary dark:text-white text-[13px] text-left cursor-pointer rounded hover:bg-node-bg gap-2"
+        className="flex items-center w-full px-3 py-2 border-none bg-transparent text-toolbar-text dark:text-toolbar-text-dark text-menu text-left cursor-pointer rounded hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark gap-2"
       >
         <svg 
           width="16" 

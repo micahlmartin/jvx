@@ -27,7 +27,7 @@ export const TabBar: React.FC<TabBarProps> = ({
     <div 
       role="tablist" 
       aria-label="Open documents"
-      className="flex items-center h-8 bg-background border-b border-node-border overflow-x-auto scrollbar-none"
+      className="flex items-center h-8 bg-toolbar-bg dark:bg-toolbar-bg-dark border-b border-toolbar-border dark:border-toolbar-border-dark overflow-x-auto scrollbar-none"
     >
       <div className="flex h-full">
         {documents.map(doc => (
