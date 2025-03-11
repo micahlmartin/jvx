@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { colors } from '@/styles/colors';
 
 interface NodeProperty {
   id: string;
@@ -16,45 +17,45 @@ interface ObjectNodeData {
 }
 
 const getHeaderColor = (label: string): string => {
-  if (label === 'Root') return 'bg-[rgba(82,82,91,0.3)]';  // dark gray for root
+  if (label === 'Root') return 'bg-node-root';
 
   // Get the parent name (second to last part) or the name itself if no parent
   const parts = label.split('-');
   const colorKey = parts.length > 2 ? parts[parts.length - 2] : parts[parts.length - 1];
   
-  // Map of distinct background colors for different node types
-  const colors: Record<string, string> = {
-    customer: 'bg-[rgba(59,130,246,0.15)]',    // blue
-    items: 'bg-[rgba(147,51,234,0.15)]',       // purple
-    products: 'bg-[rgba(147,51,234,0.15)]',    // same as items (they're related)
-    shipping: 'bg-[rgba(236,72,153,0.15)]',    // pink
-    payment: 'bg-[rgba(16,185,129,0.15)]',     // green
-    address: 'bg-[rgba(245,158,11,0.15)]',     // orange
-    billingAddress: 'bg-[rgba(245,158,11,0.15)]'  // same as address
+  // Map node types to Tailwind classes
+  const nodeTypes: Record<string, string> = {
+    customer: 'bg-node-customer',
+    items: 'bg-node-items',
+    products: 'bg-node-items',
+    shipping: 'bg-node-shipping',
+    payment: 'bg-node-payment',
+    address: 'bg-node-address',
+    billingAddress: 'bg-node-address'
   };
 
-  return colors[colorKey] || 'bg-[rgba(82,82,91,0.15)]';  // fallback gray
+  return nodeTypes[colorKey] || 'bg-node-default';
 };
 
 const getTitleColor = (label: string): string => {
-  if (label === 'Root') return 'text-[rgba(161,161,170,0.9)]';  // light gray for root
+  if (label === 'Root') return 'text-node-root-text';
 
   // Get the parent name (second to last part) or the name itself if no parent
   const parts = label.split('-');
   const colorKey = parts.length > 2 ? parts[parts.length - 2] : parts[parts.length - 1];
   
-  // Map of title colors that correspond to the background colors but are lighter/more opaque
-  const colors: Record<string, string> = {
-    customer: 'text-[rgba(96,165,250,0.9)]',    // light blue
-    items: 'text-[rgba(167,139,250,0.9)]',      // light purple
-    products: 'text-[rgba(167,139,250,0.9)]',   // same as items
-    shipping: 'text-[rgba(236,72,153,0.9)]',    // light pink
-    payment: 'text-[rgba(52,211,153,0.9)]',     // light green
-    address: 'text-[rgba(251,191,36,0.9)]',     // light orange
-    billingAddress: 'text-[rgba(251,191,36,0.9)]'  // same as address
+  // Map node types to Tailwind classes
+  const nodeTypes: Record<string, string> = {
+    customer: 'text-node-customer-text',
+    items: 'text-node-items-text',
+    products: 'text-node-items-text',
+    shipping: 'text-node-shipping-text',
+    payment: 'text-node-payment-text',
+    address: 'text-node-address-text',
+    billingAddress: 'text-node-address-text'
   };
 
-  return colors[colorKey] || 'text-[rgba(161,161,170,0.9)]';  // fallback light gray
+  return nodeTypes[colorKey] || 'text-node-default-text';
 };
 
 function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
@@ -77,13 +78,13 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   const getValueColor = (type: string, value: string): string => {
     switch (type) {
       case 'string':
-        return 'text-[#00FFFF]';  // neon cyan for strings
+        return 'text-node-value-string';
       case 'number':
-        return 'text-[#FF00FF]';  // neon magenta for numbers
+        return 'text-node-value-number';
       case 'boolean':
-        return value === 'true' ? 'text-[#39FF14]' : 'text-[#FF4545]';  // neon green / bright red
+        return value === 'true' ? 'text-node-value-boolean-true' : 'text-node-value-boolean-false';
       default:
-        return 'text-white';  // pure white for text and other types
+        return 'text-white';
     }
   };
 
@@ -106,8 +107,8 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
 
       <div className="p-0 flex flex-col">
         {data.properties.map((prop) => (
-          <div key={prop.id} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-[rgba(255,255,255,0.1)] last:border-b-0">
-            <span className="text-[#768390] whitespace-nowrap">
+          <div key={prop.id} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border last:border-b-0">
+            <span className="text-node-value-property whitespace-nowrap">
               {prop.key}:
             </span>
             <span 
