@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, CSSProperties } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -18,6 +18,7 @@ import ArrayNode from './nodes/ArrayNode';
 import ValueNode from './nodes/ValueNode';
 import { jsonToGraph } from '@/utils/jsonToGraph';
 import { sampleOrderData } from '@/data/sampleData';
+import { GraphControls } from './controls/GraphControls';
 
 const nodeTypes = {
   object: ObjectNode,
@@ -64,7 +65,7 @@ const calculateNodeDepths = (nodes: Node[], edges: Edge[]): Map<string, number> 
   return depths;
 };
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+const getLayoutedElements = (nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: Edge[] } => {
   // Calculate node dimensions first
   const nodeWidths = new Map<string, number>();
   const nodeHeights = new Map<string, number>();
@@ -241,6 +242,11 @@ export interface GraphCanvasHandle {
 export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ onInit }, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [zoom, setZoom] = useState(1);
+
+  const onMoveEnd = useCallback((event: any) => {
+    setZoom(1 / event.zoom);
+  }, []);
 
   const updateJson = useCallback((json: any, title: string = 'Root') => {
     const { nodes: newNodes, edges: newEdges } = jsonToGraph(json, null, title);
@@ -278,22 +284,25 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onMoveEnd={onMoveEnd}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
         className="bg-background dark:bg-background-dark"
+        style={{ '--zoom': zoom } as CSSProperties}
         minZoom={0.1}
         maxZoom={1.5}
         fitView
       >
         <Background
-          className="bg-background dark:bg-background-dark [--tw-text-opacity:var(--grid)] dark:[--tw-text-opacity:var(--grid-dark)]"
-          color="currentColor"
+          className="bg-background dark:bg-background-dark"
+          color="rgb(100, 100, 100)"
           variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1}
+          gap={32}
+          size={0.5}
+          style={{ opacity: 0.75 }}
         />
-        <Controls className="bg-background dark:bg-background-dark border border-node-border dark:border-node-border-dark" />
+        <GraphControls />
       </ReactFlow>
     </div>
   );

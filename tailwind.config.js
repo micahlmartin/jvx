@@ -156,8 +156,8 @@ module.exports = {
           dark: 'rgba(148, 163, 184, 0.5)',
         },
         grid: {
-          DEFAULT: 'rgba(0, 0, 0, 0.05)',
-          dark: 'rgba(255, 255, 255, 0.05)',
+          DEFAULT: 'rgba(0, 0, 0, 0.02)',
+          dark: 'rgba(50, 50, 50, 0.1)',
         },
         // Node header colors
         'header-level0': '#2D3748',
