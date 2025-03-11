@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface TabContextMenuProps {
@@ -17,6 +17,7 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
   onRequestClose,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x, y });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,8 +49,7 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
         adjustedY = viewportHeight - rect.height - 8;
       }
 
-      menuRef.current.style.left = `${adjustedX}px`;
-      menuRef.current.style.top = `${adjustedY}px`;
+      setPosition({ x: adjustedX, y: adjustedY });
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -74,11 +74,10 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
   const menu = (
     <div 
       ref={menuRef}
-      className="fixed bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border/30 dark:border-toolbar-border-dark/30 rounded-md py-[6px] min-w-[160px] shadow-menu dark:shadow-menu-dark backdrop-blur-menu"
+      className="fixed bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border/30 dark:border-toolbar-border-dark/30 rounded-md py-[6px] min-w-[160px] shadow-menu dark:shadow-menu-dark backdrop-blur-menu z-[9999]"
       style={{ 
-        left: x,
-        top: y,
-        zIndex: 9999
+        left: `${position.x}px`,
+        top: `${position.y}px`
       }}
     >
       <button 

@@ -66,8 +66,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     <div 
       role="menubar" 
       aria-label="Main menu"
-      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch border-b border-toolbar-border dark:border-toolbar-border-dark px-2"
-      style={{ zIndex: 40 }}
+      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch border-b border-toolbar-border dark:border-toolbar-border-dark px-2 z-40"
     >
       <div className="flex items-stretch">
         <SidebarMenu />

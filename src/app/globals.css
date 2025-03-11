@@ -2,18 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #1E1E2E;
-  --node-bg: rgba(255, 255, 255, 0.05);
-  --node-border: #FFFFFF;
-  --text-primary: #E4E4E7;
-  --text-property: #94A3B8;
-  --text-value: #38BDF8;
-  --edge-stroke: #FFFFFF;
-  --grid: rgba(255, 255, 255, 0.05);
-}
-
+/* Remove CSS variables as they're now handled by Tailwind theme */
 body {
-  background-color: var(--background);
-  color: var(--text-primary);
+  @apply bg-background dark:bg-background-dark text-text-primary dark:text-text-primary-dark;
 }
