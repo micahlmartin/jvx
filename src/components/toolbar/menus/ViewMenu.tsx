@@ -50,7 +50,7 @@ export const ViewMenu: React.FC<ViewMenuProps> = () => {
             onClick={toggleTheme}
             className="w-full text-left text-menu tracking-normal font-medium px-3 py-[6px] hover:bg-toolbar-hover/50 dark:hover:bg-toolbar-hover-dark/50 focus:outline-none focus-visible:bg-toolbar-hover/50 dark:focus-visible:bg-toolbar-hover-dark/50 transition-colors duration-150 flex items-center gap-3 text-toolbar-text dark:text-toolbar-text-dark"
           >
-            <span className="w-[15px] h-[15px] opacity-80 flex items-center justify-center">
+            <span className="w-[15px] h-[15px] opacity-icon-default flex items-center justify-center">
               {theme === 'dark' ? (
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.728 3.272l-1.06 1.06M4.332 11.668l-1.06 1.06M12.728 12.728l-1.06-1.06M4.332 4.332l-1.06-1.06" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
