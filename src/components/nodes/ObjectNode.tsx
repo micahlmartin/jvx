@@ -84,12 +84,12 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
       case 'boolean':
         return value === 'true' ? 'text-node-value-boolean-true' : 'text-node-value-boolean-false';
       default:
-        return 'text-white';
+        return 'text-text-primary dark:text-text-primary-dark';
     }
   };
 
   return (
-    <div className="bg-node-bg backdrop-blur-node border-2 border-node-border rounded-node w-full min-w-[200px] max-w-[400px] relative isolation-isolate z-node-base">      
+    <div className="bg-node-bg dark:bg-node-bg-dark backdrop-blur-node border-2 border-node-border dark:border-node-border-dark rounded-node w-full min-w-[200px] max-w-[400px] relative isolation-isolate z-node-base">      
       {/* Target handle for non-root nodes */}
       {!isRoot && (
         <Handle
@@ -99,7 +99,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
         />
       )}
       
-      <div className={`${headerColor} p-[8px_12px] border-b-2 border-node-border flex items-center gap-header-gap w-full overflow-hidden`}>
+      <div className={`${headerColor} p-[8px_12px] border-b-2 border-node-border dark:border-node-border-dark flex items-center gap-header-gap w-full overflow-hidden`}>
         <span className={`${titleColor} font-medium overflow-hidden text-ellipsis whitespace-nowrap font-mono min-w-0 flex-1`}>
           {displayLabel}
         </span>
@@ -107,7 +107,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
 
       <div className="p-0 flex flex-col">
         {data.properties.map((prop) => (
-          <div key={prop.id} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border last:border-b-0">
+          <div key={prop.id} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border dark:border-node-border-dark last:border-b-0">
             <span className="text-node-value-property whitespace-nowrap">
               {prop.key}:
             </span>
@@ -119,7 +119,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
               }
             >
               {prop.type === 'string' ? `"${prop.value}"` : prop.value.toString()}
-              <span className="invisible group-hover:visible absolute left-0 -top-0.5 px-[6px] py-0.5 bg-node-bg rounded-badge shadow-md whitespace-nowrap">
+              <span className="invisible group-hover:visible absolute left-0 -top-0.5 px-[6px] py-0.5 bg-node-bg dark:bg-node-bg-dark rounded-badge shadow-md whitespace-nowrap">
                 {prop.type === 'string' ? `"${prop.value}"` : prop.value.toString()}
               </span>
             </span>
@@ -129,7 +129,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
                 type="source"
                 position={Position.Right}
                 id={`property-${prop.key}`}
-                className="!absolute !-right-[9px] !top-1/2 !-translate-y-1/2 !bg-node-border !w-2 !h-2 !border-none !pointer-events-none !opacity-100 !rounded-full !z-handles nodrag"
+                className="!absolute !-right-[9px] !top-1/2 !-translate-y-1/2 !bg-node-border dark:!bg-node-border-dark !w-2 !h-2 !border-none !pointer-events-none !opacity-100 !rounded-full !z-handles nodrag"
               />
             )}
           </div>

@@ -9,18 +9,18 @@ export interface ArrayNodeData {
 
 function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
   return (
-    <div className="bg-node-bg backdrop-blur-node border border-node-border rounded-node w-fit min-w-[200px] max-w-[400px]">      
+    <div className="bg-node-bg dark:bg-node-bg-dark backdrop-blur-node border border-node-border dark:border-node-border-dark rounded-node w-fit min-w-[200px] max-w-[400px]">      
       <Handle
         type="target"
         position={Position.Left}
-        className="!bg-node-border"
+        className="!bg-node-border dark:!bg-node-border-dark !w-2 !h-2 !border-none !rounded-full !z-handles"
       />
       
-      <div className="p-[8px_12px] border-b border-node-border flex items-center gap-header-gap">
-        <span className="text-type text-text-property bg-editor-bg-highlight-dark px-[6px] py-[2px] rounded-badge flex-shrink-0">
+      <div className="p-[8px_12px] border-b border-node-border dark:border-node-border-dark flex items-center gap-header-gap">
+        <span className="text-type text-text-property dark:text-text-property-dark bg-editor-bg-highlight dark:bg-editor-bg-highlight-dark px-[6px] py-[2px] rounded-badge flex-shrink-0">
           array
         </span>
-        <span className="text-text-primary font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+        <span className="text-text-primary dark:text-text-primary-dark font-medium overflow-hidden text-ellipsis whitespace-nowrap">
           {data.label}
         </span>
         <span className="text-type text-text-value ml-auto opacity-text-muted">

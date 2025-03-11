@@ -110,7 +110,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           onClick={handleNewFile}
           aria-label="Create new document"
           title="Create new document"
-          className="flex items-center justify-center w-10 h-full bg-transparent border-none text-toolbar-text dark:text-toolbar-text-dark cursor-pointer opacity-70 text-[22px] transition-colors duration-150 hover:opacity-100 hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none ml-2"
+          className="flex items-center justify-center w-10 h-full bg-transparent border-none text-toolbar-text dark:text-toolbar-text-dark cursor-pointer opacity-dimmed text-[22px] transition-colors duration-150 hover:opacity-full hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none ml-2"
         >
           +
         </button>

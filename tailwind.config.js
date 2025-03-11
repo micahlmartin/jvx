@@ -13,12 +13,12 @@ module.exports = {
       colors: {
         background: {
           DEFAULT: '#FFFFFF',
-          dark: '#1E1E2E',
+          dark: '#1E1E1E',
         },
         toolbar: {
           bg: {
             DEFAULT: '#f3f3f3',
-            dark: '#1e1e1e'
+            dark: '#1E1E1E'
           },
           hover: {
             DEFAULT: '#e5e5e5',
@@ -96,8 +96,14 @@ module.exports = {
             }
           }
         },
-        'node-bg': '#1E1E1E',
-        'node-border': 'rgba(255, 255, 255, 0.1)',
+        'node-bg': {
+          DEFAULT: '#FFFFFF',
+          dark: '#1E1E1E'
+        },
+        'node-border': {
+          DEFAULT: 'rgba(0, 0, 0, 0.1)',
+          dark: 'rgba(255, 255, 255, 0.1)'
+        },
         'node-root': {
           DEFAULT: 'rgba(82, 82, 91, 0.3)',
           text: 'rgba(161, 161, 170, 0.9)'

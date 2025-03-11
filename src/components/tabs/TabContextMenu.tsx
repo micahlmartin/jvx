@@ -90,7 +90,7 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
           viewBox="0 0 16 16" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
-          className="w-[15px] h-[15px] opacity-80 flex items-center justify-center"
+          className="w-[15px] h-[15px] opacity-strong flex items-center justify-center"
         >
           <path 
             d="M11.5 2.5L13.5 4.5M7.5 12.5H13.5M2.5 9.5L10.5 1.5L12.5 3.5L4.5 11.5L2 12L2.5 9.5Z" 
@@ -113,7 +113,7 @@ export const TabContextMenu: React.FC<TabContextMenuProps> = ({
           viewBox="0 0 16 16" 
           fill="none" 
           xmlns="http://www.w3.org/2000/svg"
-          className="w-[15px] h-[15px] opacity-80 flex items-center justify-center"
+          className="w-[15px] h-[15px] opacity-strong flex items-center justify-center"
         >
           <path 
             d="M12 4L4 12M4 4l8 8" 

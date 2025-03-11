@@ -91,7 +91,7 @@ export const Tab: React.FC<TabProps> = ({
         aria-selected={isActive}
       >
         {isDirty && (
-          <div className="w-1 h-1 rounded-full bg-toolbar-text dark:bg-toolbar-text-dark opacity-50" />
+          <div className="w-1 h-1 rounded-full bg-toolbar-text dark:bg-toolbar-text-dark opacity-dimmed" />
         )}
         <div className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-toolbar-text dark:text-toolbar-text-dark text-menu ${isEditing ? 'hidden' : 'block'}`}>
           {name}
@@ -112,7 +112,7 @@ export const Tab: React.FC<TabProps> = ({
             onClose();
           }}
           aria-label="Close tab"
-          className="flex items-center justify-center w-4 h-4 border-none bg-transparent text-toolbar-text dark:text-toolbar-text-dark opacity-50 cursor-pointer p-0 rounded hover:opacity-100 hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark"
+          className="flex items-center justify-center w-4 h-4 border-none bg-transparent text-toolbar-text dark:text-toolbar-text-dark opacity-dimmed cursor-pointer p-0 rounded hover:opacity-full hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark"
         >
           <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

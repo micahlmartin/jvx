@@ -281,29 +281,19 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
-        fitView
-        fitViewOptions={{ 
-          padding: 0.2,
-          minZoom: 0.5,
-          maxZoom: 4
-        }}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
-        nodesDraggable={false}
-        nodesConnectable={true}
-        elementsSelectable={true}
-        minZoom={0.4}
-        maxZoom={4}
-        preventScrolling
         className="bg-background dark:bg-background-dark"
+        minZoom={0.1}
+        maxZoom={1.5}
+        fitView
       >
-        <Background 
-          variant={BackgroundVariant.Dots} 
-          gap={12} 
-          size={1} 
-          color="var(--tw-text-opacity)"
+        <Background
           className="bg-background dark:bg-background-dark [--tw-text-opacity:var(--grid)] dark:[--tw-text-opacity:var(--grid-dark)]"
+          color="currentColor"
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1}
         />
-        <Controls className="bg-background dark:bg-background-dark border-node-border" />
+        <Controls className="bg-background dark:bg-background-dark border border-node-border dark:border-node-border-dark" />
       </ReactFlow>
     </div>
   );

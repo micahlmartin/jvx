@@ -15,9 +15,34 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Update the document class when theme changes
+    // Check for stored theme preference
+    const storedTheme = localStorage.getItem('theme') as Theme;
+    
+    if (storedTheme) {
+      setTheme(storedTheme);
+    } else {
+      // Check system preference
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(systemPrefersDark ? 'dark' : 'light');
+    }
+
+    // Listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  useEffect(() => {
+    // Update the document class and store preference when theme changes
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
