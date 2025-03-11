@@ -14,6 +14,10 @@ const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Edit
   ),
 });
 
+// Import theme data
+import dracula from 'monaco-themes/themes/Dracula.json';
+import githubLight from 'monaco-themes/themes/GitHub Light.json';
+
 export interface JsonEditorProps {
   initialValue?: string;
   onValidJson?: (json: any) => void;
@@ -40,11 +44,33 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
     }
   }, [onValidJson]);
 
-  const handleEditorDidMount = useCallback((editor: any) => {
+  const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
     setEditor(editor);
-    // Apply the built-in theme based on dark/light mode
+    
+    // Define the themes using pre-built themes from monaco-themes
+    monaco.editor.defineTheme('dracula', dracula);
+    monaco.editor.defineTheme('github-light', githubLight);
+    
+    // Apply the theme based on dark/light mode
     editor.updateOptions({
-      theme: theme === 'dark' ? 'vs-dark' : 'vs'
+      theme: theme === 'dark' ? 'dracula' : 'github-light',
+      fontSize: 13,
+      lineHeight: 20,
+      fontFamily: "'SF Mono', Monaco, Menlo, Consolas, 'Ubuntu Mono', monospace",
+      renderLineHighlight: 'none',
+      hideCursorInOverviewRuler: true,
+      overviewRulerBorder: false,
+      overviewRulerLanes: 0,
+      guides: {
+        indentation: false
+      },
+      scrollbar: {
+        vertical: 'visible',
+        horizontal: 'visible',
+        verticalScrollbarSize: 12,
+        horizontalScrollbarSize: 12,
+        useShadows: false
+      }
     });
     
     const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
@@ -66,10 +92,22 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   useEffect(() => {
     if (editor) {
       editor.updateOptions({
-        theme: theme === 'dark' ? 'vs-dark' : 'vs'
+        theme: theme === 'dark' ? 'dracula' : 'github-light'
       });
     }
   }, [theme, editor]);
+
+  // Update editor content when initialValue changes
+  useEffect(() => {
+    if (editor && initialValue !== undefined) {
+      const currentValue = editor.getValue();
+      if (currentValue !== initialValue) {
+        editor.setValue(initialValue);
+        setIsEmpty(!initialValue || initialValue === '{\n    \n}');
+        validateAndUpdateJson(initialValue);
+      }
+    }
+  }, [editor, initialValue, validateAndUpdateJson]);
 
   const handleChange = (value: string | undefined) => {
     if (!value) return;
@@ -81,10 +119,11 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       <Editor
         height="100%"
         defaultLanguage="json"
+        theme={theme === 'dark' ? 'dracula' : 'github-light'}
         options={{
           minimap: { enabled: false },
           lineNumbers: 'on',
-          roundedSelection: true,
+          roundedSelection: false,
           padding: { top: 16, bottom: 16 },
           scrollBeyondLastLine: false,
           folding: true,
@@ -99,6 +138,20 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
           tabSize: 2,
           formatOnPaste: true,
           formatOnType: true,
+          renderLineHighlight: 'none',
+          hideCursorInOverviewRuler: true,
+          overviewRulerBorder: false,
+          overviewRulerLanes: 0,
+          guides: {
+            indentation: false
+          },
+          scrollbar: {
+            vertical: 'visible',
+            horizontal: 'visible',
+            verticalScrollbarSize: 12,
+            horizontalScrollbarSize: 12,
+            useShadows: false
+          }
         }}
         onChange={handleChange}
         onMount={handleEditorDidMount}
@@ -117,4 +170,4 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       )}
     </div>
   );
-} 
+}; 
