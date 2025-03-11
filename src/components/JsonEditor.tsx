@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { sampleOrderData } from '@/data/sampleData';
+import { colors } from '@/styles/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 bg-background flex items-center justify-center text-[rgba(255,255,255,0.5)] font-mono text-property">
+    <div className="absolute inset-0 bg-background flex items-center justify-center text-editor-text-placeholder dark:text-editor-text-placeholder-dark font-mono text-property">
       Loading editor...
     </div>
   ),
@@ -23,6 +25,7 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
   const [editor, setEditor] = useState<any>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Initialize Monaco theme on the client side
@@ -31,32 +34,38 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       const monaco = await loader.init();
       
       monaco.editor.defineTheme('jsonTheme', {
-        base: 'vs-dark',
+        base: theme === 'dark' ? 'vs-dark' : 'vs',
         inherit: true,
-        rules: [],
+        rules: [
+          { token: 'string', foreground: theme === 'dark' ? '38BDF8' : '0284C7' },
+          { token: 'number', foreground: theme === 'dark' ? '38BDF8' : '0284C7' },
+          { token: 'string.key.json', foreground: theme === 'dark' ? '94A3B8' : '475569' },
+          { token: 'operator', foreground: theme === 'dark' ? 'E4E4E7' : '1A1A1A' }
+        ],
         colors: {
-          'editor.background': '#1E1E2E',
-          'editor.foreground': '#E4E4E7',
-          'editor.lineHighlightBackground': '#ffffff10',
-          'editorLineNumber.foreground': '#94A3B8',
-          'editorLineNumber.activeForeground': '#E4E4E7',
-          'editor.selectionBackground': '#ffffff20',
-          'editor.inactiveSelectionBackground': '#ffffff10',
-          'editorCursor.foreground': '#E4E4E7',
-          'editorBracketMatch.background': '#ffffff20',
-          'editorBracketMatch.border': '#ffffff40',
-          'editor.findMatchBackground': '#ffffff20',
-          'editor.findMatchHighlightBackground': '#ffffff10',
-          'editorGutter.background': '#1E1E2E',
-          'editorGutter.modifiedBackground': '#3B82F6',
-          'editorGutter.addedBackground': '#10B981',
-          'editorGutter.deletedBackground': '#EF4444',
+          'editor.background': theme === 'dark' ? '#1E1E1E' : '#FFFFFF',
+          'editor.foreground': theme === 'dark' ? colors.editor.text.dark : colors.editor.text.DEFAULT,
+          'editor.lineHighlightBackground': theme === 'dark' ? '#282828' : '#F8F9FA',
+          'editor.lineHighlightBorder': theme === 'dark' ? '#282828' : '#F8F9FA',
+          'editorLineNumber.foreground': theme === 'dark' ? colors.editor.text.muted.dark : colors.editor.text.muted.DEFAULT,
+          'editorLineNumber.activeForeground': theme === 'dark' ? colors.editor.text.dark : colors.editor.text.DEFAULT,
+          'editor.selectionBackground': theme === 'dark' ? colors.editor.bg.selection.dark : colors.editor.bg.selection.DEFAULT,
+          'editor.inactiveSelectionBackground': theme === 'dark' ? colors.editor.bg.selection.inactive.dark : colors.editor.bg.selection.inactive.DEFAULT,
+          'editorCursor.foreground': theme === 'dark' ? colors.editor.text.dark : colors.editor.text.DEFAULT,
+          'editorBracketMatch.background': theme === 'dark' ? '#2D2D2D' : '#F1F5F9',
+          'editorBracketMatch.border': theme === 'dark' ? '#2D2D2D' : '#F1F5F9',
+          'editor.findMatchBackground': theme === 'dark' ? colors.editor.bg.selection.dark : colors.editor.bg.selection.DEFAULT,
+          'editor.findMatchHighlightBackground': theme === 'dark' ? colors.editor.bg.highlight.dark : colors.editor.bg.highlight.DEFAULT,
+          'editorGutter.background': theme === 'dark' ? '#1E1E1E' : '#FFFFFF',
+          'editorGutter.modifiedBackground': colors.editor.gutter.modified,
+          'editorGutter.addedBackground': colors.editor.gutter.added,
+          'editorGutter.deletedBackground': colors.editor.gutter.deleted,
         }
       });
     };
 
     initMonaco();
-  }, []);
+  }, [theme]);
 
   const validateAndUpdateJson = useCallback((value: string) => {
     try {
@@ -115,6 +124,9 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
           foldingStrategy: 'auto',
           showFoldingControls: 'always',
           matchBrackets: 'always',
+          bracketPairColorization: {
+            enabled: false
+          },
           automaticLayout: true,
           tabSize: 2,
           formatOnPaste: true,
@@ -124,14 +136,14 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
         onMount={handleEditorDidMount}
       />
       {isEmpty && !isLoading && (
-        <div className="absolute top-0 left-0 right-0 pt-4 pl-12 text-[rgba(255,255,255,0.3)] font-mono text-property pointer-events-none select-none whitespace-pre leading-[19px]">
+        <div className="absolute top-0 left-0 right-0 pt-4 pl-12 text-editor-text-placeholder dark:text-editor-text-placeholder-dark font-mono text-property pointer-events-none select-none whitespace-pre leading-[19px]">
           {`{
       start typing here...
 }`}
         </div>
       )}
       {error && (
-        <div className="text-[#ef4444] text-type m-2 p-2 bg-[rgba(239,68,68,0.1)] rounded-badge font-mono">
+        <div className="text-editor-error-text text-type m-2 p-2 bg-editor-error-bg rounded-badge font-mono">
           {error}
         </div>
       )}
