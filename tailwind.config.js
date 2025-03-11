@@ -13,12 +13,12 @@ module.exports = {
       colors: {
         background: {
           DEFAULT: '#FFFFFF',
-          dark: '#1E1E1E',
+          dark: '#1e1e1e',
         },
         toolbar: {
           bg: {
             DEFAULT: '#f3f3f3',
-            dark: '#1E1E1E'
+            dark: '#1f1f1f'
           },
           hover: {
             DEFAULT: '#e5e5e5',
@@ -30,7 +30,7 @@ module.exports = {
           },
           border: {
             DEFAULT: '#e7e7e7',
-            dark: '#3c3c3c'
+            dark: '#2d2d2d'
           },
           text: {
             DEFAULT: '#616161',
@@ -41,10 +41,16 @@ module.exports = {
             dark: '#007fd4'
           }
         },
+        sidebar: {
+          bg: {
+            DEFAULT: '#f8f8f8',
+            dark: '#252526'
+          }
+        },
         editor: {
           bg: {
             DEFAULT: '#FFFFFF',
-            dark: '#1E1E2E',
+            dark: '#1f1f1f',
             highlight: {
               DEFAULT: 'rgba(0, 0, 0, 0.05)',
               dark: 'rgba(255, 255, 255, 0.1)'
