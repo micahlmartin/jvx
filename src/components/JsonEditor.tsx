@@ -15,7 +15,6 @@ const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Edit
 });
 
 // Import theme data
-import dracula from 'monaco-themes/themes/Dracula.json';
 import githubLight from 'monaco-themes/themes/GitHub Light.json';
 
 export interface JsonEditorProps {
@@ -47,13 +46,12 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
     setEditor(editor);
     
-    // Define the themes using pre-built themes from monaco-themes
-    monaco.editor.defineTheme('dracula', dracula);
+    // Define the light theme from monaco-themes
     monaco.editor.defineTheme('github-light', githubLight);
     
     // Apply the theme based on dark/light mode
     editor.updateOptions({
-      theme: theme === 'dark' ? 'dracula' : 'github-light',
+      theme: theme === 'dark' ? 'vs-dark' : 'github-light',
       fontSize: 13,
       lineHeight: 20,
       fontFamily: "'SF Mono', Monaco, Menlo, Consolas, 'Ubuntu Mono', monospace",
@@ -92,7 +90,7 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   useEffect(() => {
     if (editor) {
       editor.updateOptions({
-        theme: theme === 'dark' ? 'dracula' : 'github-light'
+        theme: theme === 'dark' ? 'vs-dark' : 'github-light'
       });
     }
   }, [theme, editor]);
@@ -119,7 +117,7 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       <Editor
         height="100%"
         defaultLanguage="json"
-        theme={theme === 'dark' ? 'dracula' : 'github-light'}
+        theme={theme === 'dark' ? 'vs-dark' : 'github-light'}
         options={{
           minimap: { enabled: false },
           lineNumbers: 'on',
