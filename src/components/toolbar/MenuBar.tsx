@@ -1,5 +1,7 @@
 import React from 'react';
 import { FileMenu } from './menus/FileMenu';
+import { ViewMenu } from './menus/ViewMenu';
+import { SidebarMenu } from './menus/SidebarMenu';
 import { useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Document } from '@/components/tabs/TabBar';
@@ -53,34 +55,24 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     <div 
       role="menubar" 
       aria-label="Main menu"
-      className="bg-[#1E1E2E] h-12 flex items-center z-[var(--z-index-node-base)] border-b border-[rgba(255,255,255,0.08)]"
+      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch z-[var(--z-index-node-base)] border-b border-toolbar-border dark:border-toolbar-border-dark px-2"
     >
-      <div className="flex items-center p-0 pr-3 h-full gap-1.5 border-r border-[rgba(255,255,255,0.08)]">
+      <div className="flex items-stretch">
+        <SidebarMenu />
+        <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-3 self-center" />
         <FileMenu
           onNewFile={handleNewFile}
           onOpenFile={handleOpenFile}
           onSaveFile={handleSaveFile}
           onSaveAs={handleSaveAs}
         />
-        <button 
-          role="menuitem" 
-          aria-haspopup="true"
-          className="text-text-primary text-sm px-4 bg-transparent border-none cursor-pointer transition-all duration-150 flex items-center h-full gap-1 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none"
-        >
-          View
-        </button>
-        <button 
-          role="menuitem" 
-          aria-haspopup="true"
-          className="text-text-primary text-sm px-4 bg-transparent border-none cursor-pointer transition-all duration-150 flex items-center h-full gap-1 opacity-85 font-normal hover:bg-[rgba(255,255,255,0.08)] hover:opacity-100 focus:outline-none"
-        >
-          Edit
-        </button>
+        <ViewMenu />
       </div>
+      <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-3 self-center" />
       <div 
         role="tablist" 
         aria-label="Open documents"
-        className="flex items-center flex-1 h-full overflow-x-auto scrollbar-none gap-0.5 pl-4"
+        className="flex items-stretch flex-1 overflow-x-auto scrollbar-none"
       >
         {documents.map(doc => (
           <Tab
@@ -98,7 +90,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
           onClick={handleNewFile}
           aria-label="Create new document"
           title="Create new document"
-          className="flex items-center justify-center w-10 h-full bg-transparent border-none text-text-primary cursor-pointer opacity-70 text-[22px] transition-all duration-150 hover:opacity-100 hover:bg-[rgba(255,255,255,0.08)] focus:outline-none"
+          className="flex items-center justify-center w-10 h-full bg-transparent border-none text-toolbar-text dark:text-toolbar-text-dark cursor-pointer opacity-70 text-[22px] transition-colors duration-150 hover:opacity-100 hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none ml-2"
         >
           +
         </button>

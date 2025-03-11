@@ -5,17 +5,68 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        background: '#1E1E2E',
-        'node-bg': 'rgba(255, 255, 255, 0.05)',
-        'node-border': '#FFFFFF',
-        'text-primary': '#E4E4E7',
-        'text-property': '#94A3B8',
-        'text-value': '#38BDF8',
-        'edge-stroke': '#FFFFFF',
-        grid: 'rgba(255, 255, 255, 0.05)',
+        background: {
+          DEFAULT: '#FFFFFF',
+          dark: '#1E1E2E',
+        },
+        toolbar: {
+          bg: {
+            DEFAULT: '#f3f3f3',
+            dark: '#1e1e1e'
+          },
+          hover: {
+            DEFAULT: '#e5e5e5',
+            dark: '#2d2d2d'
+          },
+          active: {
+            DEFAULT: '#ffffff',
+            dark: '#323232'
+          },
+          border: {
+            DEFAULT: '#e7e7e7',
+            dark: '#3c3c3c'
+          },
+          text: {
+            DEFAULT: '#616161',
+            dark: '#ffffff'
+          },
+          highlight: {
+            DEFAULT: '#0098ff',
+            dark: '#007fd4'
+          }
+        },
+        'node-bg': {
+          DEFAULT: 'rgba(0, 0, 0, 0.05)',
+          dark: 'rgba(255, 255, 255, 0.05)',
+        },
+        'node-border': {
+          DEFAULT: 'rgba(0, 0, 0, 0.1)',
+          dark: 'rgba(255, 255, 255, 0.1)',
+        },
+        'text-primary': {
+          DEFAULT: '#1A1A1A',
+          dark: '#E4E4E7',
+        },
+        'text-property': {
+          DEFAULT: '#475569',
+          dark: '#94A3B8',
+        },
+        'text-value': {
+          DEFAULT: '#0284C7',
+          dark: '#38BDF8',
+        },
+        'edge-stroke': {
+          DEFAULT: 'rgba(71, 85, 105, 0.5)',
+          dark: 'rgba(148, 163, 184, 0.5)',
+        },
+        grid: {
+          DEFAULT: 'rgba(0, 0, 0, 0.05)',
+          dark: 'rgba(255, 255, 255, 0.05)',
+        },
         // Node header colors
         'header-level0': '#2D3748',
         'header-level1': '#553C9A',
@@ -30,6 +81,7 @@ module.exports = {
         'type': '12px',
         'label': '14px',
         'property': '13px',
+        'menu': '13px',
       },
       spacing: {
         'node-padding': '12px',

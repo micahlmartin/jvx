@@ -87,9 +87,9 @@ export const Tab: React.FC<TabProps> = ({
   return (
     <>
       <div
-        className={`flex items-center h-full px-2 gap-2 border-r border-[rgba(255,255,255,0.08)] cursor-pointer select-none min-w-[120px] max-w-[200px] relative ${
-          isActive ? 'bg-[rgba(255,255,255,0.08)]' : 'bg-transparent'
-        } hover:bg-[rgba(255,255,255,0.04)]`}
+        className={`flex items-center h-full px-2 gap-2 border-r border-node-border cursor-pointer select-none min-w-[120px] max-w-[200px] relative ${
+          isActive ? 'bg-node-bg' : 'bg-transparent'
+        } hover:bg-node-bg/50`}
         onClick={onActivate}
         onDoubleClick={handleDoubleClick}
         onContextMenu={handleContextMenu}
@@ -97,9 +97,9 @@ export const Tab: React.FC<TabProps> = ({
         aria-selected={isActive}
       >
         {isDirty && (
-          <div className="w-1 h-1 rounded-full bg-text-primary opacity-50" />
+          <div className="w-1 h-1 rounded-full bg-text-primary dark:bg-white opacity-50" />
         )}
-        <div className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-text-primary opacity-85 text-[13px] ${isEditing ? 'hidden' : 'block'}`}>
+        <div className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-text-primary dark:text-white opacity-85 text-[13px] ${isEditing ? 'hidden' : 'block'}`}>
           {name}
         </div>
         {isEditing ? (
@@ -109,7 +109,7 @@ export const Tab: React.FC<TabProps> = ({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            className="flex-1 bg-transparent border-none outline-none text-text-primary text-[13px] p-0 m-0 w-full focus:outline-none"
+            className="flex-1 bg-transparent border-none outline-none text-text-primary dark:text-white text-[13px] p-0 m-0 w-full focus:outline-none"
           />
         ) : null}
         <button
@@ -118,7 +118,7 @@ export const Tab: React.FC<TabProps> = ({
             onClose();
           }}
           aria-label="Close tab"
-          className="flex items-center justify-center w-4 h-4 border-none bg-transparent text-text-primary opacity-50 cursor-pointer p-0 rounded hover:opacity-100 hover:bg-[rgba(255,255,255,0.1)]"
+          className="flex items-center justify-center w-4 h-4 border-none bg-transparent text-text-primary dark:text-white opacity-50 cursor-pointer p-0 rounded hover:opacity-100 hover:bg-node-bg"
         >
           <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

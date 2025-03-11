@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useEffect, useMemo, useState } from 'react';
+import { useCallback, useRef, useEffect, useMemo } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { GraphCanvas, GraphCanvasHandle } from '@/components/GraphCanvas';
 import { JsonEditor } from '@/components/JsonEditor';
@@ -9,9 +9,10 @@ import { TabBar } from '@/components/tabs/TabBar';
 import { DocumentProvider, useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
 import { sampleOrderData } from '@/data/sampleData';
+import { useSidebar } from '@/contexts/SidebarContext';
 
 function HomeContent() {
-  const [isEditorVisible, setIsEditorVisible] = useState(true);
+  const { isSidebarVisible } = useSidebar();
   const graphRef = useRef<GraphCanvasHandle>(null);
   const initializeRef = useRef(false);
   const { 
@@ -76,19 +77,8 @@ function HomeContent() {
 
   return (
     <ReactFlowProvider>
-      <div className={`grid grid-rows-[48px_1fr] h-[100dvh] w-full overflow-hidden bg-background transition-[grid-template-columns] duration-300 ease-in-out ${isEditorVisible ? 'grid-cols-[400px_1fr]' : 'grid-cols-[0_1fr]'}`}>
-        <div className="col-span-full border-b border-node-border flex items-center bg-[#1E1E2E]">
-          <button
-            onClick={() => setIsEditorVisible(!isEditorVisible)}
-            aria-label="Toggle panel"
-            title="Toggle panel"
-            className="flex items-center justify-center w-12 h-12 border-none bg-transparent text-text-primary cursor-pointer opacity-85 transition-all duration-150 hover:opacity-100 hover:bg-[rgba(255,255,255,0.08)]"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H2v12h12V2zM6 2v12" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          <div className="w-[1px] h-6 bg-current mx-2 opacity-[0.08]" />
+      <div className="h-[100dvh] w-full overflow-hidden bg-background-dark relative">
+        <div className="h-[38px] w-full border-b border-node-border flex items-center bg-background-dark">
           <MenuBar
             documents={documents}
             activeDocument={activeDocument}
@@ -96,15 +86,24 @@ function HomeContent() {
             onDocumentClose={removeDocument}
           />
         </div>
-        <div className={`flex flex-col border-r border-node-border overflow-hidden transition-[opacity,width] duration-200 ${isEditorVisible ? 'opacity-100 w-[400px]' : 'opacity-0 w-0'}`}>
-          <JsonEditor 
-            onValidJson={handleValidJson}
-            key={activeDocument || 'empty'}
-            initialValue={currentContent}
-          />
-        </div>
-        <div className="flex flex-col overflow-hidden">
-          <GraphCanvas ref={graphRef} />
+        <div className="h-[calc(100%-38px)] w-full relative">
+          <div 
+            className={`absolute top-0 left-0 h-full w-[400px] border-r border-node-border bg-background-dark transition-transform duration-300 ease-in-out z-10 ${
+              isSidebarVisible ? 'translate-x-0' : '-translate-x-full'
+            }`}
+          >
+            <JsonEditor
+              initialValue={currentContent}
+              onValidJson={handleValidJson}
+            />
+          </div>
+          <div 
+            className={`absolute top-0 right-0 h-full transition-[width,left] duration-300 ease-in-out ${
+              isSidebarVisible ? 'left-[400px] w-[calc(100%-400px)]' : 'left-0 w-full'
+            }`}
+          >
+            <GraphCanvas ref={graphRef} />
+          </div>
         </div>
       </div>
     </ReactFlowProvider>

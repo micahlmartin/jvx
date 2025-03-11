@@ -270,7 +270,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
   }), []);
 
   return (
-    <div className="w-full h-screen bg-background">
+    <div className="w-full h-full bg-background-dark">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -292,18 +292,16 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         minZoom={0.4}
         maxZoom={4}
         preventScrolling
+        className="bg-background-dark"
       >
         <Background 
-          color="var(--grid)"
-          gap={12}
-          size={0.5}
-          className="opacity-30"
-          variant={BackgroundVariant.Lines}
+          variant={BackgroundVariant.Dots} 
+          gap={12} 
+          size={1} 
+          color="rgba(255, 255, 255, 0.05)"
+          className="bg-background-dark"
         />
-        <Controls 
-          className="bg-[rgba(255,255,255,0.05)] backdrop-blur-sm border border-[rgba(255,255,255,0.1)] rounded-lg"
-          showInteractive={false}
-        />
+        <Controls className="bg-background-dark border-node-border" />
       </ReactFlow>
     </div>
   );
