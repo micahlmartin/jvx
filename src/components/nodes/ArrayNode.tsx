@@ -17,7 +17,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
       />
       
       <div className="p-[8px_12px] border-b border-node-border flex items-center gap-header-gap">
-        <span className="text-type text-text-property bg-[rgba(255,255,255,0.1)] px-[6px] py-[2px] rounded-badge flex-shrink-0">
+        <span className="text-type text-text-property bg-editor-bg-highlight-dark px-[6px] py-[2px] rounded-badge flex-shrink-0">
           array
         </span>
         <span className="text-text-primary font-medium overflow-hidden text-ellipsis whitespace-nowrap">
@@ -30,7 +30,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
 
       <div className="p-[8px_12px] flex flex-col gap-[6px] font-mono">
         {data.items.slice(0, 5).map((item, index) => (
-          <div key={index} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property min-h-[22px] relative">
+          <div key={`${data.label}-${index}`} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property min-h-[22px] relative">
             <span className="text-type text-text-property">
               [{index}]
             </span>
@@ -40,7 +40,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
           </div>
         ))}
         {data.items.length > 5 && (
-          <div className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property min-h-[22px] relative">
+          <div key={`${data.label}-more`} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property min-h-[22px] relative">
             <span className="text-type text-text-property">...</span>
             <span className="text-text-value opacity-70">
               {data.items.length - 5} more items

@@ -44,7 +44,7 @@ export const ViewMenu: React.FC<ViewMenuProps> = () => {
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute top-full left-0 bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border/30 dark:border-toolbar-border-dark/30 shadow-[0_4px_8px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_8px_rgba(0,0,0,0.3)] backdrop-blur-[4px] py-[6px] min-w-[180px] z-50"
+          className="absolute top-full left-0 bg-toolbar-bg dark:bg-toolbar-bg-dark border border-toolbar-border/30 dark:border-toolbar-border-dark/30 shadow-menu dark:shadow-menu-dark backdrop-blur-menu py-[6px] min-w-[180px] z-50"
         >
           <button
             onClick={toggleTheme}

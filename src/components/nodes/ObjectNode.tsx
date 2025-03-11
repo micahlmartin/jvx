@@ -107,7 +107,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
 
       <div className="p-0 flex flex-col">
         {data.properties.map((prop) => (
-          <div key={prop.id} className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border last:border-b-0">
+          <div key={prop.id} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border last:border-b-0">
             <span className="text-node-value-property whitespace-nowrap">
               {prop.key}:
             </span>
@@ -129,7 +129,7 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
                 type="source"
                 position={Position.Right}
                 id={`property-${prop.key}`}
-                className="!absolute !-right-1 !top-1/2 !-translate-y-1/2 !bg-node-border !w-2 !h-2 !border-none !pointer-events-none !opacity-100 !rounded-full !z-handles nodrag"
+                className="!absolute !-right-[9px] !top-1/2 !-translate-y-1/2 !bg-node-border !w-2 !h-2 !border-none !pointer-events-none !opacity-100 !rounded-full !z-handles nodrag"
               />
             )}
           </div>

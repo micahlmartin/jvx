@@ -180,9 +180,12 @@ module.exports = {
       },
       backdropBlur: {
         'node': '12px',
+        'menu': '4px',
       },
       boxShadow: {
         'node': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        'menu': '0 4px 8px rgba(0, 0, 0, 0.1)',
+        'menu-dark': '0 4px 8px rgba(0, 0, 0, 0.3)',
       },
       transitionDuration: {
         'node': '0.2s',

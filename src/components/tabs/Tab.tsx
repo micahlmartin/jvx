@@ -9,6 +9,10 @@ interface TabProps {
   onActivate: () => void;
   onClose: () => void;
   onRename?: (id: string, newName: string) => void;
+  onContextMenu?: (id: string, x: number, y: number) => void;
+  contextMenuOpen?: boolean;
+  contextMenuPosition?: { x: number; y: number } | null;
+  onContextMenuClose?: () => void;
 }
 
 export const Tab: React.FC<TabProps> = ({
@@ -18,11 +22,14 @@ export const Tab: React.FC<TabProps> = ({
   isDirty,
   onActivate,
   onClose,
-  onRename
+  onRename,
+  onContextMenu,
+  contextMenuOpen = false,
+  contextMenuPosition = null,
+  onContextMenuClose = () => {}
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(name);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -32,31 +39,19 @@ export const Tab: React.FC<TabProps> = ({
     }
   }, [isEditing]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (contextMenu) {
-        const target = e.target as HTMLElement;
-        if (!target.closest('.tab-context-menu')) {
-          setContextMenu(null);
-        }
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [contextMenu]);
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (onRename) {
       setIsEditing(true);
     }
   };
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    console.log('Tab handleContextMenu called', { id, x: e.clientX, y: e.clientY });
     e.preventDefault();
-    if (onRename) {
-      setContextMenu({ x: e.clientX, y: e.clientY });
+    e.stopPropagation();
+    if (onContextMenu) {
+      onContextMenu(id, e.clientX, e.clientY + 2);
     }
   };
 
@@ -80,7 +75,6 @@ export const Tab: React.FC<TabProps> = ({
   };
 
   const startRename = () => {
-    setContextMenu(null);
     setIsEditing(true);
   };
 
@@ -125,12 +119,13 @@ export const Tab: React.FC<TabProps> = ({
           </svg>
         </button>
       </div>
-      {contextMenu && (
+      {contextMenuOpen && contextMenuPosition && (
         <TabContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
+          x={contextMenuPosition.x}
+          y={contextMenuPosition.y}
           onRename={startRename}
           onClose={onClose}
+          onRequestClose={onContextMenuClose}
         />
       )}
     </>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { FileMenu } from './menus/FileMenu';
 import { ViewMenu } from './menus/ViewMenu';
 import { SidebarMenu } from './menus/SidebarMenu';
@@ -25,6 +25,17 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   onDocumentClose
 }) => {
   const { addDocument, renameDocument } = useDocuments();
+  const [openContextMenu, setOpenContextMenu] = useState<{id: string, x: number, y: number} | null>(null);
+
+  const handleContextMenu = useCallback((id: string, x: number, y: number) => {
+    console.log('MenuBar handleContextMenu called:', { id, x, y });
+    setOpenContextMenu({ id, x, y });
+  }, []);
+
+  const handleCloseContextMenu = useCallback(() => {
+    console.log('MenuBar handleCloseContextMenu called');
+    setOpenContextMenu(null);
+  }, []);
 
   const handleNewFile = () => {
     addDocument({
@@ -55,7 +66,8 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     <div 
       role="menubar" 
       aria-label="Main menu"
-      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch z-[var(--z-index-node-base)] border-b border-toolbar-border dark:border-toolbar-border-dark px-2"
+      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch border-b border-toolbar-border dark:border-toolbar-border-dark px-2"
+      style={{ zIndex: 40 }}
     >
       <div className="flex items-stretch">
         <SidebarMenu />
@@ -74,18 +86,27 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         aria-label="Open documents"
         className="flex items-stretch flex-1 overflow-x-auto scrollbar-none"
       >
-        {documents.map(doc => (
-          <Tab
-            key={doc.id}
-            id={doc.id}
-            name={doc.name}
-            isActive={doc.id === activeDocument}
-            isDirty={doc.isDirty}
-            onActivate={() => onDocumentSelect(doc.id)}
-            onClose={() => onDocumentClose(doc.id)}
-            onRename={renameDocument}
-          />
-        ))}
+        {documents.map(doc => {
+          const isContextMenuOpen = openContextMenu?.id === doc.id;
+          console.log(`Tab ${doc.id} context menu state:`, { isContextMenuOpen, openContextMenu });
+          
+          return (
+            <Tab
+              key={doc.id}
+              id={doc.id}
+              name={doc.name}
+              isActive={doc.id === activeDocument}
+              isDirty={doc.isDirty}
+              onActivate={() => onDocumentSelect(doc.id)}
+              onClose={() => onDocumentClose(doc.id)}
+              onRename={renameDocument}
+              onContextMenu={handleContextMenu}
+              contextMenuOpen={isContextMenuOpen}
+              contextMenuPosition={isContextMenuOpen ? { x: openContextMenu.x, y: openContextMenu.y } : null}
+              onContextMenuClose={handleCloseContextMenu}
+            />
+          );
+        })}
         <button
           onClick={handleNewFile}
           aria-label="Create new document"

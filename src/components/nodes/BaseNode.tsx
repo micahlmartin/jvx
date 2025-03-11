@@ -9,7 +9,7 @@ export interface BaseNodeData {
 
 function BaseNode({ data, isConnectable }: NodeProps<BaseNodeData>) {
   return (
-    <div className="bg-node-bg backdrop-blur-node border border-node-border rounded-node p-node-padding text-text-primary shadow-node transition-all duration-node hover:bg-[rgba(255,255,255,0.08)] hover:-translate-y-[1px]">
+    <div className="bg-node-bg backdrop-blur-node border border-node-border rounded-node p-node-padding text-text-primary shadow-node transition-all duration-node hover:bg-editor-bg-highlight-dark hover:-translate-y-[1px]">
       <Handle
         type="target"
         position={Position.Top}
@@ -17,7 +17,7 @@ function BaseNode({ data, isConnectable }: NodeProps<BaseNodeData>) {
       />
       
       <div className="flex items-center gap-header-gap mb-header-gap">
-        <span className="text-type text-text-property bg-[rgba(255,255,255,0.1)] px-[6px] py-[2px] rounded-badge">
+        <span className="text-type text-text-property bg-editor-bg-highlight-dark px-[6px] py-[2px] rounded-badge">
           {data.type}
         </span>
         <span>{data.label}</span>

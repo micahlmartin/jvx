@@ -57,7 +57,7 @@ export const NodeHandle: React.FC<NodeHandleProps> = ({
 }) => {
   const isConnecting = useStore((state) => state.connectionNodeId != null);
   
-  const baseClasses = "!absolute !w-2 !h-2 !bg-node-border hover:!bg-[rgba(255,255,255,0.5)] !border-none !rounded-full !cursor-pointer !transition-opacity !duration-200 !z-handles";
+  const baseClasses = "!absolute !w-2 !h-2 !bg-node-border hover:!bg-editor-bg-highlight-dark !border-none !rounded-full !cursor-pointer !transition-opacity !duration-200 !z-handles";
   
   const visibilityClasses = type === 'target'
     ? isConnecting ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none"

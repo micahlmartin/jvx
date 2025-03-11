@@ -217,8 +217,9 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     if (sourceNode && targetNode) {
       edge.type = 'smoothstep';
       edge.animated = false;
+      edge.className = 'text-edge-stroke dark:text-edge-stroke-dark';
       edge.style = {
-        stroke: 'var(--edge-stroke)',
+        stroke: 'currentColor',
         strokeWidth: 2
       };
       edge.zIndex = 1000;
@@ -262,15 +263,16 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
   const defaultEdgeOptions: DefaultEdgeOptions = useMemo(() => ({
     type: 'smoothstep',
     animated: false,
+    className: 'text-edge-stroke dark:text-edge-stroke-dark',
     style: {
-      stroke: 'var(--edge-stroke)',
+      stroke: 'currentColor',
       strokeWidth: 2
     },
     zIndex: 1000
   }), []);
 
   return (
-    <div className="w-full h-full bg-background-dark">
+    <div className="w-full h-full bg-background dark:bg-background-dark">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -292,16 +294,16 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         minZoom={0.4}
         maxZoom={4}
         preventScrolling
-        className="bg-background-dark"
+        className="bg-background dark:bg-background-dark"
       >
         <Background 
           variant={BackgroundVariant.Dots} 
           gap={12} 
           size={1} 
-          color="rgba(255, 255, 255, 0.05)"
-          className="bg-background-dark"
+          color="var(--tw-text-opacity)"
+          className="bg-background dark:bg-background-dark [--tw-text-opacity:var(--grid)] dark:[--tw-text-opacity:var(--grid-dark)]"
         />
-        <Controls className="bg-background-dark border-node-border" />
+        <Controls className="bg-background dark:bg-background-dark border-node-border" />
       </ReactFlow>
     </div>
   );
