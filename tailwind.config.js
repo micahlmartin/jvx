@@ -1,3 +1,5 @@
+const { colors } = require('./src/styles/colors');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -94,13 +96,42 @@ module.exports = {
             }
           }
         },
-        'node-bg': {
-          DEFAULT: 'rgba(0, 0, 0, 0.05)',
-          dark: 'rgba(255, 255, 255, 0.05)',
+        'node-bg': '#1E1E1E',
+        'node-border': 'rgba(255, 255, 255, 0.1)',
+        'node-root': {
+          DEFAULT: 'rgba(82, 82, 91, 0.3)',
+          text: 'rgba(161, 161, 170, 0.9)'
         },
-        'node-border': {
-          DEFAULT: 'rgba(0, 0, 0, 0.1)',
-          dark: 'rgba(255, 255, 255, 0.1)',
+        'node-customer': {
+          DEFAULT: 'rgba(59, 130, 246, 0.15)',
+          text: 'rgba(96, 165, 250, 0.9)'
+        },
+        'node-items': {
+          DEFAULT: 'rgba(147, 51, 234, 0.15)',
+          text: 'rgba(167, 139, 250, 0.9)'
+        },
+        'node-shipping': {
+          DEFAULT: 'rgba(236, 72, 153, 0.15)',
+          text: 'rgba(236, 72, 153, 0.9)'
+        },
+        'node-payment': {
+          DEFAULT: 'rgba(16, 185, 129, 0.15)',
+          text: 'rgba(52, 211, 153, 0.9)'
+        },
+        'node-address': {
+          DEFAULT: 'rgba(245, 158, 11, 0.15)',
+          text: 'rgba(251, 191, 36, 0.9)'
+        },
+        'node-default': {
+          DEFAULT: 'rgba(82, 82, 91, 0.15)',
+          text: 'rgba(161, 161, 170, 0.9)'
+        },
+        'node-value': {
+          string: '#38BDF8',
+          number: '#EC4899',
+          'boolean-true': '#4ADE80',
+          'boolean-false': '#F87171',
+          property: '#94A3B8'
         },
         'text-primary': {
           DEFAULT: '#1A1A1A',
