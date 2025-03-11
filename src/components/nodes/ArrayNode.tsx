@@ -23,7 +23,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
         <span className="text-text-primary font-medium overflow-hidden text-ellipsis whitespace-nowrap">
           {data.label}
         </span>
-        <span className="text-type text-text-value ml-auto opacity-70">
+        <span className="text-type text-text-value ml-auto opacity-text-muted">
           length: {data.items.length}
         </span>
       </div>
@@ -34,7 +34,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
             <span className="text-type text-text-property">
               [{index}]
             </span>
-            <span className="text-text-value opacity-70">
+            <span className="text-text-value opacity-text-muted">
               {Array.isArray(item) ? `array[${item.length}]` : typeof item}
             </span>
           </div>
@@ -42,7 +42,7 @@ function ArrayNode({ data }: NodeProps<ArrayNodeData>) {
         {data.items.length > 5 && (
           <div key={`${data.label}-more`} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property min-h-[22px] relative">
             <span className="text-type text-text-property">...</span>
-            <span className="text-text-value opacity-70">
+            <span className="text-text-value opacity-text-muted">
               {data.items.length - 5} more items
             </span>
           </div>
