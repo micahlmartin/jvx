@@ -232,10 +232,11 @@ module.exports = {
         node: '12px',
         menu: '4px',
       },
-      backdropFilter: {
-        glass: 'blur(12px)',
-        'glass-sm': 'blur(8px)',
-      },
+      backdropFilter: theme => ({
+        'none': 'none',
+        'blur': 'blur(12px)',
+        'blur-sm': 'blur(8px)',
+      }),
       boxShadow: {
         node: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         menu: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -262,7 +263,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('tailwindcss-filters'), // Add plugin for backdrop filters
     ...require('./src/plugins/glass')(), // Custom glass effect utilities
   ],
 };
