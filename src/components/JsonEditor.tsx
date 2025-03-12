@@ -7,9 +7,9 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { vsDarkPlus } from '@/themes/vs-dark-plus';
 import { ResizablePanel } from './ResizablePanel';
 import { PANEL_SIZES } from '@/constants/panels';
-import * as monaco from 'monaco-editor';
-import type { editor } from 'monaco-editor';
+import type * as Monaco from 'monaco-editor';
 
+// Dynamically import monaco-editor
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
   ssr: false,
   loading: () => (
@@ -43,7 +43,8 @@ export const JsonEditor = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
-  const [editor, setEditor] = useState<editor.IStandaloneCodeEditor | null>(null);
+  const [editor, setEditor] = useState<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [monacoInstance, setMonacoInstance] = useState<typeof Monaco | null>(null);
   const { theme } = useTheme();
 
   const validateAndUpdateJson = useCallback((value: string) => {
@@ -51,11 +52,11 @@ export const JsonEditor = ({
     if (value === '{\n    \n}') {
       setIsEmpty(true);
       setError(null);
-      if (editor) {
+      if (editor && monacoInstance) {
         const model = editor.getModel();
         if (model) {
           editor.getModel()?.deltaDecorations([], []);
-          monaco.editor.setModelMarkers(model, 'json', []);
+          monacoInstance.editor.setModelMarkers(model, 'json', []);
         }
       }
       return true;
@@ -75,11 +76,11 @@ export const JsonEditor = ({
       setError(null);
       
       // Clear error markers when JSON is valid
-      if (editor) {
+      if (editor && monacoInstance) {
         const model = editor.getModel();
         if (model) {
           editor.getModel()?.deltaDecorations([], []);
-          monaco.editor.setModelMarkers(model, 'json', []);
+          monacoInstance.editor.setModelMarkers(model, 'json', []);
         }
       }
       return true;
@@ -88,12 +89,12 @@ export const JsonEditor = ({
         setError(e.message);
         
         // Add error markers to the overview ruler
-        if (editor) {
+        if (editor && monacoInstance) {
           const model = editor.getModel();
           if (model) {
             const lineNumber = getErrorLineNumber(e.message, model);
-            monaco.editor.setModelMarkers(model, 'json', [{
-              severity: monaco.MarkerSeverity.Error,
+            monacoInstance.editor.setModelMarkers(model, 'json', [{
+              severity: monacoInstance.MarkerSeverity.Error,
               message: e.message,
               startLineNumber: lineNumber,
               startColumn: 1,
@@ -105,10 +106,10 @@ export const JsonEditor = ({
       }
       return false;
     }
-  }, [editor]);
+  }, [editor, monacoInstance]);
 
   // Helper function to extract line number from JSON error message
-  const getErrorLineNumber = (errorMessage: string, model: editor.ITextModel): number => {
+  const getErrorLineNumber = (errorMessage: string, model: Monaco.editor.ITextModel): number => {
     const match = errorMessage.match(/at position (\d+)/);
     if (match) {
       const position = parseInt(match[1], 10);
@@ -117,8 +118,9 @@ export const JsonEditor = ({
     return 1;
   };
 
-  const handleEditorDidMount = useCallback((editorInstance: editor.IStandaloneCodeEditor, monaco: any) => {
+  const handleEditorDidMount = useCallback((editorInstance: Monaco.editor.IStandaloneCodeEditor, monaco: any) => {
     setEditor(editorInstance);
+    setMonacoInstance(monaco);
     
     // Configure editor with overview ruler options
     editorInstance.updateOptions({
