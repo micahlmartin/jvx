@@ -13,7 +13,7 @@ export const GraphControls: React.FC = () => {
           title="Fit view"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
-            <path d="M15 3H21M21 3V9M21 3L14 10M9 21H3M3 21V15M3 21L10 14M15 21H21M21 21V15M21 21L14 14M9 3H3M3 3V9M3 3L10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M4 14V16C4 17.1046 4.89543 18 6 18H8M4 10V8C4 6.89543 4.89543 6 6 6H8M20 14V16C20 17.1046 19.1046 18 18 18H16M20 10V8C20 6.89543 19.1046 6 18 6H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
         <div className="flex flex-col">
