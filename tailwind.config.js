@@ -195,6 +195,12 @@ module.exports = {
           light: 'rgba(255, 255, 255, 0.1)',
           dark: 'rgba(0, 0, 0, 0.2)',
         },
+        'resize-handle': {
+          DEFAULT: 'rgba(0, 0, 0, 0.2)',
+          dark: 'rgba(255, 255, 255, 0.2)',
+          hover: 'rgba(0, 0, 0, 0.05)',
+          'hover-dark': 'rgba(255, 255, 255, 0.05)'
+        },
       },
       fontFamily: {
         mono: ['JetBrains Mono', 'monospace'],

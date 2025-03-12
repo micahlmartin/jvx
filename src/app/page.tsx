@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useEffect, useMemo } from 'react';
+import { useCallback, useRef, useEffect, useMemo, useState } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { GraphCanvas, GraphCanvasHandle } from '@/components/GraphCanvas';
 import { JsonEditor } from '@/components/JsonEditor';
@@ -15,6 +15,7 @@ function HomeContent() {
   const { isSidebarVisible } = useSidebar();
   const graphRef = useRef<GraphCanvasHandle>(null);
   const initializeRef = useRef(false);
+  const [sidebarWidth, setSidebarWidth] = useState(400);
   const { 
     documents, 
     activeDocument, 
@@ -86,25 +87,18 @@ function HomeContent() {
             onDocumentClose={removeDocument}
           />
         </div>
-        <div className="h-[calc(100%-45px)] w-full relative">
-          <div 
-            className={`absolute top-0 left-0 h-full w-[400px] border-r border-node-border dark:border-node-border-dark bg-sidebar-bg dark:bg-sidebar-bg-dark transition-transform duration-300 ease-in-out z-20 shadow-lg ${
-              isSidebarVisible ? 'translate-x-0' : '-translate-x-full'
-            }`}
-          >
-            <JsonEditor
-              initialValue={currentContent}
-              onValidJson={handleValidJson}
-            />
-          </div>
-          <div 
-            className={`absolute top-0 right-0 h-full transition-[width,left] duration-300 ease-in-out bg-background dark:bg-background-dark ${
-              isSidebarVisible ? 'left-[400px] w-[calc(100%-400px)]' : 'left-0 w-full'
-            }`}
-          >
-            <div className="w-full h-full relative">
-              <GraphCanvas ref={graphRef} />
-            </div>
+        <div className="h-[calc(100%-45px)] w-full relative flex">
+          <JsonEditor
+            initialValue={currentContent}
+            onValidJson={handleValidJson}
+            isCollapsed={!isSidebarVisible}
+            onResize={setSidebarWidth}
+            defaultSize={400}
+            minSize={300}
+            maxSize={800}
+          />
+          <div className="flex-1 relative">
+            <GraphCanvas ref={graphRef} />
           </div>
         </div>
       </div>
