@@ -1,62 +1,124 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: ['**']
+    tags: ['v*.*.*']
   pull_request:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  build-and-test:
+  build-test-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,format=long
 
-      - name: Lint
-        run: npm run lint
+      # Build and test stage
+      - name: Build and test
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
 
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Run tests with coverage
-        run: npm test
-
-      - name: Build
+      # Extract all artifacts from test stage
+      - name: Extract artifacts
+        if: always()
         run: |
-          npm run build
-          ls -la
-          ls -la .next || echo "No .next directory found"
-        env:
-          CI: true
-          NODE_ENV: production
+          # Create temporary container from test stage
+          CONTAINER_ID=$(docker create $(docker build -q --target test .))
 
-      - name: Upload test results
+          # Create artifacts directory
+          mkdir -p artifacts
+
+          # Copy all artifacts from container
+          docker cp $CONTAINER_ID:/app/artifacts/. ./artifacts/
+
+          # Cleanup container
+          docker rm $CONTAINER_ID
+
+          # List extracted artifacts
+          echo "Extracted artifacts:"
+          ls -R ./artifacts
+
+      # Upload all artifacts
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: build-artifacts
           path: |
-            coverage/
-            junit.xml
+            artifacts/**/*
           retention-days: 30
 
-      - name: Upload build
+      # Process code coverage
+      - name: Process code coverage
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: codecov/codecov-action@v4
         with:
-          name: build-output
-          path: |
-            .next/
-            public/
-          if-no-files-found: error
-          retention-days: 7
+          directory: ./artifacts/coverage
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+      # If tests pass, build and push the production image
+      - name: Build and push production image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        if: github.event_name != 'pull_request'
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: github.event_name != 'pull_request'
+        with:
+          sarif_file: 'trivy-results.sarif'

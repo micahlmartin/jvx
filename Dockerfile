@@ -18,10 +18,30 @@ WORKDIR /app
 # Copy source
 COPY . .
 
+# Create artifacts directory
+RUN mkdir -p /app/artifacts
+
 # Run tests and checks
-RUN npm run lint && \
-    npx tsc --noEmit && \
-    npm run test
+RUN npm run lint > /app/artifacts/lint-results.txt 2>&1 || \
+    (echo "Linting failed" && cat /app/artifacts/lint-results.txt && exit 1)
+
+RUN npx tsc --noEmit > /app/artifacts/typescript-check.txt 2>&1 || \
+    (echo "Type checking failed" && cat /app/artifacts/typescript-check.txt && exit 1)
+
+# Run tests with coverage and output in multiple formats
+RUN npm run test --coverage \
+    --coverageDirectory=/app/artifacts/coverage \
+    --coverageReporters=text \
+    --coverageReporters=html \
+    --coverageReporters=lcov \
+    --coverageReporters=cobertura \
+    --testResultsProcessor=jest-junit
+
+# Move test results to artifacts directory
+RUN mv junit.xml /app/artifacts/
+
+# Generate bundle analysis if available
+RUN npm run build:analyze > /app/artifacts/bundle-analysis.txt 2>&1 || true
 
 # ---- Build Stage ----
 FROM test AS builder
@@ -33,6 +53,11 @@ ENV NODE_ENV production
 
 # Build the application
 RUN npm run build
+
+# Copy build stats to artifacts if they exist
+RUN if [ -d ".next/analyze" ]; then \
+      cp -r .next/analyze /app/artifacts/; \
+    fi
 
 # ---- Production Stage ----
 FROM node:20-alpine AS runner
