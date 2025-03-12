@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, useRef, useEffect, useMemo, useState } from 'react';
+import { useCallback, useRef, useEffect, useMemo } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { GraphCanvas, GraphCanvasHandle } from '@/components/GraphCanvas';
 import { JsonEditor } from '@/components/JsonEditor';
 import { MenuBar } from '@/components/toolbar/MenuBar';
-import { TabBar } from '@/components/tabs/TabBar';
 import { DocumentProvider, useDocuments } from '@/contexts/DocumentContext';
 import { v4 as uuidv4 } from 'uuid';
 import { sampleOrderData } from '@/data/sampleData';
@@ -15,15 +14,13 @@ function HomeContent() {
   const { isSidebarVisible } = useSidebar();
   const graphRef = useRef<GraphCanvasHandle>(null);
   const initializeRef = useRef(false);
-  const [sidebarWidth, setSidebarWidth] = useState(400);
   const { 
     documents, 
     activeDocument, 
     addDocument, 
     removeDocument, 
     setActiveDocument, 
-    updateDocument, 
-    markDocumentDirty 
+    updateDocument
   } = useDocuments();
 
   useEffect(() => {
@@ -55,7 +52,7 @@ function HomeContent() {
     }
   }, [activeDocument, documents]);
 
-  const handleValidJson = useCallback((json: any) => {
+  const handleValidJson = useCallback((json: Record<string, unknown>) => {
     if (activeDocument) {
       const activeDoc = documents.find(doc => doc.id === activeDocument);
       if (activeDoc) {
@@ -92,7 +89,6 @@ function HomeContent() {
             initialValue={currentContent}
             onValidJson={handleValidJson}
             isCollapsed={!isSidebarVisible}
-            onResize={setSidebarWidth}
             defaultSize={400}
             minSize={300}
             maxSize={800}

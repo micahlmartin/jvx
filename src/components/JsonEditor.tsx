@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { vsDarkPlus } from '@/themes/vs-dark-plus';
 import { ResizablePanel } from './ResizablePanel';
 import { PANEL_SIZES } from '@/constants/panels';
-import type * as Monaco from 'monaco-editor';
+import * as Monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 // Dynamically import monaco-editor
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
@@ -21,13 +21,12 @@ const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Edit
 
 export interface JsonEditorProps {
   initialValue?: string;
-  onValidJson?: (json: any) => void;
+  onValidJson?: (json: Record<string, unknown>) => void;
   isCollapsed?: boolean;
   onResize?: (size: number) => void;
   defaultSize?: number;
   minSize?: number;
   maxSize?: number;
-  title?: string;
 }
 
 export const JsonEditor = ({ 
@@ -37,8 +36,7 @@ export const JsonEditor = ({
   onResize,
   defaultSize = PANEL_SIZES.DEFAULT_SIZE,
   minSize = PANEL_SIZES.MIN_SIZE,
-  maxSize = PANEL_SIZES.MAX_SIZE,
-  title = 'Order Data'
+  maxSize = PANEL_SIZES.MAX_SIZE
 }: JsonEditorProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,97 +116,107 @@ export const JsonEditor = ({
     return 1;
   };
 
-  const handleEditorDidMount = useCallback((editorInstance: Monaco.editor.IStandaloneCodeEditor, monaco: any) => {
-    setEditor(editorInstance);
-    setMonacoInstance(monaco);
-    
-    // Configure editor with overview ruler options
-    editorInstance.updateOptions({
-      fontFamily: 'JetBrains Mono',
-      fontSize: 14,
-      lineHeight: 1.5,
-      letterSpacing: 0.5,
-      minimap: {
-        enabled: false
-      },
-      scrollBeyondLastLine: false,
-      renderLineHighlight: 'all',
-      cursorBlinking: 'smooth',
-      cursorStyle: 'line',
-      cursorWidth: 2,
-      smoothScrolling: true,
-      fontLigatures: true,
-      theme: theme === 'dark' ? 'vs-dark-plus' : 'light',
-      overviewRulerLanes: 3,
-      overviewRulerBorder: true,
-      hideCursorInOverviewRuler: false,
-      scrollbar: {
-        vertical: 'visible',
-        horizontal: 'visible',
-        verticalScrollbarSize: 14,
-        horizontalScrollbarSize: 14,
-        verticalSliderSize: 14,
-        horizontalSliderSize: 14,
-        alwaysConsumeMouseWheel: false,
-        useShadows: true
-      },
-      formatOnPaste: false,
-      formatOnType: false,
-      autoIndent: 'none',
-      autoClosingBrackets: 'never',
-      autoClosingQuotes: 'never'
-    });
+  const handleEditorDidMount = useCallback((editorInstance: Monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof Monaco) => {
+    try {
+      setEditor(editorInstance);
+      setMonacoInstance(monacoInstance);
+      
+      // Configure editor with overview ruler options
+      editorInstance.updateOptions({
+        fontFamily: 'JetBrains Mono',
+        fontSize: 14,
+        lineHeight: 1.5,
+        letterSpacing: 0.5,
+        minimap: {
+          enabled: false
+        },
+        scrollBeyondLastLine: false,
+        renderLineHighlight: 'all',
+        cursorBlinking: 'smooth',
+        cursorStyle: 'line',
+        cursorWidth: 2,
+        smoothScrolling: true,
+        fontLigatures: true,
+        theme: theme === 'dark' ? 'vs-dark' : 'vs',
+        overviewRulerLanes: 3,
+        overviewRulerBorder: true,
+        hideCursorInOverviewRuler: false,
+        scrollbar: {
+          vertical: 'visible',
+          horizontal: 'visible',
+          verticalScrollbarSize: 14,
+          horizontalScrollbarSize: 14,
+          verticalSliderSize: 14,
+          horizontalSliderSize: 14,
+          alwaysConsumeMouseWheel: false,
+          useShadows: true
+        },
+        formatOnPaste: false,
+        formatOnType: false,
+        autoIndent: 'none',
+        autoClosingBrackets: 'never',
+        autoClosingQuotes: 'never'
+      });
 
-    // Set up the editor
-    monaco.editor.defineTheme('vs-dark-plus', vsDarkPlus);
-    monaco.editor.setTheme(theme === 'dark' ? 'vs-dark-plus' : 'light');
-    
-    const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
-    editorInstance.setValue(value);
-    
-    // Check if it's our initial empty template
-    const isEmptyJson = value === '{\n    \n}';
-    setIsEmpty(isEmptyJson);
-    
-    if (isEmptyJson) {
-      editorInstance.setValue('{\n    \n}');
-      editorInstance.setPosition({ lineNumber: 2, column: 5 });
-      editorInstance.focus();
-    } else {
-      validateAndUpdateJson(value);
+      // Set up the editor
+      monacoInstance.editor.defineTheme('vs-dark-plus', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: vsDarkPlus.rules,
+        colors: vsDarkPlus.colors
+      });
+      monacoInstance.editor.setTheme(theme === 'dark' ? 'vs-dark-plus' : 'vs');
+      
+      const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
+      editorInstance.setValue(value);
+      
+      // Check if it's our initial empty template
+      const isEmptyJson = value === '{\n    \n}';
+      setIsEmpty(isEmptyJson);
+      
+      if (isEmptyJson) {
+        editorInstance.setValue('{\n    \n}');
+        editorInstance.setPosition({ lineNumber: 2, column: 5 });
+        editorInstance.focus();
+      } else {
+        validateAndUpdateJson(value);
+      }
+
+      // Add content change listener for validation with debounce
+      let validateTimeout: NodeJS.Timeout;
+      editorInstance.onDidChangeModelContent(() => {
+        const currentValue = editorInstance.getValue();
+        
+        // Clear previous timeout
+        if (validateTimeout) {
+          clearTimeout(validateTimeout);
+        }
+        
+        // Set new timeout for validation
+        validateTimeout = setTimeout(() => {
+          validateAndUpdateJson(currentValue);
+        }, 300); // Validate after 300ms of no typing
+      });
+      
+      setIsLoading(false);
+
+      // Cleanup timeout on unmount
+      return () => {
+        if (validateTimeout) {
+          clearTimeout(validateTimeout);
+        }
+      };
+    } catch (error) {
+      console.error('Error mounting editor:', error instanceof Error ? error.message : 'Unknown error');
+      setIsLoading(false);
     }
-
-    // Add content change listener for validation with debounce
-    let validateTimeout: NodeJS.Timeout;
-    editorInstance.onDidChangeModelContent(() => {
-      const currentValue = editorInstance.getValue();
-      
-      // Clear previous timeout
-      if (validateTimeout) {
-        clearTimeout(validateTimeout);
-      }
-      
-      // Set new timeout for validation
-      validateTimeout = setTimeout(() => {
-        validateAndUpdateJson(currentValue);
-      }, 300); // Validate after 300ms of no typing
-    });
-    
-    setIsLoading(false);
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (validateTimeout) {
-        clearTimeout(validateTimeout);
-      }
-    };
   }, [initialValue, validateAndUpdateJson, theme]);
 
   // Update theme when it changes
   useEffect(() => {
     if (editor) {
       editor.updateOptions({
-        theme: theme === 'dark' ? 'vs-dark-plus' : 'light'
+        theme: theme === 'dark' ? 'vs-dark' : 'vs'
       });
     }
   }, [theme, editor]);
@@ -229,10 +237,18 @@ export const JsonEditor = ({
     }
   }, [editor, initialValue, validateAndUpdateJson]);
 
-  const handleChange = (value: string | undefined) => {
+  const handleEditorChange = useCallback((value: string | undefined) => {
     if (!value) return;
-    validateAndUpdateJson(value);
-  };
+    const isValid = validateAndUpdateJson(value);
+    if (isValid && onValidJson) {
+      try {
+        const parsedJson = JSON.parse(value);
+        onValidJson(parsedJson);
+      } catch {
+        // JSON parsing error already handled in validateAndUpdateJson
+      }
+    }
+  }, [validateAndUpdateJson, onValidJson]);
 
   return (
     <ResizablePanel
@@ -249,8 +265,8 @@ export const JsonEditor = ({
           width="100%"
           defaultLanguage="json"
           value={initialValue}
-          onChange={handleChange}
-          theme={theme === 'dark' ? 'vs-dark-plus' : 'light'}
+          onChange={handleEditorChange}
+          theme={theme === 'dark' ? 'vs-dark' : 'vs'}
           options={{
             minimap: { enabled: false },
             lineNumbers: 'on',
@@ -329,7 +345,7 @@ export const JsonEditor = ({
                   if (position) {
                     editor?.setPosition(position);
                   }
-                } catch (e) {
+                } catch {
                   // If JSON is invalid, do nothing
                 }
               }

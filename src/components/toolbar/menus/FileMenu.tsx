@@ -32,15 +32,6 @@ export const FileMenu: React.FC<FileMenuProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      setIsOpen(!isOpen);
-    }
-    if (event.key === 'Escape') {
-      setIsOpen(false);
-    }
-  };
-
   const handleClick = () => {
     setIsOpen(!isOpen);
   };

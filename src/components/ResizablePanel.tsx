@@ -38,7 +38,7 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       setSize(defaultSize);
     }
-  }, []); // Empty deps array for first mount only
+  }, [defaultSize]);
 
   // Handle collapse state
   useEffect(() => {

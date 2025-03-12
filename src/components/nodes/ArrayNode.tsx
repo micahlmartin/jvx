@@ -4,7 +4,7 @@ import { NodeProps, Handle, Position } from 'reactflow';
 export interface ArrayNodeData {
   label: string;
   type: 'array';
-  items: any[];
+  items: (string | number | boolean | null | object | unknown[])[];
 }
 
 function ArrayNode({ data }: NodeProps<ArrayNodeData>) {

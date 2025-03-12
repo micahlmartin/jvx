@@ -16,7 +16,7 @@ const customRender = (
 };
 
 // Helper to create a mock node
-const createMockNode = (id: string, data: any = {}) => ({
+const createMockNode = (id: string, data: Record<string, unknown> = {}) => ({
   id,
   type: 'object',
   position: { x: 0, y: 0 },

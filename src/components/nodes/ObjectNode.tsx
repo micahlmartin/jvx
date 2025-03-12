@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { colors } from '@/styles/colors';
 
 interface NodeProperty {
   id: string;

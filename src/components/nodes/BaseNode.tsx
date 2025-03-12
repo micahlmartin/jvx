@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { NodeProps } from 'reactflow';
 
 /**
  * BaseNode - The foundational node component for the graph visualization.
@@ -58,7 +58,7 @@ export interface BaseNodeData {
   type: 'object' | 'array' | 'value';
 
   /** Optional value associated with the node */
-  value?: any;
+  value?: string | number | boolean | null | object | unknown[];
 }
 
 /**
@@ -69,8 +69,7 @@ export interface BaseNodeData {
  */
 const BaseNode = memo(({ 
   data,
-  selected,
-  ...props 
+  selected
 }: NodeProps<BaseNodeData>) => {
   return (
     <div

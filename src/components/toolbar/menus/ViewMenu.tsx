@@ -2,9 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Toggle } from '@/components/ui/Toggle';
 
-interface ViewMenuProps {}
-
-export const ViewMenu: React.FC<ViewMenuProps> = () => {
+export const ViewMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();

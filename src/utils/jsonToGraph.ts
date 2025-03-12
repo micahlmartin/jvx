@@ -3,7 +3,7 @@ import { Node, Edge } from 'reactflow';
 interface NodeProperty {
   id: string;
   key: string;
-  value: any;
+  value: string | number | boolean | null | object | unknown[];
   type: string;
   childNodeId?: string;
 }
@@ -15,26 +15,12 @@ interface ObjectNodeData {
   depth?: number;
 }
 
-function getValueType(value: any): string {
-  if (Array.isArray(value)) return 'array';
-  if (value === null) return 'null';
-  return typeof value;
-}
-
-function createNode(id: string, label: string, properties: NodeProperty[]): Node {
-  return {
-    id,
-    type: 'object',
-    position: { x: 0, y: 0 },
-    data: {
-      label,
-      type: 'object',
-      properties
-    }
-  };
-}
-
-export function jsonToGraph(json: any, parentId: string | null = null, label: string = 'Root', depth: number = 0): { nodes: Node<ObjectNodeData>[], edges: Edge[] } {
+export function jsonToGraph(
+  json: Record<string, unknown>,
+  parentId: string | null = null,
+  label: string = 'Root',
+  depth: number = 0
+): { nodes: Node<ObjectNodeData>[]; edges: Edge[] } {
   const nodes: Node<ObjectNodeData>[] = [];
   const edges: Edge[] = [];
   const nodeId = parentId ? `${parentId}-${label}` : label;
@@ -59,7 +45,12 @@ export function jsonToGraph(json: any, parentId: string | null = null, label: st
       
       if (typeof value === 'object' && value !== null) {
         // Recursively process nested objects
-        const { nodes: childNodes, edges: childEdges } = jsonToGraph(value, nodeId, key, depth + 1);
+        const { nodes: childNodes, edges: childEdges } = jsonToGraph(
+          value as Record<string, unknown>,
+          nodeId,
+          key,
+          depth + 1
+        );
         nodes.push(...childNodes);
         edges.push(...childEdges);
         
@@ -89,7 +80,7 @@ export function jsonToGraph(json: any, parentId: string | null = null, label: st
           parentNode.data.properties.push({
             id: propertyId,
             key,
-            value,
+            value: value as string | number | boolean | null,
             type: typeof value
           });
         }

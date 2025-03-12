@@ -1,17 +1,16 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState, CSSProperties } from 'react';
 import ReactFlow, {
-  Node,
-  Edge,
-  Controls,
   Background,
+  Edge,
+  Node,
   useNodesState,
   useEdgesState,
   ConnectionMode,
   Position,
-  MarkerType,
-  DefaultEdgeOptions,
-  BackgroundVariant
+  BackgroundVariant,
+  OnMove,
 } from 'reactflow';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import type { CSSProperties } from 'react';
 import 'reactflow/dist/style.css';
 import { ObjectNode, ObjectNodeData } from './nodes';
 import ArrayNode from './nodes/ArrayNode';
@@ -25,10 +24,6 @@ const nodeTypes = {
   array: ArrayNode,
   value: ValueNode,
 } as const;
-
-interface NodeWithDepth extends Node {
-  depth?: number;
-}
 
 const COLUMN_GAP = 80;    // Fixed gap between columns
 const VERTICAL_SPACING = 40;
@@ -76,7 +71,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]): { nodes: Node[]; edg
     
     // Calculate width based on both title and properties
     const titleLength = data.label.length * 10; // Approximate width per character
-    const maxPropertyLength = data.properties?.reduce((max: number, prop: { key: string; value: any }) => {
+    const maxPropertyLength = data.properties?.reduce((max: number, prop: { key: string; value: string | number | boolean | null }) => {
       const keyLength = prop.key.length;
       const valueLength = String(prop.value).length;
       return Math.max(max, keyLength + valueLength);
@@ -236,19 +231,19 @@ export interface GraphCanvasProps {
 }
 
 export interface GraphCanvasHandle {
-  updateJson: (json: any, title?: string) => void;
+  updateJson: (json: Record<string, unknown>, title?: string) => void;
 }
 
-export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ onInit }, ref) => {
+export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>((props, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [zoom, setZoom] = useState(1);
 
-  const onMoveEnd = useCallback((event: any) => {
-    setZoom(1 / event.zoom);
+  const onMoveEnd: OnMove = useCallback((_, viewport) => {
+    setZoom(1 / viewport.zoom);
   }, []);
 
-  const updateJson = useCallback((json: any, title: string = 'Root') => {
+  const updateJson = useCallback((json: Record<string, unknown>, title: string = 'Root') => {
     const { nodes: newNodes, edges: newEdges } = jsonToGraph(json, null, title);
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       newNodes,
@@ -266,17 +261,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
     updateJson(sampleOrderData);
   }, [updateJson]);
 
-  const defaultEdgeOptions: DefaultEdgeOptions = useMemo(() => ({
-    type: 'smoothstep',
-    animated: false,
-    className: 'text-edge-stroke dark:text-edge-stroke-dark',
-    style: {
-      stroke: 'currentColor',
-      strokeWidth: 2
-    },
-    zIndex: 1000
-  }), []);
-
   return (
     <div className="w-full h-full bg-background dark:bg-background-dark relative">
       <ReactFlow
@@ -286,7 +270,6 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         onEdgesChange={onEdgesChange}
         onMoveEnd={onMoveEnd}
         nodeTypes={nodeTypes}
-        defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
         className="bg-background dark:bg-background-dark"
         style={{ 

@@ -1,9 +1,7 @@
 import React from 'react';
 import { useSidebar } from '@/contexts/SidebarContext';
 
-interface SidebarMenuProps {}
-
-export const SidebarMenu: React.FC<SidebarMenuProps> = () => {
+export const SidebarMenu: React.FC = () => {
   const { isSidebarVisible, toggleSidebar } = useSidebar();
 
   return (

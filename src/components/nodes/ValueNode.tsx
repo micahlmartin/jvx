@@ -4,7 +4,7 @@ import BaseNode, { BaseNodeData } from './BaseNode';
 
 export interface ValueNodeData extends BaseNodeData {
   type: 'value';
-  value: any;
+  value: string | number | boolean | null;
 }
 
 function ValueNode(props: NodeProps<ValueNodeData>) {
