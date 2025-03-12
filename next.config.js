@@ -7,8 +7,6 @@ const nextConfig = {
   images: {
     unoptimized: process.env.NODE_ENV === 'production',
   },
-  // Enable SWC minification
-  swcMinify: true,
   // Configure headers for security
   async headers() {
     return [
