@@ -7,11 +7,11 @@ export default defineConfig({
     environment: 'jsdom',
     reporters: ['default', 'junit'],
     outputFile: {
-      junit: './junit.xml'
+      junit: './junit.xml',
     },
     coverage: {
       reporter: ['text', 'json', 'html'],
-      reportsDirectory: './coverage'
+      reportsDirectory: './coverage',
     },
     globals: true,
     setupFiles: './src/test/setup.ts',
