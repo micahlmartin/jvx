@@ -1,9 +1,16 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
 
 // Configure testing library
 configure({
   testIdAttribute: 'data-testid',
+});
+
+// Automatically clean up after each test
+afterEach(() => {
+  cleanup();
 });
 
 // Mock ResizeObserver
@@ -16,7 +23,7 @@ class ResizeObserverMock {
 window.ResizeObserver = ResizeObserverMock;
 
 // Mock ReactFlow's getBoundingClientRect
-Element.prototype.getBoundingClientRect = jest.fn(() => ({
+Element.prototype.getBoundingClientRect = vi.fn(() => ({
   width: 120,
   height: 120,
   top: 0,
