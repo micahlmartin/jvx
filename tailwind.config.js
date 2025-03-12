@@ -232,9 +232,9 @@ module.exports = {
         node: '12px',
         menu: '4px',
       },
-      backdropFilter: theme => ({
-        'none': 'none',
-        'blur': 'blur(12px)',
+      backdropFilter: (theme) => ({
+        none: 'none',
+        blur: 'blur(12px)',
         'blur-sm': 'blur(8px)',
       }),
       boxShadow: {
