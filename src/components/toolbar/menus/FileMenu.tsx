@@ -19,6 +19,7 @@ export const FileMenu: React.FC<FileMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,16 +41,32 @@ export const FileMenu: React.FC<FileMenuProps> = ({
     }
   };
 
+  const handleClick = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsOpen(false);
+  };
+
   return (
     <div ref={menuRef} className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={handleKeyDown}
-        aria-expanded={isOpen}
+        ref={buttonRef}
+        id="file-menu-button"
         aria-haspopup="true"
-        className={`text-toolbar-text dark:text-toolbar-text-dark text-menu tracking-normal font-medium px-5 border-none cursor-pointer transition-colors duration-150 flex items-center h-full relative ${
-          isOpen ? 'bg-toolbar-active dark:bg-toolbar-active-dark after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-toolbar-highlight dark:after:bg-toolbar-highlight-dark' : ''
-        } hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none focus-visible:bg-toolbar-hover dark:focus-visible:bg-toolbar-hover-dark`}
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? 'file-menu-items' : undefined}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={`h-full px-4 text-[14px] font-medium text-toolbar-text dark:text-toolbar-text-dark hover:bg-white/5 focus:outline-none transition-colors duration-150 ${
+          isOpen ? 'bg-white/10' : ''
+        }`}
       >
         File
       </button>

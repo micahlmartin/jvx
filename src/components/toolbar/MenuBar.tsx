@@ -66,18 +66,20 @@ export const MenuBar: React.FC<MenuBarProps> = ({
     <div 
       role="menubar" 
       aria-label="Main menu"
-      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[38px] flex items-stretch border-b border-toolbar-border dark:border-toolbar-border-dark px-2 z-40"
+      className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[45px] flex items-stretch px-4 z-50 shadow-sm relative"
     >
       <div className="flex items-stretch">
         <SidebarMenu />
-        <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-3 self-center" />
-        <FileMenu
-          onNewFile={handleNewFile}
-          onOpenFile={handleOpenFile}
-          onSaveFile={handleSaveFile}
-          onSaveAs={handleSaveAs}
-        />
-        <ViewMenu />
+        <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-2 self-center" />
+        <div className="flex items-stretch">
+          <FileMenu
+            onNewFile={handleNewFile}
+            onOpenFile={handleOpenFile}
+            onSaveFile={handleSaveFile}
+            onSaveAs={handleSaveAs}
+          />
+          <ViewMenu />
+        </div>
       </div>
       <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-3 self-center" />
       <div 

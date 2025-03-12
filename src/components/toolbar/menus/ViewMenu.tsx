@@ -35,9 +35,9 @@ export const ViewMenu: React.FC<ViewMenuProps> = () => {
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        className={`text-toolbar-text dark:text-toolbar-text-dark text-menu tracking-normal font-medium px-5 border-none cursor-pointer transition-colors duration-150 flex items-center h-full relative ${
-          isOpen ? 'bg-toolbar-active dark:bg-toolbar-active-dark after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-toolbar-highlight dark:after:bg-toolbar-highlight-dark' : ''
-        } hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark focus:outline-none focus-visible:bg-toolbar-hover dark:focus-visible:bg-toolbar-hover-dark`}
+        className={`h-full px-4 text-[14px] font-medium text-toolbar-text dark:text-toolbar-text-dark hover:bg-white/5 focus:outline-none transition-colors duration-150 ${
+          isOpen ? 'bg-white/10' : ''
+        }`}
       >
         View
       </button>
