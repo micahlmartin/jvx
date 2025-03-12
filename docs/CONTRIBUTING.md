@@ -42,6 +42,14 @@ Your final PR should include:
 
 ## Documentation Requirements
 
+### Change Documentation
+Every code change must include:
+- A file in `docs/changes/` with format `YYYYMMDD-description.md`
+- Clear description of what changed and why
+- Technical implementation details
+- Design considerations and tradeoffs
+- References to related issues or PRs
+
 ### Feature Specification
 Every feature must include:
 

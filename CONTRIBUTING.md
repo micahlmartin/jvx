@@ -105,18 +105,24 @@ npm test -- -u
 
 All code changes should include appropriate documentation:
 
-1. JSDoc Comments
+1. Change Documentation
+   - Create a file in `docs/changes/` with format `YYYYMMDD-description.md`
+   - Document the change, its rationale, and implementation details
+   - Include any design considerations or tradeoffs
+   - Reference related issues or PRs
+
+2. JSDoc Comments
    - Document all components
    - Document all props
    - Include usage examples
    - Document side effects
 
-2. README Updates
+3. README Updates
    - Document new features
    - Update usage examples
    - Update API documentation
 
-3. Design System Documentation
+4. Design System Documentation
    - Document new tokens
    - Document new patterns
    - Update guidelines
