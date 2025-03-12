@@ -9,7 +9,7 @@ interface NodeProperty {
   childNodeId?: string;
 }
 
-interface ObjectNodeData {
+export interface ObjectNodeData {
   label: string;
   type: 'object';
   properties: NodeProperty[];
