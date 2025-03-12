@@ -40,11 +40,14 @@ Development teams working on JVX microservices face challenges with inconsistent
    - Shared development scripts
    - Documentation and guidelines
    - Service templates
+   - Reusable dev container features
+   - Common tooling and utilities
 
 2. **Service Repositories**
    - Service-specific code
    - Extended container configurations
    - Service-specific tooling
+   - Local development overrides
 
 3. **Development Container**
    - Base development image
@@ -53,81 +56,160 @@ Development teams working on JVX microservices face challenges with inconsistent
    - Debugging capabilities
 
 ### Component Design
-```typescript
-// Development Container Configuration
-interface DevContainerConfig {
-  name: string;
-  dockerComposeFile: string[];
-  service: string;
-  workspaceFolder: string;
-  remoteUser: string;
-  features: {
-    node?: string;
-    python?: string;
-    rust?: string;
-    'docker-in-docker'?: boolean;
-  };
-  customizations: {
-    vscode: {
-      extensions: string[];
-      settings: Record<string, unknown>;
-    };
-  };
-}
 
-// Service Configuration
-interface ServiceConfig {
-  name: string;
-  type: 'node' | 'python' | 'rust';
-  dependencies: string[];
-  devDependencies: string[];
-  scripts: Record<string, string>;
+#### Base Configuration
+```json
+// dev-platform/.devcontainer/base/node.json
+{
+  "name": "Node.js Base",
+  "build": {
+    "dockerfile": "node.Dockerfile"
+  },
+  "features": {
+    "common": {
+      "git": "latest",
+      "docker-in-docker": "latest"
+    },
+    "node": {
+      "version": "20",
+      "packages": ["typescript"]
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
+```
+
+#### Service Configuration
+```json
+// service-name/.devcontainer/devcontainer.json
+{
+  "name": "${serviceName} Development",
+  "extends": "github:organization/dev-platform//base/node.json",
+  "dockerComposeFile": [
+    "docker-compose.yml",
+    "${localEnv:DEV_PLATFORM_PATH}/docker-compose.shared.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "npm install"
 }
 ```
 
 ### Directory Structure
 ```
 organization/
-├── dev-platform/              # Central development platform
-│   ├── .devcontainer/        
-│   │   ├── base.Dockerfile   
-│   │   └── templates/        
-│   ├── scripts/             
-│   └── docs/               
-└── services/
-    ├── service-a/
-    │   ├── .devcontainer/
+├── dev-platform/                # Central development platform
+│   ├── .devcontainer/          
+│   │   ├── base/               # Base container definitions
+│   │   │   ├── node.Dockerfile
+│   │   │   ├── python.Dockerfile
+│   │   │   └── rust.Dockerfile
+│   │   ├── features/          # Reusable dev container features
+│   │   │   ├── common/
+│   │   │   └── language-specific/
+│   │   └── templates/         # Service templates
+│   │       ├── node/
+│   │       ├── python/
+│   │       └── rust/
+│   └── scripts/               # Development utilities
+│
+├── service-frontend/          # Individual service repositories
+│   ├── .devcontainer/
+│   │   ├── devcontainer.json  # Extends base configuration
+│   │   └── docker-compose.yml # Service-specific compose
+│   └── src/
+│
+└── service-backend/
+    ├── .devcontainer/
+    │   ├── devcontainer.json
     │   └── docker-compose.yml
-    └── service-b/
-        ├── .devcontainer/
-        └── docker-compose.yml
+    └── src/
 ```
 
-### Dependencies
-- Docker Engine 24.0+
-- VS Code with Remote Containers extension
-- Git 2.40+
-- Make 4.0+
+### Configuration Management
+
+#### 1. Version Control
+- Base configurations versioned in dev-platform
+- Services reference specific versions
+- Automated update notifications
+- Semantic versioning for configurations
+
+#### 2. Environment Variables
+```bash
+# Required environment setup
+export DEV_PLATFORM_PATH=/path/to/dev-platform
+export DEV_SERVICES_ROOT=/path/to/services
+```
+
+#### 3. Docker Compose Integration
+```yaml
+# docker-compose.shared.yml
+version: '3.8'
+services:
+  base-node:
+    build:
+      context: .
+      dockerfile: ${DEV_PLATFORM_PATH}/base/node.Dockerfile
+    volumes:
+      - ${DEV_PLATFORM_PATH}:/opt/dev-platform:cached
+
+  base-python:
+    build:
+      context: .
+      dockerfile: ${DEV_PLATFORM_PATH}/base/python.Dockerfile
+    volumes:
+      - ${DEV_PLATFORM_PATH}:/opt/dev-platform:cached
+```
+
+### Development Workflow
+
+#### 1. Initial Setup
+```bash
+# Clone development platform
+git clone organization/dev-platform
+export DEV_PLATFORM_PATH=/path/to/dev-platform
+
+# Clone service
+git clone organization/service-name
+code service-name
+```
+
+#### 2. Service Development
+- VS Code automatically detects dev container configuration
+- Inherits base configuration from dev-platform
+- Applies service-specific customizations
+
+#### 3. Multi-Service Development
+- Use VS Code workspaces for multiple services
+- Share common development tools
+- Integrated debugging across services
 
 ## Implementation Plan
 
-### Phase 1: Base Infrastructure
-- [ ] Create development platform repository
-- [ ] Implement base development container
-- [ ] Set up shared configuration templates
+### Phase 1: Development Platform
+- [ ] Create dev-platform repository structure
+- [ ] Implement base container definitions
+- [ ] Create reusable features
+- [ ] Set up version management
+
+### Phase 2: Service Templates
+- [ ] Create language-specific templates
+- [ ] Implement extension mechanisms
+- [ ] Set up configuration inheritance
 - [ ] Create development scripts
 
-### Phase 2: Service Integration
-- [ ] Implement service templates
-- [ ] Create service-specific configurations
-- [ ] Set up multi-service development workflow
-- [ ] Implement debugging configurations
-
-### Phase 3: Documentation and Testing
-- [ ] Write comprehensive documentation
-- [ ] Create onboarding guides
-- [ ] Implement automated testing
-- [ ] Create troubleshooting guides
+### Phase 3: Service Migration
+- [ ] Convert existing services
+- [ ] Update documentation
+- [ ] Train development team
+- [ ] Establish maintenance procedures
 
 ## Testing Strategy
 
