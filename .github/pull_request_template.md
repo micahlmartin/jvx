@@ -64,6 +64,9 @@
 
 ## Checklist
 <!-- Final verification checklist -->
+- [ ] I have run all tests (`npm test`) and they pass locally
+- [ ] I have run the linter (`npm run lint`) and fixed all issues
+- [ ] I have run the formatter (`npm run format`) and all files are properly formatted
 - [ ] I have read the [CONTRIBUTING](../CONTRIBUTING.md) doc
 - [ ] I have read the [DESIGN_SYSTEM](../docs/DESIGN_SYSTEM.md) doc
 - [ ] I have read the [COMPONENT_GUIDELINES](../docs/COMPONENT_GUIDELINES.md) doc

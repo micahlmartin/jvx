@@ -53,6 +53,11 @@ We welcome contributions from the community! However, there's one crucial requir
 4. **Testing**: Ensure comprehensive test coverage
 5. **Collaboration**: Maintain professional and constructive communication
 6. **Consistency**: Follow established project patterns
+7. **Pre-commit Requirements**: Before committing any changes:
+   - Run all tests: `npm test`
+   - Run linting: `npm run lint`
+   - Run formatting: `npm run format`
+   - Fix any issues before proceeding
 
 ### How to Contribute
 

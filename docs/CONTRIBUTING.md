@@ -80,6 +80,32 @@ Document:
 
 ## Code Standards
 
+### Pre-Commit Requirements
+Before committing any changes to the repository, you MUST:
+
+1. Run all tests:
+   ```bash
+   npm test
+   ```
+   - Ensure all tests pass
+   - Fix any failing tests before proceeding
+
+2. Run the linter:
+   ```bash
+   npm run lint
+   ```
+   - Address all linting errors
+   - Review and fix any warnings
+
+3. Run the formatter:
+   ```bash
+   npm run format
+   ```
+   - Ensure all files are properly formatted
+   - Commit any formatting changes
+
+Only proceed with committing if all above checks pass successfully. This helps maintain code quality and consistency across the project.
+
 ### TypeScript
 - Use TypeScript for all code
 - Include comprehensive type definitions

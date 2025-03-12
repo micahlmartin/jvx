@@ -3,6 +3,43 @@
 ## Overview
 This document outlines our testing approach and best practices for ensuring code quality and reliability.
 
+## When to Run Tests
+
+### Required Test Runs
+Tests MUST be run in the following situations:
+
+1. Before committing any changes:
+   ```bash
+   npm test
+   ```
+
+2. Before creating a pull request:
+   ```bash
+   npm test
+   npm run coverage
+   ```
+
+3. After making changes that affect multiple components:
+   ```bash
+   npm test
+   ```
+
+4. When updating dependencies:
+   ```bash
+   npm test
+   ```
+
+### Continuous Integration
+Our CI pipeline will automatically run tests on:
+- Pull request creation
+- Pull request updates
+- Merges to main branch
+
+### Test Coverage
+- Maintain high test coverage
+- Run coverage reports: `npm run coverage`
+- Address any coverage drops in pull requests
+
 ## Test Types
 
 ### Unit Tests
