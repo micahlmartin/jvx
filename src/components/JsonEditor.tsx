@@ -99,13 +99,27 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   useEffect(() => {
     if (editor && initialValue !== undefined) {
       const currentValue = editor.getValue();
+      // Only update if the values are actually different
       if (currentValue !== initialValue) {
+        const position = editor.getPosition();
         editor.setValue(initialValue);
+        // Restore cursor position
+        if (position) {
+          editor.setPosition(position);
+        }
         setIsEmpty(!initialValue || initialValue === '{\n    \n}');
-        validateAndUpdateJson(initialValue);
+        // Only validate without modifying the content
+        try {
+          JSON.parse(initialValue);
+          setError(null);
+        } catch (e) {
+          if (e instanceof Error) {
+            setError(e.message);
+          }
+        }
       }
     }
-  }, [editor, initialValue, validateAndUpdateJson]);
+  }, [editor, initialValue]);
 
   const handleChange = (value: string | undefined) => {
     if (!value) return;
@@ -117,7 +131,7 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       <Editor
         height="100%"
         defaultLanguage="json"
-        theme={theme === 'dark' ? 'vs-dark' : 'github-light'}
+        theme={theme === 'dark' ? 'dracula' : 'github-light'}
         options={{
           minimap: { enabled: false },
           lineNumbers: 'on',
@@ -134,8 +148,6 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
           },
           automaticLayout: true,
           tabSize: 2,
-          formatOnPaste: true,
-          formatOnType: true,
           renderLineHighlight: 'none',
           hideCursorInOverviewRuler: true,
           overviewRulerBorder: false,
