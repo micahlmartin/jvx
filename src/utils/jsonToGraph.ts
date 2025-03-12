@@ -1,17 +1,18 @@
-import { Edge, Node } from 'reactflow';
-import { ObjectNodeData } from '@/components/nodes/ObjectNode';
-import { ArrayNodeData } from '@/components/nodes/ArrayNode';
+import { Node, Edge } from 'reactflow';
 
 interface NodeProperty {
+  id: string;
   key: string;
-  type: string;
   value: any;
-  childNodeId?: string; // Reference to child node if this property expands
+  type: string;
+  childNodeId?: string;
 }
 
-interface GraphData {
-  nodes: Node[];
-  edges: Edge[];
+interface ObjectNodeData {
+  label: string;
+  type: string;
+  properties: NodeProperty[];
+  depth?: number;
 }
 
 function getValueType(value: any): string {
@@ -33,105 +34,68 @@ function createNode(id: string, label: string, properties: NodeProperty[]): Node
   };
 }
 
-function processObject(obj: any, parentId: string | null = null, rootTitle: string = 'Root'): GraphData {
-  const nodes: Node[] = [];
+export function jsonToGraph(json: any, parentId: string | null = null, label: string = 'Root', depth: number = 0): { nodes: Node<ObjectNodeData>[], edges: Edge[] } {
+  const nodes: Node<ObjectNodeData>[] = [];
   const edges: Edge[] = [];
-  let currentId = parentId || 'root';
+  const nodeId = parentId ? `${parentId}-${label}` : label;
 
-  // Handle objects
-  const properties: NodeProperty[] = [];
-
-  Object.entries(obj).forEach(([key, value]) => {
-    const valueType = getValueType(value);
-    
-    if (valueType === 'array') {
-      // Add array property to parent
-      const arrayValue = value as any[];
-      const property: NodeProperty = {
-        key,
-        type: 'array',
-        value: `array[${arrayValue.length}]`
-      };
-      properties.push(property);
-
-      // Process array elements as child nodes
-      arrayValue.forEach((item: any, index: number) => {
-        const itemType = getValueType(item);
-        const itemId = `${currentId}-${key}-${index}`;
-
-        if (itemType === 'object') {
-          // Recursively process object elements
-          const { nodes: childNodes, edges: childEdges } = processObject(item, itemId, rootTitle);
-          nodes.push(...childNodes);
-          edges.push(...childEdges);
-        } else if (itemType === 'array') {
-          // Recursively process nested arrays
-          const { nodes: childNodes, edges: childEdges } = processObject({ value: item }, itemId, rootTitle);
-          nodes.push(...childNodes);
-          edges.push(...childEdges);
-        } else {
-          // Create value node for primitive types
-          nodes.push(createNode(itemId, `${key}[${index}]`, [
-            { key: 'value', type: itemType, value: item }
-          ]));
-        }
-
-        // Connect array elements to parent's property
-        edges.push({
-          id: `${currentId}-${key}-${itemId}`,
-          source: currentId,
-          target: itemId,
-          sourceHandle: `property-${key}`,
-          type: 'smoothstep',
-          style: { stroke: 'var(--edge-stroke)', strokeWidth: 2 },
-          zIndex: 1000,
-          targetHandle: null,
-          selected: true
-        });
-      });
-    } else if (valueType === 'object' && value !== null) {
-      // Process child objects
-      const childId = `${currentId}-${key}`;
-      const { nodes: childNodes, edges: childEdges } = processObject(value, childId, rootTitle);
-      
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
-      
-      // Add object property to parent with reference to child
-      const property: NodeProperty = {
-        key,
+  if (typeof json === 'object' && json !== null) {
+    // Create object node
+    nodes.push({
+      id: nodeId,
+      type: 'object',
+      position: { x: 0, y: 0 },
+      data: {
+        label,
         type: 'object',
-        value: 'object',
-        childNodeId: childId
-      };
-      properties.push(property);
+        properties: [],
+        depth
+      }
+    });
 
-      // Connect parent's property to child object
-      edges.push({
-        id: `${currentId}-${key}-${childId}`,
-        source: currentId,
-        target: childId,
-        sourceHandle: `property-${key}`,
-        type: 'smoothstep',
-        style: { stroke: 'var(--edge-stroke)', strokeWidth: 2 },
-        zIndex: 1000,
-        targetHandle: null,
-        selected: true
-      });
-    } else {
-      // Add primitive property to parent
-      properties.push({
-        key,
-        type: valueType,
-        value
-      });
-    }
-  });
+    // Process each property
+    Object.entries(json).forEach(([key, value]) => {
+      const propertyId = `${nodeId}-${key}`;
+      
+      if (typeof value === 'object' && value !== null) {
+        // Recursively process nested objects
+        const { nodes: childNodes, edges: childEdges } = jsonToGraph(value, nodeId, key, depth + 1);
+        nodes.push(...childNodes);
+        edges.push(...childEdges);
+        
+        // Add edge from parent to child
+        edges.push({
+          id: `${nodeId}-${key}`,
+          source: nodeId,
+          target: propertyId,
+          sourceHandle: `property-${key}`,
+        });
 
-  // Create node for current object with its properties
-  nodes.push(createNode(currentId, currentId === 'root' ? rootTitle : currentId, properties));
+        // Add property to parent node
+        const parentNode = nodes.find(n => n.id === nodeId);
+        if (parentNode && parentNode.data.properties) {
+          parentNode.data.properties.push({
+            id: propertyId,
+            key,
+            value: Array.isArray(value) ? `Array(${value.length})` : 'Object',
+            type: Array.isArray(value) ? 'array' : 'object',
+            childNodeId: propertyId
+          });
+        }
+      } else {
+        // Add primitive value to parent node's properties
+        const parentNode = nodes.find(n => n.id === nodeId);
+        if (parentNode && parentNode.data.properties) {
+          parentNode.data.properties.push({
+            id: propertyId,
+            key,
+            value,
+            type: typeof value
+          });
+        }
+      }
+    });
+  }
 
   return { nodes, edges };
-}
-
-export { processObject as jsonToGraph }; 
+} 

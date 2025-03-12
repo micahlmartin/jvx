@@ -57,28 +57,28 @@ export const colors = {
   node: {
     types: {
       root: {
-        bg: 'rgba(82, 82, 91, 0.3)',
-        text: 'rgba(161, 161, 170, 0.9)'
+        bg: 'rgba(82, 82, 91, 0.25)',
+        text: 'rgba(161, 161, 170, 1)'
       },
       customer: {
-        bg: 'rgba(59, 130, 246, 0.15)',
-        text: 'rgba(96, 165, 250, 0.9)'
+        bg: 'rgba(59, 130, 246, 0.2)',
+        text: 'rgba(96, 165, 250, 1)'
       },
       items: {
-        bg: 'rgba(147, 51, 234, 0.15)',
-        text: 'rgba(167, 139, 250, 0.9)'
+        bg: 'rgba(147, 51, 234, 0.2)',
+        text: 'rgba(167, 139, 250, 1)'
       },
       shipping: {
-        bg: 'rgba(236, 72, 153, 0.15)',
-        text: 'rgba(236, 72, 153, 0.9)'
+        bg: 'rgba(236, 72, 153, 0.2)',
+        text: 'rgba(236, 72, 153, 1)'
       },
       payment: {
-        bg: 'rgba(16, 185, 129, 0.15)',
-        text: 'rgba(52, 211, 153, 0.9)'
+        bg: 'rgba(16, 185, 129, 0.2)',
+        text: 'rgba(52, 211, 153, 1)'
       },
       address: {
-        bg: 'rgba(245, 158, 11, 0.15)',
-        text: 'rgba(251, 191, 36, 0.9)'
+        bg: 'rgba(245, 158, 11, 0.2)',
+        text: 'rgba(251, 191, 36, 1)'
       }
     },
     values: {

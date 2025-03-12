@@ -14,6 +14,7 @@ interface ObjectNodeData {
   label: string;
   type: 'object';
   properties: NodeProperty[];
+  depth?: number;
 }
 
 const getHeaderColor = (label: string): string => {
@@ -89,7 +90,9 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
   };
 
   return (
-    <div className="bg-node-bg dark:bg-node-bg-dark backdrop-blur-node border-2 border-node-border dark:border-node-border-dark rounded-node w-full min-w-[200px] max-w-[400px] relative isolation-isolate z-node-base">      
+    <div className={`bg-node-bg dark:bg-node-bg-dark backdrop-blur-node border-2 border-node-border dark:border-node-border-dark rounded-node w-full min-w-[200px] max-w-[400px] relative isolation-isolate z-node-base shadow-lg hover:shadow-xl transition-all duration-300 ${
+      data.depth && data.depth > 0 ? 'ml-4' : ''
+    }`}>      
       {/* Target handle for non-root nodes */}
       {!isRoot && (
         <Handle
@@ -99,15 +102,18 @@ function ObjectNode({ data }: NodeProps<ObjectNodeData>) {
         />
       )}
       
-      <div className={`${headerColor} p-[8px_12px] border-b-2 border-node-border dark:border-node-border-dark flex items-center gap-header-gap w-full overflow-hidden`}>
+      <div className={`${headerColor} p-[8px_12px] border-b-2 border-node-border dark:border-node-border-dark flex items-center gap-header-gap w-full overflow-hidden backdrop-blur-sm bg-opacity-90`}>
         <span className={`${titleColor} font-medium overflow-hidden text-ellipsis whitespace-nowrap font-mono min-w-0 flex-1`}>
           {displayLabel}
         </span>
+        {data.depth !== undefined && (
+          <span className="text-xs opacity-50 font-mono">Level {data.depth}</span>
+        )}
       </div>
 
-      <div className="p-0 flex flex-col">
+      <div className="p-0 flex flex-col divide-y divide-node-border dark:divide-node-border-dark">
         {data.properties.map((prop) => (
-          <div key={prop.id} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] border-b border-node-border dark:border-node-border-dark last:border-b-0">
+          <div key={prop.id} className="grid grid-cols-[auto_1fr] items-center gap-header-gap text-property font-mono min-h-[22px] relative p-[6px_12px] hover:bg-node-border/5 dark:hover:bg-node-border-dark/5 transition-colors duration-200">
             <span className="text-node-value-property whitespace-nowrap">
               {prop.key}:
             </span>
