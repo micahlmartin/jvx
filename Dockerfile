@@ -1,37 +1,42 @@
 # syntax=docker/dockerfile:1
 
-# ---- Dependencies Stage ----
-FROM node:20-alpine AS deps
+# ---- Base Stage ----
+FROM node:20-alpine AS base
 WORKDIR /app
 
 # Install dependencies needed for native modules
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# ---- Builder Stage ----
-FROM node:20-alpine AS builder
+# ---- Test Stage ----
+FROM base AS test
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source
 COPY . .
+
+# Run tests and checks
+RUN npm run lint && \
+    npx tsc --noEmit && \
+    npm run test
+
+# ---- Build Stage ----
+FROM test AS builder
+WORKDIR /app
 
 # Set Next.js telemetry to disabled
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
 
 # Build the application
-ENV NODE_ENV production
 RUN npm run build
 
-# ---- Runner Stage ----
+# ---- Production Stage ----
 FROM node:20-alpine AS runner
 WORKDIR /app
-
-# Install only the packages needed to run the server
-RUN apk add --no-cache curl
 
 # Create non-root user and set permissions
 RUN addgroup --system --gid 1001 nodejs && \
@@ -53,12 +58,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Switch to non-root user
 USER nextjs
 
-# Expose port
-EXPOSE 3000
-
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/api/health || exit 1
+
+# Expose port
+EXPOSE 3000
 
 # Start the application
 CMD ["node", "server.js"] 
