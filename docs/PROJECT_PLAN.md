@@ -1,4 +1,4 @@
-# JSON Graph Visualizer - Project Plan
+# JVX - Project Plan
 
 ## Phase 1: Project Setup and Core Infrastructure
 **Estimated Duration: 2-3 days**

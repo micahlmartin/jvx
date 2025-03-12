@@ -1,7 +1,7 @@
 # Toolbar Feature Specification
 
 ## Overview
-The toolbar provides essential navigation and control functionality for the JSON Graph Visualizer, including file operations, view controls, and application settings.
+The toolbar provides essential navigation and control functionality for JVX, including file operations, view controls, and application settings.
 
 ## Problem Statement
 Users need a consistent and accessible way to interact with the application's core functionality.

@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "JSON Graph Visualizer",
+  title: "JVX - JSON Visual eXplorer",
   description: "Interactive JSON visualization tool",
 };
 

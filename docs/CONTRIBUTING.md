@@ -1,4 +1,4 @@
-# Contributing to JSON Graph Visualizer
+# Contributing to JVX
 
 ## Overview
 We follow a design-first approach to development. This means that all features must be thoroughly specified and documented before implementation begins. This guide will walk you through our contribution process.

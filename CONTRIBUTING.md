@@ -1,6 +1,6 @@
-# Contributing to JViz
+# Contributing to JVX
 
-Thank you for your interest in contributing to JViz! This document will guide you through the contribution process.
+Thank you for your interest in contributing to JVX! This document will guide you through the contribution process.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ Thank you for your interest in contributing to JViz! This document will guide yo
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/jviz.git
+   git clone https://github.com/YOUR_USERNAME/jvx.git
    ```
 3. Install dependencies:
    ```bash
@@ -67,7 +67,7 @@ Your pull request should:
 ### Project Structure
 
 ```
-jviz/
+jvx/
 ├── src/               # Source code
 │   ├── components/    # React components
 │   ├── hooks/        # Custom React hooks
@@ -107,4 +107,4 @@ jviz/
 
 If you have questions, please open an issue or reach out to the maintainers.
 
-Thank you for contributing to JViz! 
+Thank you for contributing to JVX! 

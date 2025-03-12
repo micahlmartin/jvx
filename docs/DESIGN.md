@@ -1,4 +1,4 @@
-# JSON Graph Visualizer Design Specification
+# JVX Design Specification
 
 ## Overview
 A React-based interactive JSON visualization tool that represents JSON data as an editable graph of connected nodes. The application provides an intuitive interface for viewing, editing, and understanding complex JSON structures through a visual graph representation.
