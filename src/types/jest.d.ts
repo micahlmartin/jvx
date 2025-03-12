@@ -6,4 +6,4 @@ declare global {
       toHaveStyleRule(property: string, value: string, options?: { modifier?: string }): R;
     }
   }
-} 
+}

@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { NodeProps } from 'reactflow';
+
 import BaseNode, { BaseNodeData } from './BaseNode';
 
 export interface ValueNodeData extends BaseNodeData {
@@ -9,7 +10,7 @@ export interface ValueNodeData extends BaseNodeData {
 
 function ValueNode(props: NodeProps<ValueNodeData>) {
   const { data } = props;
-  
+
   return (
     <BaseNode {...props}>
       <div className="text-text-value dark:text-text-value-dark font-mono text-label p-[4px_8px] bg-editor-bg-highlight dark:bg-editor-bg-highlight-dark/30 rounded-badge mt-header-gap">
@@ -19,4 +20,4 @@ function ValueNode(props: NodeProps<ValueNodeData>) {
   );
 }
 
-export default memo(ValueNode); 
+export default memo(ValueNode);

@@ -1,4 +1,4 @@
-import { Node, Edge } from 'reactflow';
+import { Edge, Node } from 'reactflow';
 
 interface LayoutConfig {
   nodeWidth: number;
@@ -19,14 +19,18 @@ interface LayoutNode extends Node {
   parentNode?: string;
 }
 
-export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<LayoutConfig> = {}): Node[] {
+export function calculateLayout(
+  nodes: Node[],
+  edges: Edge[],
+  config: Partial<LayoutConfig> = {}
+): Node[] {
   console.log('Layout calculation started:', { nodes, edges });
-  
+
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   const layoutNodes = new Map<string, LayoutNode>();
-  
+
   // First pass: Assign levels to nodes
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     layoutNodes.set(node.id, {
       ...node,
       level: 0,
@@ -35,7 +39,7 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
 
   // Find root nodes (nodes with no incoming edges)
   const incomingEdges = new Map<string, number>();
-  edges.forEach(edge => {
+  edges.forEach((edge) => {
     const count = incomingEdges.get(edge.target) || 0;
     incomingEdges.set(edge.target, count + 1);
     const targetNode = layoutNodes.get(edge.target);
@@ -44,13 +48,12 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
     }
   });
 
-  const rootNodes = Array.from(layoutNodes.values())
-    .filter(node => !incomingEdges.has(node.id));
-  
+  const rootNodes = Array.from(layoutNodes.values()).filter((node) => !incomingEdges.has(node.id));
+
   console.log('Root nodes:', rootNodes);
 
   // Assign levels through BFS
-  const queue = rootNodes.map(node => node.id);
+  const queue = rootNodes.map((node) => node.id);
   while (queue.length > 0) {
     const nodeId = queue.shift()!;
     const node = layoutNodes.get(nodeId)!;
@@ -58,8 +61,8 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
 
     // Find child nodes
     edges
-      .filter(edge => edge.source === nodeId)
-      .forEach(edge => {
+      .filter((edge) => edge.source === nodeId)
+      .forEach((edge) => {
         const childNode = layoutNodes.get(edge.target);
         if (childNode) {
           childNode.level = level + 1;
@@ -70,7 +73,7 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
 
   // Group nodes by level
   const nodesByLevel = new Map<number, LayoutNode[]>();
-  layoutNodes.forEach(node => {
+  layoutNodes.forEach((node) => {
     const level = node.level;
     const nodesInLevel = nodesByLevel.get(level) || [];
     nodesInLevel.push(node);
@@ -83,7 +86,7 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
     nodesInLevel.forEach((node, index) => {
       node.position = {
         x: level * finalConfig.levelSeparation,
-        y: levelY + index * finalConfig.nodeSeparation
+        y: levelY + index * finalConfig.nodeSeparation,
       };
     });
   });
@@ -91,4 +94,4 @@ export function calculateLayout(nodes: Node[], edges: Edge[], config: Partial<La
   const result = Array.from(layoutNodes.values());
   console.log('Layout calculation completed:', result);
   return result;
-} 
+}

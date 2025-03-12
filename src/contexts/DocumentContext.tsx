@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useCallback, useContext, useReducer } from 'react';
+
 import { Document } from '@/components/tabs/TabBar';
 
 /**
@@ -46,7 +47,7 @@ import { Document } from '@/components/tabs/TabBar';
 interface DocumentState {
   /** Array of all documents in the editor */
   documents: Document[];
-  
+
   /** ID of the currently active document, null if no document is active */
   activeDocument: string | null;
 }
@@ -68,19 +69,19 @@ type DocumentAction =
 interface DocumentContextType extends DocumentState {
   /** Add a new document to the editor */
   addDocument: (document: Document) => void;
-  
+
   /** Remove a document from the editor */
   removeDocument: (id: string) => void;
-  
+
   /** Update an existing document's content */
   updateDocument: (document: Document) => void;
-  
+
   /** Set the active document */
   setActiveDocument: (id: string) => void;
-  
+
   /** Mark a document as dirty/clean */
   markDocumentDirty: (id: string, isDirty: boolean) => void;
-  
+
   /** Rename an existing document */
   renameDocument: (id: string, name: string) => void;
 }
@@ -98,7 +99,7 @@ const initialState: DocumentState = {
 
 /**
  * Reducer function for handling document state updates
- * 
+ *
  * @param state - Current document state
  * @param action - Action to perform
  * @returns Updated document state
@@ -111,52 +112,49 @@ function documentReducer(state: DocumentState, action: DocumentAction): Document
         documents: [...state.documents, action.payload],
         activeDocument: action.payload.id,
       };
-      
+
     case 'REMOVE_DOCUMENT': {
-      const newDocs = state.documents.filter(doc => doc.id !== action.payload);
+      const newDocs = state.documents.filter((doc) => doc.id !== action.payload);
       return {
         ...state,
         documents: newDocs,
-        activeDocument: state.activeDocument === action.payload
-          ? newDocs[newDocs.length - 1]?.id || null
-          : state.activeDocument,
+        activeDocument:
+          state.activeDocument === action.payload
+            ? newDocs[newDocs.length - 1]?.id || null
+            : state.activeDocument,
       };
     }
-    
+
     case 'UPDATE_DOCUMENT':
       return {
         ...state,
-        documents: state.documents.map(doc =>
+        documents: state.documents.map((doc) =>
           doc.id === action.payload.id ? action.payload : doc
         ),
       };
-      
+
     case 'SET_ACTIVE_DOCUMENT':
       return {
         ...state,
         activeDocument: action.payload,
       };
-      
+
     case 'MARK_DOCUMENT_DIRTY':
       return {
         ...state,
-        documents: state.documents.map(doc =>
-          doc.id === action.payload.id
-            ? { ...doc, isDirty: action.payload.isDirty }
-            : doc
+        documents: state.documents.map((doc) =>
+          doc.id === action.payload.id ? { ...doc, isDirty: action.payload.isDirty } : doc
         ),
       };
-      
+
     case 'RENAME_DOCUMENT':
       return {
         ...state,
-        documents: state.documents.map(doc =>
-          doc.id === action.payload.id
-            ? { ...doc, name: action.payload.name }
-            : doc
+        documents: state.documents.map((doc) =>
+          doc.id === action.payload.id ? { ...doc, name: action.payload.name } : doc
         ),
       };
-      
+
     default:
       return state;
   }
@@ -202,16 +200,12 @@ export function DocumentProvider({ children }: { children: React.ReactNode }) {
     renameDocument,
   };
 
-  return (
-    <DocumentContext.Provider value={value}>
-      {children}
-    </DocumentContext.Provider>
-  );
+  return <DocumentContext.Provider value={value}>{children}</DocumentContext.Provider>;
 }
 
 /**
  * Hook for accessing document state and actions
- * 
+ *
  * @throws {Error} When used outside of DocumentProvider
  * @returns Document context value
  */
@@ -221,4 +215,4 @@ export function useDocuments() {
     throw new Error('useDocuments must be used within a DocumentProvider');
   }
   return context;
-} 
+}

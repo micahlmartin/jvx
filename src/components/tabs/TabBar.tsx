@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+
 import { Tab } from './Tab';
 
 export interface Document {
@@ -23,9 +24,13 @@ export const TabBar: React.FC<TabBarProps> = ({
   activeDocument,
   onDocumentSelect,
   onDocumentClose,
-  onDocumentRename
+  onDocumentRename,
 }) => {
-  const [openContextMenu, setOpenContextMenu] = useState<{id: string, x: number, y: number} | null>(null);
+  const [openContextMenu, setOpenContextMenu] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
 
   const handleContextMenu = useCallback((id: string, x: number, y: number) => {
     console.log('TabBar handleContextMenu called:', { id, x, y });
@@ -68,17 +73,17 @@ export const TabBar: React.FC<TabBarProps> = ({
   }, [openContextMenu, handleCloseContextMenu]);
 
   return (
-    <div 
-      role="tablist" 
+    <div
+      role="tablist"
       aria-label="Open documents"
       className="flex items-center h-8 bg-toolbar-bg dark:bg-toolbar-bg-dark border-b border-toolbar-border dark:border-toolbar-border-dark overflow-x-auto scrollbar-none"
       onContextMenu={(e) => e.preventDefault()}
     >
       <div className="flex h-full">
-        {documents.map(doc => {
+        {documents.map((doc) => {
           const isContextMenuOpen = openContextMenu?.id === doc.id;
           console.log(`Tab ${doc.id} context menu state:`, { isContextMenuOpen, openContextMenu });
-          
+
           return (
             <Tab
               key={doc.id}
@@ -91,7 +96,9 @@ export const TabBar: React.FC<TabBarProps> = ({
               onRename={onDocumentRename}
               onContextMenu={handleContextMenu}
               contextMenuOpen={isContextMenuOpen}
-              contextMenuPosition={isContextMenuOpen ? { x: openContextMenu.x, y: openContextMenu.y } : null}
+              contextMenuPosition={
+                isContextMenuOpen ? { x: openContextMenu.x, y: openContextMenu.y } : null
+              }
               onContextMenuClose={handleCloseContextMenu}
             />
           );
@@ -99,4 +106,4 @@ export const TabBar: React.FC<TabBarProps> = ({
       </div>
     </div>
   );
-}; 
+};

@@ -1,16 +1,11 @@
+import { RenderOptions, render } from '@testing-library/react';
 import React from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import { render, RenderOptions } from '@testing-library/react';
 
 // Custom renderer that wraps components with ReactFlow provider
-const customRender = (
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => {
+const customRender = (ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => {
   return render(ui, {
-    wrapper: ({ children }) => (
-      <ReactFlowProvider>{children}</ReactFlowProvider>
-    ),
+    wrapper: ({ children }) => <ReactFlowProvider>{children}</ReactFlowProvider>,
     ...options,
   });
 };
@@ -54,4 +49,4 @@ export {
   getComputedStyle,
   checkHandlePosition,
   checkSeparatorStyling,
-}; 
+};

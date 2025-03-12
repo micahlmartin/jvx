@@ -12,7 +12,7 @@ export const vsDarkPlus = {
     { token: 'delimiter.bracket', foreground: 'D4D4D4' },
     { token: 'delimiter.array', foreground: 'D4D4D4' },
     { token: 'delimiter.comma', foreground: 'D4D4D4' },
-    { token: 'delimiter.colon', foreground: 'D4D4D4' }
+    { token: 'delimiter.colon', foreground: 'D4D4D4' },
   ],
   colors: {
     'editor.background': '#1F1F1F',
@@ -28,6 +28,6 @@ export const vsDarkPlus = {
     'editorIndentGuide.background': '#404040',
     'editorIndentGuide.activeBackground': '#707070',
     'editor.lineHighlightBackground': '#2D2D30',
-    'editor.lineHighlightBorder': '#282828'
-  }
-}; 
+    'editor.lineHighlightBorder': '#282828',
+  },
+};

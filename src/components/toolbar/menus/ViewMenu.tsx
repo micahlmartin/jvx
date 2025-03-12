@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useTheme } from '@/contexts/ThemeContext';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { Toggle } from '@/components/ui/Toggle';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export const ViewMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,8 +29,8 @@ export const ViewMenu: React.FC = () => {
   };
 
   return (
-    <div 
-      ref={menuRef} 
+    <div
+      ref={menuRef}
       className="relative"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
@@ -51,15 +52,40 @@ export const ViewMenu: React.FC = () => {
             checked={theme === 'dark'}
             onChange={toggleTheme}
             label={theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-            icon={theme === 'dark' ? (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.728 3.272l-1.06 1.06M4.332 11.668l-1.06 1.06M12.728 12.728l-1.06-1.06M4.332 4.332l-1.06-1.06" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.5 8c0 3.038-2.462 5.5-5.5 5.5a5.5 5.5 0 0 1-5.5-5.5c0-3.038 2.462-5.5 5.5-5.5 .577 0 1.134.089 1.657.254a5.5 5.5 0 0 0 3.843 9.246A5.5 5.5 0 0 1 13.5 8z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
+            icon={
+              theme === 'dark' ? (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 12.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zM8 1v1.5M8 13.5V15M15 8h-1.5M2.5 8H1M12.728 3.272l-1.06 1.06M4.332 11.668l-1.06 1.06M12.728 12.728l-1.06-1.06M4.332 4.332l-1.06-1.06"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M13.5 8c0 3.038-2.462 5.5-5.5 5.5a5.5 5.5 0 0 1-5.5-5.5c0-3.038 2.462-5.5 5.5-5.5 .577 0 1.134.089 1.657.254a5.5 5.5 0 0 0 3.843 9.246A5.5 5.5 0 0 1 13.5 8z"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )
+            }
           />
         </div>
       )}

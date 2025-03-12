@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { TabContextMenu } from './TabContextMenu';
 
 interface TabProps {
@@ -26,7 +27,7 @@ export const Tab: React.FC<TabProps> = ({
   onContextMenu,
   contextMenuOpen = false,
   contextMenuPosition = null,
-  onContextMenuClose = () => {}
+  onContextMenuClose = () => {},
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(name);
@@ -90,8 +91,12 @@ export const Tab: React.FC<TabProps> = ({
         role="tab"
         aria-selected={isActive}
       >
-        <div className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-toolbar-text dark:text-toolbar-text-dark text-menu ${isEditing ? 'hidden' : 'block'} flex items-center`}>
-          <span className="inline-flex items-center justify-center text-[rgb(255,192,120)] mr-3 font-semibold text-[9px] font-['JetBrains_Mono','JetBrains_Mono_Fallback'] tracking-[0.25px] uppercase leading-[14px] h-[14px] whitespace-nowrap overflow-hidden text-ellipsis">json</span>
+        <div
+          className={`flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-toolbar-text dark:text-toolbar-text-dark text-menu ${isEditing ? 'hidden' : 'block'} flex items-center`}
+        >
+          <span className="inline-flex items-center justify-center text-[rgb(255,192,120)] mr-3 font-semibold text-[9px] font-['JetBrains_Mono','JetBrains_Mono_Fallback'] tracking-[0.25px] uppercase leading-[14px] h-[14px] whitespace-nowrap overflow-hidden text-ellipsis">
+            json
+          </span>
           {name}
         </div>
         {isEditing ? (
@@ -112,12 +117,25 @@ export const Tab: React.FC<TabProps> = ({
           aria-label="Close tab"
           className={`flex items-center justify-center w-4 h-4 border-none bg-transparent text-toolbar-text dark:text-toolbar-text-dark cursor-pointer p-0 rounded hover:opacity-full hover:bg-toolbar-hover dark:hover:bg-toolbar-hover-dark ${isDirty ? 'group-hover:block hidden' : ''}`}
         >
-          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg
+            className="w-3 h-3"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 4L4 12M4 4l8 8"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
         {isDirty && (
-          <div className={`w-2 h-2 rounded-full bg-toolbar-text dark:bg-toolbar-text-dark opacity-dimmed group-hover:hidden`} />
+          <div
+            className={`w-2 h-2 rounded-full bg-toolbar-text dark:bg-toolbar-text-dark opacity-dimmed group-hover:hidden`}
+          />
         )}
       </div>
       {contextMenuOpen && contextMenuPosition && (
@@ -131,4 +149,4 @@ export const Tab: React.FC<TabProps> = ({
       )}
     </>
   );
-}; 
+};

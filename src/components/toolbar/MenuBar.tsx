@@ -1,11 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import { FileMenu } from './menus/FileMenu';
-import { ViewMenu } from './menus/ViewMenu';
-import { SidebarMenu } from './menus/SidebarMenu';
-import { useDocuments } from '@/contexts/DocumentContext';
+import React, { useCallback, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Document } from '@/components/tabs/TabBar';
+
 import { Tab } from '@/components/tabs/Tab';
+import { Document } from '@/components/tabs/TabBar';
+import { useDocuments } from '@/contexts/DocumentContext';
+
+import { FileMenu } from './menus/FileMenu';
+import { SidebarMenu } from './menus/SidebarMenu';
+import { ViewMenu } from './menus/ViewMenu';
 
 interface MenuBarProps {
   documents: Document[];
@@ -22,10 +24,14 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   documents,
   activeDocument,
   onDocumentSelect,
-  onDocumentClose
+  onDocumentClose,
 }) => {
   const { addDocument, renameDocument } = useDocuments();
-  const [openContextMenu, setOpenContextMenu] = useState<{id: string, x: number, y: number} | null>(null);
+  const [openContextMenu, setOpenContextMenu] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
 
   const handleContextMenu = useCallback((id: string, x: number, y: number) => {
     console.log('MenuBar handleContextMenu called:', { id, x, y });
@@ -43,7 +49,7 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       name: 'Untitled',
       content: '{}',
       isDirty: false,
-      type: 'json'
+      type: 'json',
     });
   };
 
@@ -63,8 +69,8 @@ export const MenuBar: React.FC<MenuBarProps> = ({
   };
 
   return (
-    <div 
-      role="menubar" 
+    <div
+      role="menubar"
       aria-label="Main menu"
       className="bg-toolbar-bg dark:bg-toolbar-bg-dark h-[45px] flex items-stretch px-4 z-50 shadow-sm relative"
     >
@@ -82,15 +88,15 @@ export const MenuBar: React.FC<MenuBarProps> = ({
         </div>
       </div>
       <div className="w-px h-[18px] bg-toolbar-border dark:bg-toolbar-border-dark mx-3 self-center" />
-      <div 
-        role="tablist" 
+      <div
+        role="tablist"
         aria-label="Open documents"
         className="flex items-stretch flex-1 overflow-x-auto scrollbar-none"
       >
-        {documents.map(doc => {
+        {documents.map((doc) => {
           const isContextMenuOpen = openContextMenu?.id === doc.id;
           console.log(`Tab ${doc.id} context menu state:`, { isContextMenuOpen, openContextMenu });
-          
+
           return (
             <Tab
               key={doc.id}
@@ -103,7 +109,9 @@ export const MenuBar: React.FC<MenuBarProps> = ({
               onRename={renameDocument}
               onContextMenu={handleContextMenu}
               contextMenuOpen={isContextMenuOpen}
-              contextMenuPosition={isContextMenuOpen ? { x: openContextMenu.x, y: openContextMenu.y } : null}
+              contextMenuPosition={
+                isContextMenuOpen ? { x: openContextMenu.x, y: openContextMenu.y } : null
+              }
               onContextMenuClose={handleCloseContextMenu}
             />
           );
@@ -119,4 +127,4 @@ export const MenuBar: React.FC<MenuBarProps> = ({
       </div>
     </div>
   );
-}; 
+};

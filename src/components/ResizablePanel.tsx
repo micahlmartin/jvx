@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+
 import { PANEL_SIZES } from '@/constants/panels';
 
 export interface ResizablePanelProps {
@@ -23,10 +24,10 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   minSize = PANEL_SIZES.MIN_SIZE,
   maxSize = PANEL_SIZES.MAX_SIZE,
   onResize,
-  className
+  className,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
-  
+
   // Initialize with default size
   const [size, setSize] = useState(defaultSize);
 
@@ -63,36 +64,39 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
 
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!panelRef.current) return;
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (!panelRef.current) return;
 
-    setIsDragging(true);
-    document.body.classList.add('select-none', 'cursor-col-resize');
+      setIsDragging(true);
+      document.body.classList.add('select-none', 'cursor-col-resize');
 
-    const startX = e.clientX;
-    const startWidth = panelRef.current.offsetWidth;
+      const startX = e.clientX;
+      const startWidth = panelRef.current.offsetWidth;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const delta = e.clientX - startX;
-      const newSize = Math.min(Math.max(startWidth + delta, minSize), maxSize);
-      setSize(newSize);
-      onResize?.(newSize);
-    };
+      const handleMouseMove = (e: MouseEvent) => {
+        const delta = e.clientX - startX;
+        const newSize = Math.min(Math.max(startWidth + delta, minSize), maxSize);
+        setSize(newSize);
+        onResize?.(newSize);
+      };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.body.classList.remove('select-none', 'cursor-col-resize');
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
+      const handleMouseUp = () => {
+        setIsDragging(false);
+        document.body.classList.remove('select-none', 'cursor-col-resize');
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [minSize, maxSize, onResize]);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    },
+    [minSize, maxSize, onResize]
+  );
 
   return (
-    <div 
+    <div
       ref={panelRef}
       className={twMerge(
         'h-full flex-none',
@@ -103,9 +107,7 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
       style={{ width: isCollapsed ? 0 : `${size}px` }}
     >
       <div className="relative h-full w-full">
-        <div className="absolute inset-0">
-          {children}
-        </div>
+        <div className="absolute inset-0">{children}</div>
         <div
           className={twMerge(
             'absolute top-0 -right-[3px] w-[6px] h-full cursor-col-resize z-[9999]',
@@ -121,4 +123,4 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
       </div>
     </div>
   );
-}; 
+};

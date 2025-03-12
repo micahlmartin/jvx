@@ -1,26 +1,27 @@
 'use client';
 
-import { useCallback, useRef, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ReactFlowProvider } from 'reactflow';
+import { v4 as uuidv4 } from 'uuid';
+
 import { GraphCanvas, GraphCanvasHandle } from '@/components/GraphCanvas';
 import { JsonEditor } from '@/components/JsonEditor';
 import { MenuBar } from '@/components/toolbar/MenuBar';
 import { DocumentProvider, useDocuments } from '@/contexts/DocumentContext';
-import { v4 as uuidv4 } from 'uuid';
-import { sampleOrderData } from '@/data/sampleData';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { sampleOrderData } from '@/data/sampleData';
 
 function HomeContent() {
   const { isSidebarVisible } = useSidebar();
   const graphRef = useRef<GraphCanvasHandle>(null);
   const initializeRef = useRef(false);
-  const { 
-    documents, 
-    activeDocument, 
-    addDocument, 
-    removeDocument, 
-    setActiveDocument, 
-    updateDocument
+  const {
+    documents,
+    activeDocument,
+    addDocument,
+    removeDocument,
+    setActiveDocument,
+    updateDocument,
   } = useDocuments();
 
   useEffect(() => {
@@ -30,7 +31,7 @@ function HomeContent() {
         name: 'Order Data',
         content: JSON.stringify(sampleOrderData, null, 2),
         isDirty: false,
-        type: 'json'
+        type: 'json',
       };
       addDocument(defaultDoc);
       initializeRef.current = true;
@@ -40,7 +41,7 @@ function HomeContent() {
   // Update graph when active document changes or when its name changes
   useEffect(() => {
     if (activeDocument) {
-      const activeDoc = documents.find(doc => doc.id === activeDocument);
+      const activeDoc = documents.find((doc) => doc.id === activeDocument);
       if (activeDoc) {
         try {
           const json = JSON.parse(activeDoc.content);
@@ -52,24 +53,27 @@ function HomeContent() {
     }
   }, [activeDocument, documents]);
 
-  const handleValidJson = useCallback((json: Record<string, unknown>) => {
-    if (activeDocument) {
-      const activeDoc = documents.find(doc => doc.id === activeDocument);
-      if (activeDoc) {
-        graphRef.current?.updateJson(json, activeDoc.name);
-        updateDocument({
-          ...activeDoc,
-          content: JSON.stringify(json, null, 2),
-          isDirty: true
-        });
+  const handleValidJson = useCallback(
+    (json: Record<string, unknown>) => {
+      if (activeDocument) {
+        const activeDoc = documents.find((doc) => doc.id === activeDocument);
+        if (activeDoc) {
+          graphRef.current?.updateJson(json, activeDoc.name);
+          updateDocument({
+            ...activeDoc,
+            content: JSON.stringify(json, null, 2),
+            isDirty: true,
+          });
+        }
       }
-    }
-  }, [activeDocument, documents, updateDocument]);
+    },
+    [activeDocument, documents, updateDocument]
+  );
 
   // Get the current document's content
   const currentContent = useMemo(() => {
     if (!activeDocument) return '{}';
-    const currentDoc = documents.find(doc => doc.id === activeDocument);
+    const currentDoc = documents.find((doc) => doc.id === activeDocument);
     return currentDoc?.content || '{}';
   }, [activeDocument, documents]);
 

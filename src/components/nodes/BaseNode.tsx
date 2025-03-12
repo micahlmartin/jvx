@@ -63,14 +63,11 @@ export interface BaseNodeData {
 
 /**
  * BaseNode component implementation.
- * 
+ *
  * @param props - Component props from React Flow
  * @returns Memoized React component
  */
-const BaseNode = memo(({ 
-  data,
-  selected
-}: NodeProps<BaseNodeData>) => {
+const BaseNode = memo(({ data, selected }: NodeProps<BaseNodeData>) => {
   return (
     <div
       className={`
@@ -97,4 +94,4 @@ const BaseNode = memo(({
 
 BaseNode.displayName = 'BaseNode';
 
-export default BaseNode; 
+export default BaseNode;

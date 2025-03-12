@@ -1,4 +1,4 @@
-import { Node, Edge } from 'reactflow';
+import { Edge, Node } from 'reactflow';
 
 interface NodeProperty {
   id: string;
@@ -35,14 +35,14 @@ export function jsonToGraph(
         label,
         type: 'object',
         properties: [],
-        depth
-      }
+        depth,
+      },
     });
 
     // Process each property
     Object.entries(json).forEach(([key, value]) => {
       const propertyId = `${nodeId}-${key}`;
-      
+
       if (typeof value === 'object' && value !== null) {
         // Recursively process nested objects
         const { nodes: childNodes, edges: childEdges } = jsonToGraph(
@@ -53,7 +53,7 @@ export function jsonToGraph(
         );
         nodes.push(...childNodes);
         edges.push(...childEdges);
-        
+
         // Add edge from parent to child
         edges.push({
           id: `${nodeId}-${key}`,
@@ -63,25 +63,25 @@ export function jsonToGraph(
         });
 
         // Add property to parent node
-        const parentNode = nodes.find(n => n.id === nodeId);
+        const parentNode = nodes.find((n) => n.id === nodeId);
         if (parentNode && parentNode.data.properties) {
           parentNode.data.properties.push({
             id: propertyId,
             key,
             value: Array.isArray(value) ? `Array(${value.length})` : 'Object',
             type: Array.isArray(value) ? 'array' : 'object',
-            childNodeId: propertyId
+            childNodeId: propertyId,
           });
         }
       } else {
         // Add primitive value to parent node's properties
-        const parentNode = nodes.find(n => n.id === nodeId);
+        const parentNode = nodes.find((n) => n.id === nodeId);
         if (parentNode && parentNode.data.properties) {
           parentNode.data.properties.push({
             id: propertyId,
             key,
             value: value as string | number | boolean | null,
-            type: typeof value
+            type: typeof value,
           });
         }
       }
@@ -89,4 +89,4 @@ export function jsonToGraph(
   }
 
   return { nodes, edges };
-} 
+}

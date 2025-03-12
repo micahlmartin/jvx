@@ -12,4 +12,4 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({ children }) => {
   );
 };
 
-export default PropertyRow; 
+export default PropertyRow;

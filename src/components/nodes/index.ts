@@ -1,5 +1,5 @@
-import ObjectNode from './ObjectNode';
 import ArrayNode from './ArrayNode';
+import ObjectNode from './ObjectNode';
 import ValueNode from './ValueNode';
 
 export const nodeTypes = {
@@ -13,4 +13,4 @@ export type { ArrayNodeData } from './ArrayNode';
 export type { ValueNodeData } from './ValueNode';
 export type { BaseNodeData } from './BaseNode';
 
-export { default as ObjectNode } from './ObjectNode'; 
+export { default as ObjectNode } from './ObjectNode';

@@ -3,4 +3,4 @@ export const PANEL_SIZES = {
   MIN_SIZE: 500,
   MAX_SIZE: 800,
   TOOLTIP_PADDING: 20, // Used for calculating tooltip width (panel width - padding)
-} as const; 
+} as const;

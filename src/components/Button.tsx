@@ -7,7 +7,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ label, onClick }) => {
   return (
-    <button 
+    <button
       onClick={onClick}
       className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
     >
@@ -16,4 +16,4 @@ const Button: React.FC<ButtonProps> = ({ label, onClick }) => {
   );
 };
 
-export default Button; 
+export default Button;
