@@ -70,18 +70,6 @@ interface Document {
 - [x] Theme toggle functionality
 - [x] Sidebar toggle functionality
 
-## Testing Strategy
-
-### Unit Tests
-- Test each menu component in isolation
-- Test state changes and callbacks
-- Test keyboard navigation
-
-### Integration Tests
-- Test interaction between menus
-- Test file operations
-- Test theme switching
-
 ## Documentation Requirements
 - [x] Component API documentation
 - [x] Usage examples

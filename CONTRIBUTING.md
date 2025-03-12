@@ -1,231 +1,110 @@
-# Contributing to JVX
+# Contributing to JViz
 
-## Overview
+Thank you for your interest in contributing to JViz! This document will guide you through the contribution process.
 
-Thank you for considering contributing to JVX! This document provides guidelines and instructions for contributing to the project. We strive to maintain high standards of code quality and design consistency.
-
-## Getting Started
-
-### Prerequisites
+## Prerequisites
 
 - Node.js (Latest LTS version)
-- Docker and Docker Compose
-- asdf version manager
+- Git
+- A code editor (we recommend VS Code)
 
-### Development Environment Setup
+## Development Setup
 
-1. Install asdf and required plugins:
-```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-asdf plugin add nodejs
-asdf plugin add python
-```
-
-2. Install project dependencies:
-```bash
-asdf install
-npm install
-```
-
-3. Start the development environment:
-```bash
-docker compose up -d
-npm run dev
-```
+1. Fork the repository
+2. Clone your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/jviz.git
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
 ## Development Guidelines
 
 ### Code Style
 
-We use a combination of ESLint, Prettier, and TypeScript to maintain code quality:
+1. Follow the existing code style
+2. Use TypeScript for all new code
+3. Use meaningful variable and function names
+4. Add comments for complex logic
+5. Keep functions small and focused
 
-```bash
-# Check code style
-npm run lint
+### Component Guidelines
 
-# Fix automatic style issues
-npm run lint:fix
-
-# Type check
-npm run type-check
-```
-
-### Design System
-
-All components must follow our [Design System](docs/DESIGN_SYSTEM.md) guidelines. Key points:
-
-- Use design system tokens for all visual properties
-- Follow component structure guidelines
-- Maintain accessibility standards
-- Use proper TypeScript types
-
-### Component Development
-
-1. Follow the [Component Guidelines](docs/COMPONENT_GUIDELINES.md)
-2. Create components in appropriate directories:
-   - `/src/components/` for shared components
-   - `/src/components/nodes/` for node-specific components
-3. Include comprehensive tests
-4. Add proper documentation
-
-### Testing
-
-We maintain comprehensive test coverage:
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm test:watch
-
-# Update snapshots
-npm test -- -u
-```
-
-#### Test Requirements
-
-1. Unit Tests
-   - Test all component props
-   - Test all component states
-   - Test error conditions
-   - Test edge cases
-
-2. Visual Regression Tests
-   - Test component appearance
-   - Test component interactions
-   - Test responsive behavior
-
-3. Integration Tests
-   - Test component interactions
-   - Test data flow
-   - Test error handling
+1. Follow React best practices
+2. Use functional components with hooks
+3. Keep components small and reusable
+4. Use proper TypeScript types
+5. Follow accessibility guidelines
 
 ### Documentation
 
-All code changes should include appropriate documentation:
+All new features and changes should be properly documented:
 
-1. Change Documentation
-   - Create a file in `docs/changes/` with format `YYYYMMDD-description.md`
-   - Document the change, its rationale, and implementation details
-   - Include any design considerations or tradeoffs
-   - Reference related issues or PRs
+1. Update relevant documentation files
+2. Add JSDoc comments to functions and components
+3. Update README if necessary
+4. Document any configuration changes
 
-2. JSDoc Comments
-   - Document all components
-   - Document all props
-   - Include usage examples
-   - Document side effects
+### Pull Request Process
 
-3. README Updates
-   - Document new features
-   - Update usage examples
-   - Update API documentation
+1. Create a new branch for your feature/fix
+2. Make your changes
+3. Update documentation as needed
+4. Submit a pull request
 
-4. Design System Documentation
-   - Document new tokens
-   - Document new patterns
-   - Update guidelines
+Your pull request should:
+- Have a clear title and description
+- Reference any related issues
+- Include documentation updates
+- Follow our code style guidelines
 
-## Pull Request Process
-
-1. Create a feature branch:
-```bash
-git checkout -b feature/your-feature-name
-```
-
-2. Make your changes following our guidelines
-
-3. Ensure all tests pass:
-```bash
-npm run test
-npm run lint
-npm run type-check
-```
-
-4. Update documentation as needed
-
-5. Create a pull request using our [template](.github/pull_request_template.md)
-
-### PR Requirements
-
-- [ ] Follows design system guidelines
-- [ ] Includes comprehensive tests
-- [ ] Updates documentation
-- [ ] Passes all checks
-- [ ] Includes visual regression tests
-- [ ] Maintains or improves test coverage
-
-## Project Structure
+### Project Structure
 
 ```
-jvx/
-├── src/
-│   ├── components/        # React components
-│   │   └── nodes/        # Node-specific components
-│   ├── styles/           # Global styles and design system
-│   ├── utils/            # Utility functions
-│   └── types/           # TypeScript type definitions
-├── docs/                # Documentation
-├── tests/              # Test utilities and helpers
-└── public/            # Static assets
+jviz/
+├── src/               # Source code
+│   ├── components/    # React components
+│   ├── hooks/        # Custom React hooks
+│   ├── utils/        # Utility functions
+│   └── types/        # TypeScript types
+├── public/           # Static assets
+├── docs/             # Documentation
+└── styles/           # Global styles
 ```
 
-## Design Principles
+### Best Practices
 
-1. **Consistency**
-   - Follow established patterns
-   - Use design system tokens
-   - Maintain consistent code style
+- Write clean, maintainable code
+- Follow the Single Responsibility Principle
+- Keep components small and focused
+- Use meaningful names
+- Document your code
+- Follow accessibility guidelines
+- Test with screen readers
+- Consider performance implications
 
-2. **Maintainability**
-   - Write clear, self-documenting code
-   - Include comprehensive tests
-   - Keep components focused and single-purpose
+### Feature Development Process
 
-3. **Performance**
-   - Optimize render performance
-   - Minimize bundle size
-   - Use proper memoization
+1. Create feature branch
+2. Implement feature
+3. Update documentation
+4. Submit pull request
 
-4. **Accessibility**
-   - Follow WCAG guidelines
-   - Test with screen readers
-   - Maintain keyboard navigation
+### Bug Fix Process
 
-## Common Tasks
+1. Create bug fix branch
+2. Implement fix
+3. Update documentation
+4. Submit pull request
 
-### Adding a New Component
+## Questions?
 
-1. Create component file in appropriate directory
-2. Create test file
-3. Create documentation
-4. Update exports
-5. Add visual regression tests
+If you have questions, please open an issue or reach out to the maintainers.
 
-### Updating Design System
-
-1. Update design system tokens
-2. Update documentation
-3. Update affected components
-4. Update visual regression tests
-5. Update ESLint rules if needed
-
-### Adding New Features
-
-1. Discuss in an issue first
-2. Create design doc if needed
-3. Implement following guidelines
-4. Add comprehensive tests
-5. Update documentation
-
-## Getting Help
-
-- Check existing documentation
-- Review similar PRs
-- Ask in issues or discussions
-- Review design system guidelines
-
-## License
-
-By contributing, you agree that your contributions will be licensed under the project's license. 
+Thank you for contributing to JViz! 
