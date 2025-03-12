@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { PANEL_SIZES } from '@/constants/panels';
 
 export interface ResizablePanelProps {
   children: React.ReactNode;
@@ -18,38 +19,49 @@ const LOCAL_STORAGE_KEY = 'editor-panel-size';
 export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   children,
   isCollapsed,
-  defaultSize = 400,
-  minSize = 300,
-  maxSize = 800,
+  defaultSize = PANEL_SIZES.DEFAULT_SIZE,
+  minSize = PANEL_SIZES.MIN_SIZE,
+  maxSize = PANEL_SIZES.MAX_SIZE,
   onResize,
   className
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
-  // Initialize with stored size or default
-  const [size, setSize] = useState(() => {
-    if (typeof window === 'undefined') return defaultSize;
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return stored ? parseInt(stored, 10) : defaultSize;
-  });
+  
+  // Initialize with default size
+  const [size, setSize] = useState(defaultSize);
 
-  const [isDragging, setIsDragging] = useState(false);
+  // Set initial size and handle localStorage on mount
+  useEffect(() => {
+    // Clear any existing stored size that might be too small
+    const storedSize = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!storedSize || parseInt(storedSize, 10) < PANEL_SIZES.MIN_SIZE) {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      setSize(defaultSize);
+    }
+  }, []); // Empty deps array for first mount only
 
   // Handle collapse state
   useEffect(() => {
     if (isCollapsed) {
       setSize(0);
     } else {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      setSize(stored ? parseInt(stored, 10) : defaultSize);
+      // When uncollapsing, ensure we're at least at MIN_SIZE
+      setSize(Math.max(size, PANEL_SIZES.MIN_SIZE));
     }
-  }, [isCollapsed, defaultSize]);
+  }, [isCollapsed, size]);
 
-  // Store size in localStorage when it changes
+  // Store size in localStorage when it changes and ensure it's never below MIN_SIZE
   useEffect(() => {
     if (size > 0) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, size.toString());
+      const validSize = Math.max(size, PANEL_SIZES.MIN_SIZE);
+      localStorage.setItem(LOCAL_STORAGE_KEY, validSize.toString());
+      if (validSize !== size) {
+        setSize(validSize);
+      }
     }
   }, [size]);
+
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();

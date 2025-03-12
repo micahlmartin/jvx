@@ -6,6 +6,9 @@ import { sampleOrderData } from '@/data/sampleData';
 import { useTheme } from '@/contexts/ThemeContext';
 import { vsDarkPlus } from '@/themes/vs-dark-plus';
 import { ResizablePanel } from './ResizablePanel';
+import { PANEL_SIZES } from '@/constants/panels';
+import * as monaco from 'monaco-editor';
+import type { editor } from 'monaco-editor';
 
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
   ssr: false,
@@ -24,6 +27,7 @@ export interface JsonEditorProps {
   defaultSize?: number;
   minSize?: number;
   maxSize?: number;
+  title?: string;
 }
 
 export const JsonEditor = ({ 
@@ -31,35 +35,93 @@ export const JsonEditor = ({
   onValidJson, 
   isCollapsed = false, 
   onResize,
-  defaultSize = 400,
-  minSize = 300,
-  maxSize = 800
+  defaultSize = PANEL_SIZES.DEFAULT_SIZE,
+  minSize = PANEL_SIZES.MIN_SIZE,
+  maxSize = PANEL_SIZES.MAX_SIZE,
+  title = 'Order Data'
 }: JsonEditorProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
-  const [editor, setEditor] = useState<any>(null);
+  const [editor, setEditor] = useState<editor.IStandaloneCodeEditor | null>(null);
   const { theme } = useTheme();
 
   const validateAndUpdateJson = useCallback((value: string) => {
-    try {
-      const parsedJson = JSON.parse(value);
+    // Check if it's our initial empty template
+    if (value === '{\n    \n}') {
+      setIsEmpty(true);
       setError(null);
-      onValidJson?.(parsedJson);
+      if (editor) {
+        const model = editor.getModel();
+        if (model) {
+          editor.getModel()?.deltaDecorations([], []);
+          monaco.editor.setModelMarkers(model, 'json', []);
+        }
+      }
+      return true;
+    }
+
+    // If it's just whitespace or empty, don't validate
+    if (!value.trim()) {
+      setIsEmpty(true);
+      setError(null);
+      return true;
+    }
+
+    setIsEmpty(false);
+    try {
+      // Only parse to validate, don't format or modify the content
+      JSON.parse(value);
+      setError(null);
+      
+      // Clear error markers when JSON is valid
+      if (editor) {
+        const model = editor.getModel();
+        if (model) {
+          editor.getModel()?.deltaDecorations([], []);
+          monaco.editor.setModelMarkers(model, 'json', []);
+        }
+      }
       return true;
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
+        
+        // Add error markers to the overview ruler
+        if (editor) {
+          const model = editor.getModel();
+          if (model) {
+            const lineNumber = getErrorLineNumber(e.message, model);
+            monaco.editor.setModelMarkers(model, 'json', [{
+              severity: monaco.MarkerSeverity.Error,
+              message: e.message,
+              startLineNumber: lineNumber,
+              startColumn: 1,
+              endLineNumber: lineNumber,
+              endColumn: model.getLineLength(lineNumber) + 1
+            }]);
+          }
+        }
       }
       return false;
     }
-  }, [onValidJson]);
+  }, [editor]);
 
-  const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
-    setEditor(editor);
+  // Helper function to extract line number from JSON error message
+  const getErrorLineNumber = (errorMessage: string, model: editor.ITextModel): number => {
+    const match = errorMessage.match(/at position (\d+)/);
+    if (match) {
+      const position = parseInt(match[1], 10);
+      return model.getPositionAt(position).lineNumber;
+    }
+    return 1;
+  };
+
+  const handleEditorDidMount = useCallback((editorInstance: editor.IStandaloneCodeEditor, monaco: any) => {
+    setEditor(editorInstance);
     
-    // Define editor options
-    editor.updateOptions({
+    // Configure editor with overview ruler options
+    editorInstance.updateOptions({
       fontFamily: 'JetBrains Mono',
       fontSize: 14,
       lineHeight: 1.5,
@@ -74,7 +136,25 @@ export const JsonEditor = ({
       cursorWidth: 2,
       smoothScrolling: true,
       fontLigatures: true,
-      theme: theme === 'dark' ? 'vs-dark-plus' : 'light'
+      theme: theme === 'dark' ? 'vs-dark-plus' : 'light',
+      overviewRulerLanes: 3,
+      overviewRulerBorder: true,
+      hideCursorInOverviewRuler: false,
+      scrollbar: {
+        vertical: 'visible',
+        horizontal: 'visible',
+        verticalScrollbarSize: 14,
+        horizontalScrollbarSize: 14,
+        verticalSliderSize: 14,
+        horizontalSliderSize: 14,
+        alwaysConsumeMouseWheel: false,
+        useShadows: true
+      },
+      formatOnPaste: false,
+      formatOnType: false,
+      autoIndent: 'none',
+      autoClosingBrackets: 'never',
+      autoClosingQuotes: 'never'
     });
 
     // Set up the editor
@@ -82,19 +162,45 @@ export const JsonEditor = ({
     monaco.editor.setTheme(theme === 'dark' ? 'vs-dark-plus' : 'light');
     
     const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
-    editor.setValue(value);
-    setIsEmpty(!value || value === '{\n    \n}');
+    editorInstance.setValue(value);
     
-    if (isEmpty) {
-      const position = editor.getPosition();
-      editor.setPosition({ lineNumber: 2, column: 5 });
-      editor.focus();
+    // Check if it's our initial empty template
+    const isEmptyJson = value === '{\n    \n}';
+    setIsEmpty(isEmptyJson);
+    
+    if (isEmptyJson) {
+      editorInstance.setValue('{\n    \n}');
+      editorInstance.setPosition({ lineNumber: 2, column: 5 });
+      editorInstance.focus();
     } else {
       validateAndUpdateJson(value);
     }
+
+    // Add content change listener for validation with debounce
+    let validateTimeout: NodeJS.Timeout;
+    editorInstance.onDidChangeModelContent(() => {
+      const currentValue = editorInstance.getValue();
+      
+      // Clear previous timeout
+      if (validateTimeout) {
+        clearTimeout(validateTimeout);
+      }
+      
+      // Set new timeout for validation
+      validateTimeout = setTimeout(() => {
+        validateAndUpdateJson(currentValue);
+      }, 300); // Validate after 300ms of no typing
+    });
     
     setIsLoading(false);
-  }, [initialValue, isEmpty, validateAndUpdateJson, theme]);
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (validateTimeout) {
+        clearTimeout(validateTimeout);
+      }
+    };
+  }, [initialValue, validateAndUpdateJson, theme]);
 
   // Update theme when it changes
   useEffect(() => {
@@ -116,17 +222,10 @@ export const JsonEditor = ({
           editor.setPosition(position);
         }
         setIsEmpty(!initialValue || initialValue === '{\n    \n}');
-        try {
-          JSON.parse(initialValue);
-          setError(null);
-        } catch (e) {
-          if (e instanceof Error) {
-            setError(e.message);
-          }
-        }
+        validateAndUpdateJson(initialValue);
       }
     }
-  }, [editor, initialValue]);
+  }, [editor, initialValue, validateAndUpdateJson]);
 
   const handleChange = (value: string | undefined) => {
     if (!value) return;
@@ -144,9 +243,11 @@ export const JsonEditor = ({
     >
       <div className="h-full w-full flex flex-col">
         <Editor
-          height="100%"
+          height="calc(100% - 22px)"
           width="100%"
           defaultLanguage="json"
+          value={initialValue}
+          onChange={handleChange}
           theme={theme === 'dark' ? 'vs-dark-plus' : 'light'}
           options={{
             minimap: { enabled: false },
@@ -167,7 +268,7 @@ export const JsonEditor = ({
             renderLineHighlight: 'none',
             hideCursorInOverviewRuler: false,
             overviewRulerBorder: true,
-            overviewRulerLanes: 2,
+            overviewRulerLanes: 3,
             scrollbar: {
               vertical: 'visible',
               horizontal: 'visible',
@@ -182,7 +283,6 @@ export const JsonEditor = ({
               indentation: false
             }
           }}
-          onChange={handleChange}
           onMount={handleEditorDidMount}
         />
         {isEmpty && !isLoading && (
@@ -192,11 +292,50 @@ export const JsonEditor = ({
 }`}
           </div>
         )}
-        {error && (
-          <div className="absolute bottom-0 left-0 right-[14px] text-editor-error-text text-type m-2 p-2 bg-editor-error-bg rounded-badge font-mono">
-            {error}
+        <div className="h-[22px] flex items-center justify-between px-2 text-xs font-[system-ui,-apple-system,BlinkMacSystemFont,Segoe_UI,sans-serif] bg-editor-statusbar dark:bg-editor-statusbar-dark text-[#9D9D9D] dark:text-[#9D9D9D] border-t border-editor-statusbar-border dark:border-editor-statusbar-border-dark">
+          <div className="flex items-center gap-1.5 group relative">
+            {error ? (
+              <>
+                <svg className="w-3.5 h-3.5 text-[#F14C4C]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1" fill="none"/>
+                  <path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                </svg>
+                <span className="text-[#F14C4C] font-normal">Invalid</span>
+                <div className="invisible group-hover:visible absolute bottom-[22px] left-2 mb-1 w-[480px] p-2 text-xs bg-[#252526] dark:bg-[#252526] text-[#CCCCCC] dark:text-[#CCCCCC] rounded-md shadow-lg break-words whitespace-pre-wrap border border-[#454545] dark:border-[#454545]">
+                  {error}
+                </div>
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5 text-[#4EC9B0]" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" fill="currentColor"/>
+                </svg>
+                <span className="text-[#4EC9B0] font-normal">Valid</span>
+              </>
+            )}
           </div>
-        )}
+          <button 
+            className="px-2 py-0.5 text-[#9D9D9D] dark:text-[#9D9D9D] hover:bg-[#2A2D2E] dark:hover:bg-[#2A2D2E] rounded transition-colors font-normal"
+            onClick={() => {
+              const model = editor?.getModel();
+              if (model) {
+                const value = model.getValue();
+                try {
+                  const formatted = JSON.stringify(JSON.parse(value), null, 2);
+                  const position = editor?.getPosition();
+                  model.setValue(formatted);
+                  if (position) {
+                    editor?.setPosition(position);
+                  }
+                } catch (e) {
+                  // If JSON is invalid, do nothing
+                }
+              }
+            }}
+          >
+            Format
+          </button>
+        </div>
       </div>
     </ResizablePanel>
   );

@@ -15,6 +15,14 @@ module.exports = {
           DEFAULT: '#FFFFFF',
           dark: '#1e1e1e',
         },
+        'editor-statusbar': {
+          DEFAULT: '#f3f3f3',
+          dark: '#1f1f1f'
+        },
+        'editor-statusbar-border': {
+          DEFAULT: '#e7e7e7',
+          dark: '#2d2d2d'
+        },
         toolbar: {
           bg: {
             DEFAULT: '#f3f3f3',
