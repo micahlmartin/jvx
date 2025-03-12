@@ -80,6 +80,92 @@ This document outlines the guidelines and best practices for component developme
    - Must render separator for non-last children
    - Must support nested content properly
 
+### Editor Component Guidelines
+
+#### State Management
+1. **Document State**
+   - Use DocumentContext for global document state
+   - Implement proper state synchronization
+   - Handle content updates with debounce
+   - Maintain cursor position across updates
+   - Preserve panel size preferences
+
+2. **Validation State**
+   - Implement real-time validation
+   - Use debounced updates (300ms)
+   - Maintain error markers
+   - Provide clear error feedback
+   - Handle empty/initial states
+
+3. **Theme State**
+   - Sync with global theme context
+   - Apply consistent theme tokens
+   - Handle theme transitions
+   - Support light/dark modes
+   - Use design system colors
+
+#### Performance Guidelines
+1. **State Updates**
+   - Debounce frequent updates
+   - Batch related state changes
+   - Optimize re-renders
+   - Clean up subscriptions
+   - Handle memory management
+
+2. **Editor Optimization**
+   - Dynamic loading for large components
+   - Efficient marker management
+   - Smart content validation
+   - Cursor position preservation
+   - Panel size persistence
+
+3. **Integration Patterns**
+   - Clean component communication
+   - Proper event handling
+   - Efficient state sharing
+   - Consistent error handling
+   - Theme synchronization
+
+#### Implementation Requirements
+1. **Editor Components**
+   ```typescript
+   interface EditorProps {
+     initialValue?: string;
+     onValidContent?: (content: any) => void;
+     isCollapsed?: boolean;
+     onResize?: (size: number) => void;
+     defaultSize?: number;
+     minSize?: number;
+     maxSize?: number;
+     title?: string;
+   }
+   ```
+
+2. **State Handling**
+   ```typescript
+   // Use proper state initialization
+   const [error, setError] = useState<string | null>(null);
+   const [isLoading, setIsLoading] = useState(true);
+   const [isEmpty, setIsEmpty] = useState(false);
+
+   // Implement proper cleanup
+   useEffect(() => {
+     return () => {
+       // Cleanup subscriptions
+     };
+   }, []);
+   ```
+
+3. **Validation Pattern**
+   ```typescript
+   const validateContent = useCallback((content: string) => {
+     // Implement validation logic
+     // Handle error states
+     // Update markers
+     // Notify parent components
+   }, [dependencies]);
+   ```
+
 ## Best Practices
 
 ### 1. State Management

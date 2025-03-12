@@ -35,16 +35,53 @@ Sidebar State Interface:
 - lastWidth: number
 
 Document State Interface:
-- id: string
-- name: string
-- content: string
-- isDirty: boolean
-- type: string
-- path?: string
+```typescript
+interface Document {
+  id: string;
+  name: string;
+  content: string;
+  isDirty: boolean;
+  type: string;
+  path?: string;
+}
 
-Document Management Interface:
-- documents: Document[]
-- activeDocument: string | null
+interface DocumentState {
+  documents: Document[];
+  activeDocument: string | null;
+}
+```
+
+Document Management Features:
+- Real-time content synchronization
+  - Debounced validation (300ms)
+  - Error highlighting with line numbers
+  - Format preservation
+- Tab state persistence
+  - Document content
+  - Dirty state tracking
+  - Active document selection
+- Editor state management
+  - Theme synchronization
+  - Panel size persistence
+  - Cursor position preservation
+  - Error marker management
+
+JSON Editor State Features:
+- Real-time validation
+  - JSON syntax checking
+  - Error location identification
+  - Inline error markers
+- Content synchronization
+  - Debounced updates
+  - Graph visualization sync
+  - Tab content sync
+- Editor preferences
+  - Font settings (JetBrains Mono)
+  - Line numbers
+  - Syntax highlighting
+  - Theme integration
+  - Scroll behavior
+  - Cursor settings
 
 ### Key Features
 
@@ -135,6 +172,48 @@ Document Management Interface:
     - "* modified-file.json - Editor"
 - Browser tab title syncs with root title
 - State persists across page reloads
+
+### Editor Features
+- Professional editing experience:
+  - Syntax highlighting
+  - Error diagnostics
+  - Line numbers
+  - Code folding
+  - Bracket matching
+  - Auto-formatting
+  - Multi-cursor support
+- Real-time validation:
+  - JSON syntax checking
+  - Error location highlighting
+  - Inline error markers
+  - Status bar indicators
+- Theme support:
+  - Light/dark mode
+  - Custom VS Code-like theme
+  - Syntax highlighting colors
+  - UI element theming
+- Performance optimizations:
+  - Debounced validation
+  - Efficient state updates
+  - Smooth transitions
+  - Memory management
+
+### Integration Features
+- Graph synchronization:
+  - Real-time updates
+  - Layout preservation
+  - Node positioning
+  - Edge management
+- Panel management:
+  - Resizable editor
+  - Size persistence
+  - Collapse/expand
+  - Min/max constraints
+- Theme integration:
+  - Consistent styling
+  - Smooth transitions
+  - Context awareness
+  - Component theming
 
 ## Testing Strategy
 

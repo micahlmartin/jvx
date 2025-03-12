@@ -3,6 +3,57 @@ import { Handle, Position, useStore } from 'reactflow';
 import { twMerge } from 'tailwind-merge';
 
 /**
+ * NodeHandle - A connection point component for nodes in the graph visualization.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * // Source handle on the right side of a node
+ * <NodeHandle
+ *   type="source"
+ *   position={Position.Right}
+ *   isVisible={true}
+ * />
+ * 
+ * // Target handle on the left side of a node
+ * <NodeHandle
+ *   type="target"
+ *   position={Position.Left}
+ * />
+ * ```
+ *
+ * @remarks
+ * The NodeHandle component provides connection points for nodes in the graph.
+ * It manages visibility states, connection interactions, and proper positioning.
+ *
+ * Features:
+ * - Dynamic visibility based on connection state
+ * - Smooth transitions for visibility changes
+ * - Proper positioning on node edges
+ * - Connection validation
+ * - Interaction feedback
+ *
+ * @designSystem
+ * Uses the following design tokens:
+ * - colors.handles.default: Normal state color
+ * - colors.handles.hover: Hover state color
+ * - spacing.handles.size: Handle dimensions
+ * - transitions.handles.opacity: Visibility transitions
+ * - zIndex.handles: Stacking context
+ *
+ * @accessibility
+ * - Maintains proper focus states
+ * - Provides visual feedback for interactions
+ * - Supports keyboard navigation
+ * - Includes proper ARIA attributes
+ *
+ * @performance
+ * - Optimized visibility checks
+ * - Efficient state management
+ * - Minimal re-renders
+ */
+
+/**
  * Props for the NodeHandle component.
  * @interface NodeHandleProps
  */
@@ -48,20 +99,20 @@ interface NodeHandleProps {
  *   isVisible={true}
  * />
  */
-export const NodeHandle: React.FC<NodeHandleProps> = ({ 
+const NodeHandle: React.FC<NodeHandleProps> = ({ 
   type, 
   position, 
   isVisible = true, 
   id,
   className 
 }) => {
-  const isConnecting = useStore((state) => state.connectionNodeId != null);
+  const connecting = useStore((state) => state.connectionNodeId != null);
+  
+  const shouldShow = type === 'target' ? connecting : isVisible;
   
   const baseClasses = "!absolute !w-2 !h-2 !bg-node-border hover:!bg-editor-bg-highlight-dark !border-none !rounded-full !cursor-pointer !transition-opacity !duration-200 !z-handles";
   
-  const visibilityClasses = type === 'target'
-    ? isConnecting ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none"
-    : isVisible ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none";
+  const visibilityClasses = shouldShow ? "!opacity-100 !pointer-events-auto" : "!opacity-0 !pointer-events-none";
     
   const positionClasses = position === Position.Left
     ? "!left-0 !top-1/2 !-translate-x-1/2 !-translate-y-1/2"

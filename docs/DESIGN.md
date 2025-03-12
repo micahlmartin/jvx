@@ -176,18 +176,47 @@ interface NodeData {
 
 1. **JsonEditor**
    - Professional code editing experience using Monaco Editor
-   - Features:
+   - Core Features:
      - Line numbers and syntax highlighting
      - Code folding and bracket matching
-     - Auto-formatting
+     - Auto-formatting with preservation of cursor position
      - Multi-cursor editing
      - Search and replace
      - Error diagnostics with inline markers
-   - Real-time validation with error highlighting
-   - JSON schema validation support
-   - Customized dark theme to match application
-   - Performance optimized for large JSON files
-   - Keyboard shortcuts for common operations
+     - Real-time validation with debounced updates (300ms)
+     - Custom VS Code-like dark theme
+     - Panel resizing with size persistence
+     - Empty state handling with placeholder text
+   - State Management:
+     - Document content synchronization
+     - Error state tracking
+     - Theme synchronization
+     - Panel size persistence
+     - Cursor position preservation
+   - Editor Configuration:
+     - Font: JetBrains Mono
+     - Font size: 14px
+     - Line height: 1.5
+     - Letter spacing: 0.5px
+     - Minimap disabled
+     - Custom scrollbar settings
+     - Automatic layout adjustments
+   - Validation Features:
+     - Real-time JSON syntax checking
+     - Error location identification
+     - Inline error markers
+     - Status bar error display
+     - Error message tooltips
+   - Performance Optimizations:
+     - Debounced validation
+     - Efficient state updates
+     - Dynamic loading with SSR support
+     - Memory leak prevention
+   - Integration:
+     - Graph visualization sync
+     - Theme system integration
+     - Tab system integration
+     - Panel resize system
 
 2. **GraphCanvas**
    - Main container for React Flow

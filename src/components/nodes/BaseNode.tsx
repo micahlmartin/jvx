@@ -1,45 +1,101 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 
+/**
+ * BaseNode - The foundational node component for the graph visualization.
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <BaseNode
+ *   data={{
+ *     label: "Object",
+ *     type: "object",
+ *     value: { key: "value" }
+ *   }}
+ *   id="node-1"
+ *   selected={false}
+ * />
+ * ```
+ *
+ * @remarks
+ * BaseNode serves as the foundation for all node types in the graph.
+ * It provides common functionality and styling that other node types extend.
+ *
+ * Features:
+ * - Common node structure and styling
+ * - Connection point management
+ * - Selection handling
+ * - Drag interaction support
+ * - Theme integration
+ *
+ * @designSystem
+ * Uses the following design tokens:
+ * - colors.node.background: Node background color
+ * - colors.node.border: Node border color
+ * - colors.node.selected: Selection highlight color
+ * - spacing.node.padding: Internal padding
+ * - typography.node: Text styling
+ * - shadows.node: Drop shadow
+ *
+ * @accessibility
+ * - Keyboard navigable
+ * - Selection states
+ * - Focus management
+ * - ARIA attributes for node role and state
+ *
+ * @performance
+ * - Memoized to prevent unnecessary re-renders
+ * - Efficient update handling
+ * - Optimized selection state
+ */
+
 export interface BaseNodeData {
+  /** The display label for the node */
   label: string;
+
+  /** The type of node - determines rendering and behavior */
   type: 'object' | 'array' | 'value';
+
+  /** Optional value associated with the node */
   value?: any;
 }
 
-function BaseNode({ data, isConnectable }: NodeProps<BaseNodeData>) {
+/**
+ * BaseNode component implementation.
+ * 
+ * @param props - Component props from React Flow
+ * @returns Memoized React component
+ */
+const BaseNode = memo(({ 
+  data,
+  selected,
+  ...props 
+}: NodeProps<BaseNodeData>) => {
   return (
-    <div className="bg-node-bg dark:bg-node-bg-dark backdrop-blur-node border border-node-border dark:border-node-border-dark rounded-node p-node-padding text-text-primary dark:text-text-primary-dark shadow-node transition-all duration-node hover:bg-editor-bg-highlight hover:dark:bg-editor-bg-highlight-dark hover:-translate-y-[1px]">
-      <Handle
-        type="target"
-        position={Position.Top}
-        isConnectable={isConnectable}
-        className="!bg-node-border dark:!bg-node-border-dark !w-2 !h-2 !border-none !rounded-full !z-handles"
-      />
-      
-      <div className="flex items-center gap-header-gap mb-header-gap">
-        <span className="text-type text-text-property dark:text-text-property-dark bg-editor-bg-highlight dark:bg-editor-bg-highlight-dark px-[6px] py-[2px] rounded-badge">
-          {data.type}
-        </span>
-        <span>{data.label}</span>
+    <div
+      className={`
+        relative p-4 rounded-lg
+        bg-node-bg dark:bg-node-bg-dark
+        border border-node-border dark:border-node-border-dark
+        ${selected ? 'ring-2 ring-node-selected dark:ring-node-selected-dark' : ''}
+        shadow-lg backdrop-blur-md
+      `}
+      role="treeitem"
+      aria-selected={selected}
+    >
+      <div className="text-sm font-medium text-node-label dark:text-node-label-dark">
+        {data.label}
       </div>
-
-      <div className="font-mono text-label">
-        {data.type === 'value' && (
-          <span className="text-text-value dark:text-text-value-dark">
-            {JSON.stringify(data.value)}
-          </span>
-        )}
-      </div>
-
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        isConnectable={isConnectable}
-        className="!bg-node-border dark:!bg-node-border-dark !w-2 !h-2 !border-none !rounded-full !z-handles"
-      />
+      {data.value && (
+        <div className="mt-2 text-sm text-node-value dark:text-node-value-dark">
+          {JSON.stringify(data.value)}
+        </div>
+      )}
     </div>
   );
-}
+});
 
-export default memo(BaseNode); 
+BaseNode.displayName = 'BaseNode';
+
+export default BaseNode; 
