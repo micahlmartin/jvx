@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { sampleOrderData } from '@/data/sampleData';
 import { useTheme } from '@/contexts/ThemeContext';
+import { vsDarkPlus } from '@/themes/vs-dark-plus';
 
 const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Editor), {
   ssr: false,
@@ -13,9 +14,6 @@ const Editor = dynamic(() => import('@monaco-editor/react').then(mod => mod.Edit
     </div>
   ),
 });
-
-// Import theme data
-import githubLight from 'monaco-themes/themes/GitHub Light.json';
 
 export interface JsonEditorProps {
   initialValue?: string;
@@ -46,30 +44,28 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
     setEditor(editor);
     
-    // Define the light theme from monaco-themes
-    monaco.editor.defineTheme('github-light', githubLight);
-    
-    // Apply the theme based on dark/light mode
+    // Define editor options
     editor.updateOptions({
-      theme: theme === 'dark' ? 'vs-dark' : 'github-light',
-      fontSize: 13,
-      lineHeight: 20,
-      fontFamily: "'SF Mono', Monaco, Menlo, Consolas, 'Ubuntu Mono', monospace",
-      renderLineHighlight: 'none',
-      hideCursorInOverviewRuler: true,
-      overviewRulerBorder: false,
-      overviewRulerLanes: 0,
-      guides: {
-        indentation: false
+      fontFamily: 'JetBrains Mono',
+      fontSize: 14,
+      lineHeight: 1.5,
+      letterSpacing: 0.5,
+      minimap: {
+        enabled: false
       },
-      scrollbar: {
-        vertical: 'visible',
-        horizontal: 'visible',
-        verticalScrollbarSize: 12,
-        horizontalScrollbarSize: 12,
-        useShadows: false
-      }
+      scrollBeyondLastLine: false,
+      renderLineHighlight: 'all',
+      cursorBlinking: 'smooth',
+      cursorStyle: 'line',
+      cursorWidth: 2,
+      smoothScrolling: true,
+      fontLigatures: true,
+      theme: theme === 'dark' ? 'vs-dark-plus' : 'light'
     });
+
+    // Set up the editor
+    monaco.editor.defineTheme('vs-dark-plus', vsDarkPlus);
+    monaco.editor.setTheme(theme === 'dark' ? 'vs-dark-plus' : 'light');
     
     const value = initialValue || JSON.stringify(sampleOrderData, null, 2);
     editor.setValue(value);
@@ -90,7 +86,7 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   useEffect(() => {
     if (editor) {
       editor.updateOptions({
-        theme: theme === 'dark' ? 'vs-dark' : 'github-light'
+        theme: theme === 'dark' ? 'vs-dark-plus' : 'light'
       });
     }
   }, [theme, editor]);
@@ -99,16 +95,13 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
   useEffect(() => {
     if (editor && initialValue !== undefined) {
       const currentValue = editor.getValue();
-      // Only update if the values are actually different
       if (currentValue !== initialValue) {
         const position = editor.getPosition();
         editor.setValue(initialValue);
-        // Restore cursor position
         if (position) {
           editor.setPosition(position);
         }
         setIsEmpty(!initialValue || initialValue === '{\n    \n}');
-        // Only validate without modifying the content
         try {
           JSON.parse(initialValue);
           setError(null);
@@ -131,12 +124,12 @@ export const JsonEditor = ({ initialValue, onValidJson }: JsonEditorProps) => {
       <Editor
         height="100%"
         defaultLanguage="json"
-        theme={theme === 'dark' ? 'dracula' : 'github-light'}
+        theme={theme === 'dark' ? 'vs-dark-plus' : 'light'}
         options={{
           minimap: { enabled: false },
           lineNumbers: 'on',
           roundedSelection: false,
-          padding: { top: 16, bottom: 16 },
+          padding: { top: 0, bottom: 0 },
           scrollBeyondLastLine: false,
           folding: true,
           foldingHighlight: true,

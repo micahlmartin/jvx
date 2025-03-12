@@ -171,6 +171,30 @@ module.exports = {
         'header-level2': '#2A4365',
         'header-level3': '#285E61',
         'header-level4': '#702459',
+        
+        // Add new JSON visualization colors
+        json: {
+          container: {
+            purple: 'rgba(83, 49, 95, 0.8)',
+            blue: 'rgba(26, 35, 66, 0.8)',
+            green: 'rgba(34, 66, 37, 0.8)',
+          },
+          syntax: {
+            string: '#CE9178',
+            number: '#B5CEA8',
+            boolean: '#569CD6',
+            null: '#569CD6',
+            property: '#9CDCFE',
+          },
+          border: 'rgba(255, 255, 255, 0.1)',
+        },
+        
+        // Enhanced glass background colors
+        glass: {
+          DEFAULT: 'rgba(30, 30, 30, 0.8)',
+          light: 'rgba(255, 255, 255, 0.1)',
+          dark: 'rgba(0, 0, 0, 0.2)',
+        },
       },
       fontFamily: {
         mono: ['JetBrains Mono', 'monospace'],
@@ -194,10 +218,16 @@ module.exports = {
         'node': '12px',
         'menu': '4px',
       },
+      backdropFilter: {
+        'glass': 'blur(12px)',
+        'glass-sm': 'blur(8px)',
+      },
       boxShadow: {
         'node': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
         'menu': '0 4px 8px rgba(0, 0, 0, 0.1)',
         'menu-dark': '0 4px 8px rgba(0, 0, 0, 0.3)',
+        'glass': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'glass-sm': '0 2px 4px -1px rgba(0, 0, 0, 0.1)',
       },
       transitionDuration: {
         'node': '0.2s',
@@ -217,5 +247,8 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-filters'), // Add plugin for backdrop filters
+    ...require('./src/plugins/glass')(), // Custom glass effect utilities
+  ],
 } 

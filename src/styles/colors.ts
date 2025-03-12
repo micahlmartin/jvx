@@ -54,6 +54,42 @@ export const colors = {
       }
     }
   },
+  toolbar: {
+    bg: {
+      DEFAULT: '#f3f3f3',
+      dark: '#1f1f1f'
+    },
+    hover: {
+      DEFAULT: '#e5e5e5',
+      dark: '#2d2d2d'
+    },
+    active: {
+      DEFAULT: '#ffffff',
+      dark: '#323232'
+    },
+    border: {
+      DEFAULT: '#e7e7e7',
+      dark: '#2d2d2d'
+    },
+    text: {
+      DEFAULT: '#616161',
+      dark: '#ffffff'
+    },
+    highlight: {
+      DEFAULT: '#0098ff',
+      dark: '#007fd4'
+    }
+  },
+  sidebar: {
+    bg: {
+      DEFAULT: '#f8f8f8',
+      dark: '#252526'
+    }
+  },
+  background: {
+    DEFAULT: '#FFFFFF',
+    dark: '#1E1E2E',
+  },
   node: {
     types: {
       root: {

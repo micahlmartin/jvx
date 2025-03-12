@@ -2,7 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Remove CSS variables as they're now handled by Tailwind theme */
+/* System font stack */
+@layer base {
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* JetBrains Mono font face declarations */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/fonts/ttf/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/fonts/ttf/JetBrainsMono-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/fonts/ttf/JetBrainsMono-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Base styles */
 body {
   @apply bg-background dark:bg-background-dark text-text-primary dark:text-text-primary-dark;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+/* Typography utilities */
+.menubar-text {
+  @apply text-[13px] font-medium tracking-normal;
+}
+
+/* Menu layout utilities */
+.menubar {
+  @apply h-[38px] px-4 flex items-center gap-4;
+}
+
+.menubar-item {
+  @apply px-3 h-full flex items-center hover:bg-gray-200/10 transition-colors cursor-default select-none;
 }

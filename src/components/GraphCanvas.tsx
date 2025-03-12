@@ -278,7 +278,7 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
   }), []);
 
   return (
-    <div className="w-full h-full bg-background dark:bg-background-dark">
+    <div className="w-full h-full bg-background dark:bg-background-dark relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -289,14 +289,17 @@ export const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(({ on
         defaultEdgeOptions={defaultEdgeOptions}
         connectionMode={ConnectionMode.Loose}
         className="bg-background dark:bg-background-dark"
-        style={{ '--zoom': zoom } as CSSProperties}
+        style={{ 
+          '--zoom': zoom,
+          background: 'var(--background-dark, #1E1E2E)',
+        } as CSSProperties}
         minZoom={0.1}
         maxZoom={1.5}
         fitView
       >
         <Background
           className="bg-background dark:bg-background-dark"
-          color="rgb(100, 100, 100)"
+          color="rgba(255, 255, 255, 0.05)"
           variant={BackgroundVariant.Dots}
           gap={32}
           size={0.5}
