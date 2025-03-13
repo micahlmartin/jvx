@@ -165,8 +165,6 @@ jobs:
             NEXT_TELEMETRY_DISABLED=1
           pull: true
           no-cache: false
-          build-contexts: |
-            base=docker-image://node:20-alpine
 
       # Run Trivy vulnerability scanner
       - name: Run Trivy vulnerability scanner
