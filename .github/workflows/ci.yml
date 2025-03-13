@@ -55,10 +55,10 @@ jobs:
           load: true
           cache-from: |
             type=gha
-            ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache', env.REGISTRY, env.IMAGE_NAME) || '' }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: |
             type=gha,mode=max
-            ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) || '' }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           platforms: linux/amd64
           build-args: |
             BUILDKIT_INLINE_CACHE=1
@@ -140,11 +140,12 @@ jobs:
 
       # Build and push production image
       - name: Build and push production image
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
           target: runner
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: |
