@@ -96,6 +96,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       # If tests pass, build and push the production image
       - name: Build and push production image
