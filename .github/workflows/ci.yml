@@ -56,13 +56,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+          outputs: type=docker
 
       # Extract all artifacts from test stage
       - name: Extract artifacts
         if: always()
         run: |
           # Create temporary container from test stage
-          CONTAINER_ID=$(docker create $(docker build -q --target test .))
+          CONTAINER_ID=$(docker create $(docker images -q | head -n 1))
 
           # Create artifacts directory
           mkdir -p artifacts
@@ -103,10 +104,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          target: runner
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
