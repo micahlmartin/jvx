@@ -64,8 +64,18 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
           outputs: |
-            type=docker,dest=/tmp/test-image.tar
+            type=oci,dest=/tmp/test-image.tar
             type=registry,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true
+
+      # Build test stage for artifacts
+      - name: Build test stage
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: test
+          load: true
+          platforms: linux/amd64
+          outputs: type=docker,dest=/tmp/test-image.tar
 
       # Load the test image for artifact extraction
       - name: Load test image
