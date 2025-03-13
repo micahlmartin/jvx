@@ -60,16 +60,8 @@ jobs:
             type=gha,mode=max
             ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) || '' }}
           platforms: linux/amd64
-          outputs: type=docker,dest=/tmp/test-image.tar
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-
-      # Load the test image for artifact extraction
-      - name: Load test image
-        run: |
-          docker load < /tmp/test-image.tar
-          echo "Loaded images:"
-          docker images
 
       # Debug test image
       - name: Debug test image
