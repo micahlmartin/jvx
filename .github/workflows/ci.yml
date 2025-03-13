@@ -133,6 +133,32 @@ jobs:
           build-args: |
             BUILDKIT_INLINE_CACHE=1
 
+      # Extract build artifacts from builder stage
+      - name: Extract build artifacts
+        run: |
+          # Load the builder image
+          docker load < /tmp/builder-image.tar
+
+          # Get the image ID
+          IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
+
+          # Create temporary container
+          CONTAINER_ID=$(docker create $IMAGE_ID)
+
+          # Create build artifacts directory
+          mkdir -p build-artifacts
+
+          # Copy build artifacts
+          docker cp $CONTAINER_ID:/app/.next ./build-artifacts/
+          docker cp $CONTAINER_ID:/app/public ./build-artifacts/
+          docker cp $CONTAINER_ID:/app/next.config.js ./build-artifacts/
+
+          # Cleanup
+          docker rm $CONTAINER_ID
+
+          echo "Extracted build artifacts:"
+          ls -R ./build-artifacts
+
       # Build and push final production image
       - name: Build and push final production image
         uses: docker/build-push-action@v5
@@ -145,13 +171,15 @@ jobs:
           cache-from: |
             type=gha
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-            type=local,src=/tmp/builder-image.tar
           cache-to: |
             type=gha,mode=max
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           platforms: linux/amd64,linux/arm64
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            NEXT_BUILD_DIR=./build-artifacts/.next
+            PUBLIC_DIR=./build-artifacts/public
+            NEXT_CONFIG=./build-artifacts/next.config.js
 
       # Run Trivy vulnerability scanner
       - name: Run Trivy vulnerability scanner
