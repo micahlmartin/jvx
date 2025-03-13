@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-# ---- Base Stage ----
-FROM node:20-alpine AS base
+# ---- Test Stage ----
+FROM node:20-alpine AS test
 WORKDIR /app
 
 # Install dependencies needed for native modules
@@ -10,10 +10,6 @@ RUN apk add --no-cache libc6-compat curl
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json ./
 RUN npm ci
-
-# ---- Test Stage ----
-FROM base AS test
-WORKDIR /app
 
 # Copy source
 COPY . .
