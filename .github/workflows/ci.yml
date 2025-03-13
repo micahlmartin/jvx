@@ -53,10 +53,16 @@ jobs:
           context: .
           target: test
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           platforms: linux/amd64
           outputs: type=docker,dest=/tmp/test-image.tar
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
       # Load the test image for artifact extraction
       - name: Load test image
