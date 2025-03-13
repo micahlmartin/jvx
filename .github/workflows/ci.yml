@@ -115,26 +115,8 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # Build production image
-      - name: Build production image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          target: builder
-          load: true
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-          platforms: linux/amd64
-          outputs: type=docker,dest=/tmp/builder-image.tar
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-
-      # Build and push final production image
-      - name: Build and push final production image
+      # Build and push production image
+      - name: Build and push production image
         uses: docker/build-push-action@v5
         with:
           context: .
