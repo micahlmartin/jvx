@@ -72,11 +72,11 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV PORT 3000
 
-# Copy build artifacts from build context
-COPY --chown=nextjs:nodejs ${NEXT_CONFIG} ./next.config.js
-COPY --chown=nextjs:nodejs ${PUBLIC_DIR} ./public
-COPY --chown=nextjs:nodejs ${NEXT_BUILD_DIR}/standalone ./
-COPY --chown=nextjs:nodejs ${NEXT_BUILD_DIR}/static ./.next/static
+# Copy only necessary files from builder
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Switch to non-root user
 USER nextjs
