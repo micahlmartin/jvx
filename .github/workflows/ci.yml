@@ -75,16 +75,23 @@ jobs:
           CONTAINER_ID=$(docker create $IMAGE_ID)
           echo "Created container: $CONTAINER_ID"
 
+          # Start the container
+          docker start $CONTAINER_ID
+
+          # Wait for container to be ready
+          sleep 2
+
           # List contents of /app directory
           echo "Contents of /app:"
-          docker exec $CONTAINER_ID ls -la /app
+          docker exec $CONTAINER_ID ls -la /app || echo "Failed to list /app contents"
 
           # List contents of /app/artifacts if it exists
           echo "Contents of /app/artifacts:"
           docker exec $CONTAINER_ID ls -la /app/artifacts || echo "No artifacts directory found"
 
           # Cleanup container
-          docker rm $CONTAINER_ID
+          docker stop $CONTAINER_ID || true
+          docker rm $CONTAINER_ID || true
 
       # Extract all artifacts from test stage
       - name: Extract artifacts
