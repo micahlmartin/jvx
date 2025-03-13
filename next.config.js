@@ -3,6 +3,12 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
+  compiler: {
+    styledComponents: {
+      ssr: true,
+      displayName: true,
+    },
+  },
   // Disable image optimization in production as we'll use a CDN
   images: {
     unoptimized: process.env.NODE_ENV === 'production',
