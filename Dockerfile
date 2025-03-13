@@ -29,16 +29,14 @@ RUN npx tsc --noEmit > /app/artifacts/typescript-check.txt 2>&1 || \
     (echo "Type checking failed" && cat /app/artifacts/typescript-check.txt && exit 1)
 
 # Run tests with coverage and output in multiple formats
-RUN npm run test --coverage \
-    --coverageDirectory=/app/artifacts/coverage \
-    --coverageReporters=text \
-    --coverageReporters=html \
-    --coverageReporters=lcov \
-    --coverageReporters=cobertura \
-    --testResultsProcessor=jest-junit
+RUN npm run test \
+    --coverage \
+    --outputFile=/app/artifacts/junit.xml \
+    --reporter=junit,default
 
-# Move test results to artifacts directory
-RUN mv junit.xml /app/artifacts/
+# Move coverage reports to artifacts directory
+RUN mkdir -p /app/artifacts/coverage && \
+    cp -r coverage/* /app/artifacts/coverage/
 
 # Generate bundle analysis if available
 RUN npm run build:analyze > /app/artifacts/bundle-analysis.txt 2>&1 || true
