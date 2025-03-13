@@ -10,6 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
 
 jobs:
   build-test-publish:
@@ -62,6 +63,8 @@ jobs:
           platforms: linux/amd64
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            NODE_ENV=test
+            NEXT_TELEMETRY_DISABLED=1
 
       # Debug test image
       - name: Debug test image
@@ -140,12 +143,11 @@ jobs:
 
       # Build and push production image
       - name: Build and push production image
-        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v5
         with:
           context: .
           target: runner
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: |
@@ -157,6 +159,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            NODE_ENV=production
+            NEXT_TELEMETRY_DISABLED=1
 
       # Run Trivy vulnerability scanner
       - name: Run Trivy vulnerability scanner

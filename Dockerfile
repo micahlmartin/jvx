@@ -21,6 +21,10 @@ COPY . .
 # Create artifacts directory
 RUN mkdir -p /app/artifacts
 
+# Set environment variables for testing
+ENV NODE_ENV=test
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Run tests and checks
 RUN npm run lint > /app/artifacts/lint-results.txt 2>&1 || \
     (echo "Linting failed" && cat /app/artifacts/lint-results.txt && exit 1)
@@ -49,7 +53,7 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
-# Build the application
+# Build the application with optimizations
 RUN npm run build
 
 # Copy build stats to artifacts if they exist
