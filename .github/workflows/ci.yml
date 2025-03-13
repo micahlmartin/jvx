@@ -55,10 +55,10 @@ jobs:
           load: true
           cache-from: |
             type=gha
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+            ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache', env.REGISTRY, env.IMAGE_NAME) || '' }}
           cache-to: |
             type=gha,mode=max
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+            ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/{1}:buildcache,mode=max', env.REGISTRY, env.IMAGE_NAME) || '' }}
           platforms: linux/amd64
           outputs: type=docker,dest=/tmp/test-image.tar
           build-args: |
@@ -70,6 +70,29 @@ jobs:
           docker load < /tmp/test-image.tar
           echo "Loaded images:"
           docker images
+
+      # Debug test image
+      - name: Debug test image
+        if: always()
+        run: |
+          # Get the image ID of our test stage
+          IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
+          echo "Test image ID: $IMAGE_ID"
+
+          # Create temporary container from test stage
+          CONTAINER_ID=$(docker create $IMAGE_ID)
+          echo "Created container: $CONTAINER_ID"
+
+          # List contents of /app directory
+          echo "Contents of /app:"
+          docker exec $CONTAINER_ID ls -la /app
+
+          # List contents of /app/artifacts if it exists
+          echo "Contents of /app/artifacts:"
+          docker exec $CONTAINER_ID ls -la /app/artifacts || echo "No artifacts directory found"
+
+          # Cleanup container
+          docker rm $CONTAINER_ID
 
       # Extract all artifacts from test stage
       - name: Extract artifacts
@@ -85,14 +108,14 @@ jobs:
           mkdir -p artifacts
 
           # Copy all artifacts from container
-          docker cp $CONTAINER_ID:/app/artifacts/. ./artifacts/
+          docker cp $CONTAINER_ID:/app/artifacts/. ./artifacts/ || true
 
           # Cleanup container
           docker rm $CONTAINER_ID
 
           # List extracted artifacts
           echo "Extracted artifacts:"
-          ls -R ./artifacts
+          ls -R ./artifacts || echo "No artifacts found"
 
       # Upload all artifacts
       - name: Upload artifacts
@@ -103,6 +126,7 @@ jobs:
           path: |
             artifacts/**/*
           retention-days: 30
+          if-no-files-found: warn
 
       # Process code coverage
       - name: Process code coverage
