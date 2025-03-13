@@ -20,7 +20,9 @@
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-typescript-tsc",
         "GitHub.copilot",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github"
       ],
       "settings": {
         "editor.formatOnSave": true,
