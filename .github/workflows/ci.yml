@@ -46,8 +46,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=long
 
-      # Build and test stage
-      - name: Build and test
+      # Build through test stage and cache
+      - name: Build through test stage
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -56,14 +56,24 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-          outputs: type=docker
+          outputs: type=docker,dest=/tmp/test-image.tar
+
+      # Load the test image for artifact extraction
+      - name: Load test image
+        run: |
+          docker load < /tmp/test-image.tar
+          echo "Loaded images:"
+          docker images
 
       # Extract all artifacts from test stage
       - name: Extract artifacts
         if: always()
         run: |
+          # Get the image ID of our test stage
+          IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
+
           # Create temporary container from test stage
-          CONTAINER_ID=$(docker create $(docker images -q | head -n 1))
+          CONTAINER_ID=$(docker create $IMAGE_ID)
 
           # Create artifacts directory
           mkdir -p artifacts
@@ -99,7 +109,7 @@ jobs:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # If tests pass, build and push the production image
+      # Build final production image using cached layers
       - name: Build and push production image
         uses: docker/build-push-action@v5
         with:
@@ -111,8 +121,12 @@ jobs:
           cache-from: |
             type=gha
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=gha,mode=max
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
