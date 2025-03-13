@@ -33,6 +33,4 @@ docker-compose*.yml
 # Misc
 .DS_Store
 *.pem
-.eslintrc*
-.prettierrc*
 .editorconfig 
