@@ -46,34 +46,15 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,format=long
 
-      # Build all stages with proper caching
-      - name: Build all stages
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-          outputs: |
-            type=oci,dest=/tmp/test-image.tar
-            type=registry,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true
-
-      # Build test stage for artifacts
-      - name: Build test stage
+      # Build and test stage
+      - name: Build and test
         uses: docker/build-push-action@v5
         with:
           context: .
           target: test
           load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           platforms: linux/amd64
           outputs: type=docker,dest=/tmp/test-image.tar
 
@@ -127,6 +108,25 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      # Build and push production image
+      - name: Build and push production image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: runner
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: |
+            type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
       # Run Trivy vulnerability scanner
       - name: Run Trivy vulnerability scanner
