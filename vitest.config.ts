@@ -10,8 +10,9 @@ export default defineConfig({
       junit: './junit.xml',
     },
     coverage: {
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
       reportsDirectory: './coverage',
+      provider: 'v8',
     },
     globals: true,
     setupFiles: './src/test/setup.ts',
