@@ -1,28 +1,18 @@
-name: CI/CD
+name: CI
 
 on:
   push:
-    branches: ['**']
-    tags: ['v*.*.*']
+    branches: [main]
   pull_request:
     branches: [main]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKER_BUILDKIT: 1
 
 jobs:
-  build-test-publish:
+  test:
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
-    permissions:
-      contents: read
-      packages: write
-      security-events: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,153 +20,137 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log into registry ${{ env.REGISTRY }}
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Build and test
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: test
+          outputs: type=local,dest=/tmp/test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: /tmp/test/app/artifacts/
+          retention-days: 7
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: /tmp/test/app/artifacts/coverage/
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: /tmp/test/app/artifacts/junit.xml
+          retention-days: 7
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: /tmp/test/app/artifacts/lint-results.txt
+          retention-days: 7
+
+      - name: Upload type check results
+        uses: actions/upload-artifact@v4
+        with:
+          name: type-check-results
+          path: /tmp/test/app/artifacts/typescript-check.txt
+          retention-days: 7
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: /tmp/test/app/artifacts/bundle-analysis.txt
+          retention-days: 7
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,format=long
-
-      # Build and test stage
-      - name: Build and test
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          target: test
-          load: true
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-            NODE_ENV=test
-            NEXT_TELEMETRY_DISABLED=1
 
-      # Debug test image
-      - name: Debug test image
-        if: always()
-        run: |
-          # Get the image ID of our test stage
-          IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
-          echo "Test image ID: $IMAGE_ID"
-
-          # Create temporary container from test stage
-          CONTAINER_ID=$(docker create $IMAGE_ID)
-          echo "Created container: $CONTAINER_ID"
-
-          # Start the container
-          docker start $CONTAINER_ID
-
-          # Wait for container to be ready
-          sleep 2
-
-          # List contents of /app directory
-          echo "Contents of /app:"
-          docker exec $CONTAINER_ID ls -la /app || echo "Failed to list /app contents"
-
-          # List contents of /app/artifacts if it exists
-          echo "Contents of /app/artifacts:"
-          docker exec $CONTAINER_ID ls -la /app/artifacts || echo "No artifacts directory found"
-
-          # Cleanup container
-          docker stop $CONTAINER_ID || true
-          docker rm $CONTAINER_ID || true
-
-      # Extract all artifacts from test stage
-      - name: Extract artifacts
-        if: always()
-        run: |
-          # Get the image ID of our test stage
-          IMAGE_ID=$(docker images --format "{{.ID}}" | head -n 1)
-
-          # Create temporary container from test stage
-          CONTAINER_ID=$(docker create $IMAGE_ID)
-
-          # Create artifacts directory
-          mkdir -p artifacts
-
-          # Copy all artifacts from container
-          docker cp $CONTAINER_ID:/app/artifacts/. ./artifacts/ || true
-
-          # Cleanup container
-          docker rm $CONTAINER_ID
-
-          # List extracted artifacts
-          echo "Extracted artifacts:"
-          ls -R ./artifacts || echo "No artifacts found"
-
-      # Upload all artifacts
-      - name: Upload artifacts
-        if: always()
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
-            artifacts/**/*
-          retention-days: 30
-          if-no-files-found: warn
+            .next/
+            public/
+          retention-days: 7
 
-      # Process code coverage
-      - name: Process code coverage
-        if: success()
-        uses: codecov/codecov-action@v4
-        with:
-          directory: ./artifacts/coverage
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+  security:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Build and push production image
-      - name: Build and push production image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          target: runner
-          push: ${{ github.ref == 'refs/heads/main' || github.event_name == 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            BUILDKIT_INLINE_CACHE=1
-            NODE_ENV=production
-            NEXT_TELEMETRY_DISABLED=1
-          pull: true
-          no-cache: false
-
-      # Run Trivy vulnerability scanner
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v3
-        if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: 'trivy-results.sarif'
+          name: security-scan-results
+          path: trivy-results.txt
+          retention-days: 7
+
+  deploy:
+    needs: [build, security]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: echo "Deploy to production would happen here"
+        # Add your deployment steps here
