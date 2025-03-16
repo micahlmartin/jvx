@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
 
 jobs:
   test:
@@ -26,6 +27,7 @@ jobs:
           path: |
             ~/.npm
             ~/.cache/Cypress
+            node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
@@ -36,10 +38,13 @@ jobs:
           context: .
           target: test
           outputs: type=local,dest=/tmp/test
-          cache-from: type=gha
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            NODE_ENV=test
 
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
@@ -108,10 +113,14 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-from: |
+            type=gha
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            NODE_ENV=production
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -138,6 +147,8 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+          output: trivy-results.txt
+          template: '@contrib/gitlab-mr'
 
       - name: Upload security scan results
         uses: actions/upload-artifact@v4
@@ -145,6 +156,12 @@ jobs:
           name: security-scan-results
           path: trivy-results.txt
           retention-days: 7
+
+      - name: Display security scan results
+        run: |
+          echo "Security Scan Results:"
+          cat trivy-results.txt
+          echo "If you see any CRITICAL or HIGH severity vulnerabilities above, please address them before proceeding."
 
   deploy:
     needs: [build, security]
